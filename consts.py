@@ -1,0 +1,38 @@
+# To change this license header, choose License Headers in Project Properties.
+# To change this template file, choose Tools | Templates
+# and open the template in the editor.
+
+__author__="Ecialo"
+__date__ ="$24.08.2013 12:54:13$"
+import pyglet
+from pyglet.window import key
+from pyglet.window import mouse
+consts = {'window': {'width': 800,
+                     'height': 600,
+                     'vsync': True,
+                     'resizable': True,
+                     'do_not_scale': True},
+          'bindings': {'left': key.A,
+                       'right': key.D,
+                       'down': key.S,
+                       'up': key.W,
+                       'jump': key.SPACE,
+                       'weapon_key_one': mouse.LEFT},
+          'color': {'white': (255, 255, 255, 255)},
+          'img': {'human': pyglet.resource.image('chelovek.jpg')},
+          'params': {'human': {'speed': 200,
+                               'jump_speed': 1000},
+                     'primitive': {'range_of_vision': 400,
+                                   'mastery': 0.05,
+                                   'closest': 40}},
+          'group': {'hero': 0,
+                    'opponent': 1},
+          'parry_cos_disp': 0.5,
+          'effective_dst': 2.0/3.0,
+          'test_slash_time': 0.8,
+          'gravity': 1500,
+          'slash_fight_group': 100
+         }
+
+if __name__ == "__main__":
+    print "Hello World"
