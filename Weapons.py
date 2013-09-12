@@ -89,7 +89,7 @@ class Slash(cocos.draw.Line):
     def finish_hit(self):
         self.master.finish_hit()
         
-    def move(self, vec):
+    def _move(self, vec):
         self.start += vec
         self.end += vec
         if self.master.attack_perform:

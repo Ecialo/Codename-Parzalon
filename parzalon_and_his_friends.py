@@ -110,13 +110,13 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         self.position += vec
         self.cshape.center += vec
         if self.actual_hit is not None:
-            self.actual_hit.move(vec)
+            self.actual_hit._move(vec)
     
     def jump(self):
         self.v_speed = consts['params']['human']['jump_speed']
         self.on_ground = False
         
-    def _move_to(self, x, y):
+    def move_to(self, x, y):
         #Move Actor and all attached obj to x, y
         old = self.cshape.center.copy()
         vec = eu.Vector2(int(x), int(y))
@@ -124,7 +124,7 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         #print vec, self.cshape
         self.cshape.center = vec
         if self.actual_hit is not None:
-            self.actual_hit.move(vec - old)
+            self.actual_hit._move(vec - old)
     
     def stand_off(self, other):
         #print 111
@@ -218,12 +218,12 @@ class Some_Kind_Of_Area(layer.ScrollableLayer):
                 r = self.hero.get_rect()
                 r.midbottom = sc.midbottom
                 dx, dy = r.center
-                self.hero._move_to(dx, dy) 
+                self.hero.move_to(dx, dy)
             elif sc.properties.has_key('opponent'):
                 r = self.opponent.get_rect()
                 r.midbottom = sc.midbottom
                 dx, dy = r.center
-                self.opponent._move_to(dx, dy)
+                self.opponent.move_to(dx, dy)
         
         #Set up brains
         self.opponent.do(br.Primitive_AI())
