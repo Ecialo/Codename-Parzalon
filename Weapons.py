@@ -98,14 +98,14 @@ class Slash(cocos.draw.Line):
     
     def parry(self, other):
         p = self.trace.intersect(other.trace)
-        if p is not None and self.cross_angle(other) <= consts['parry_cos_disp']:
+        if p is not None and self._cross_angle(other) <= consts['parry_cos_disp']:
             #print eff.Sparkles.add_to_surface
             #print p
             eff.Sparkles().add_to_surface(p)
             other.finish_hit()
             self.finish_hit()
     
-    def cross_angle(self, other):
+    def _cross_angle(self, other):
         #Cos of angle between two hit lines
         v1 = self.trace.v
         v2 = other.trace.v

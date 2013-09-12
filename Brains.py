@@ -64,7 +64,7 @@ class Controller(Brain):
         
         if self.mouse[mouse.LEFT] and self.master.actual_hit is None:
             self.master.start_attack(self.mouse['pos'])
-        elif self.mouse[mouse.LEFT] and self.master.actual_hit is not None:
+        elif self.mouse[mouse.LEFT] and self.master.actual_hit is not None and not self.master.attack_perform:
             self.master.aim(self.mouse['pos'])
         elif not self.mouse[mouse.LEFT] and self.master.actual_hit is not None\
              and not self.master.attack_perform:
@@ -144,9 +144,8 @@ class Primitive_AI(Brain):
                     self.master.jump()
                 #Parry if any danger
                 for hit_wd in self.visible_hits_wd:
-                    if self.master.cshape.overlaps(hit_wd[0].cshape):
-                        if hit_wd[0].fight_group % consts['slash_fight_group'] != self.master.fight_group and\
-                                        rnd.random() < self.mastery:
+                    if self.is_in_touch(hit_wd[0]):
+                        if self.is_enemy(hit_wd[0]) and rnd.random() < self.mastery:
                             #print "!!!"
                             self.parry(hit_wd[0])
             #Close enough for attack. Dance across
@@ -165,12 +164,11 @@ class Primitive_AI(Brain):
                         self.mt = 0.5
                         self.master.walk(-dir, dt)
                     else:
-                        self.master.walk(0, dt)
+                        self.master.stay(dt)
                 #Parry if any danger
                 for hit_wd in self.visible_hits_wd:
-                    if self.master.cshape.overlaps(hit_wd[0].cshape):
-                        if hit_wd[0].fight_group%consts['slash_fight_group'] != self.master.fight_group and\
-                                        rnd.random() < self.mastery:
+                    if self.is_in_touch(hit_wd[0]):
+                        if self.is_enemy(hit_wd[0]) and rnd.random() < self.mastery:
                             #print "!!!"
                             self.parry(hit_wd[0])
                             break
@@ -180,7 +178,7 @@ class Primitive_AI(Brain):
                         #print "123"
                         self.random_attack(opp)
         else:
-            self.master.walk(0, dt)
+            self.master.stay(dt)
 
     def clear_vision(self):
         self.visible_actors_wd = []
@@ -194,6 +192,15 @@ class Primitive_AI(Brain):
         else:
             return -nv
 
+    def is_enemy(self, other):
+        if other.fight_group < 100:
+            return self.master.fight_group == other.fight_group
+        else:
+            return self.master.fight_group == other.fight_group % consts['slash_fight_group']
+
+    def is_in_touch(self, other):
+        return self.master.cshape.overlaps(other.cshape)
+
     def parry(self, hit):
         if self.recovery > 0.0 or self.master.actual_hit is not None:
             return
@@ -204,9 +211,7 @@ class Primitive_AI(Brain):
         v = self.cross_hit_trace(hit)
         x = self.master.position[0] + self.master.width*dire
         start = eu.Vector2(x, h)
-        self.master.start_attack(start)
-        self.master.aim(start + v)
-        self.master.perform()
+        self.master.attack(start, start + v)
         self.recovery = 0.05
 
     def random_attack(self, other):
@@ -221,9 +226,7 @@ class Primitive_AI(Brain):
         targ_y = other.position[1] + rnd.randint(-other.height/2, -other.height/2)
         start = eu.Vector2(x, h)
         end = (targ_x, targ_y)
-        self.master.start_attack(start)
-        self.master.aim(end)
-        self.master.perform()
+        self.master.attack(start, end)
         self.recovery = 0.05
 
 if __name__ == "__main__":

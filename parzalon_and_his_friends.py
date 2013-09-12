@@ -81,13 +81,22 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         #dy = self.key[self.bind['up']] - self.key[self.bind['down']]
 
         dx = hor_dir * self.body.speed * dt
-        dy = self.v_speed * dt if self.v_speed != 0 else 0
         #self.target.on_ground = bool(new.y == last.y)
         #print self.target.on_ground
         #print dx, dy
-        self._move(dx, dy, dt)
+        self._move(dx, 0, dt)
+
+    def stay(self, dt):
+        self._move(0, 0, dt)
+
+    def attack(self, stp, enp):
+        self.start_attack(stp)
+        self.aim(enp)
+        self.perform()
         
-    def _move(self, dx, dy, dt):
+    def _move(self, dx, ndy, dt):
+        dy = self.v_speed * dt if self.v_speed != 0 else 0
+        dy += + ndy
         self.on_ground = False
         self.wall = 0b0000
         #print vec, self.cshape
@@ -160,7 +169,6 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
     
     def from_global_to_self(self, pos):
         return pos - self.position
-
 
 
 class Some_Kind_Of_Area(layer.ScrollableLayer):
