@@ -77,34 +77,37 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         
     def walk(self, hor_dir, dt):
         #gr = False
-        self.on_ground = False
-        self.wall = 0b0000
         #print self.on_ground
         #dy = self.key[self.bind['up']] - self.key[self.bind['down']]
 
         dx = hor_dir * self.body.speed * dt
         dy = self.v_speed * dt if self.v_speed != 0 else 0
+        #self.target.on_ground = bool(new.y == last.y)
+        #print self.target.on_ground
+        #print dx, dy
+        self._move(dx, dy, dt)
         
+    def _move(self, dx, dy, dt):
+        self.on_ground = False
+        self.wall = 0b0000
+        #print vec, self.cshape
+        orig = self.get_rect()
         last = self.get_rect()
         new = last.copy()
         new.x += dx
-        self.collide_map(self.tilemap, last, new, dx, dy)
+        self.collide_map(self.tilemap, last, new, dx, 0)
         last = new.copy()
         new.y += dy
-        self.collide_map(self.tilemap, last, new, dx, dy)
+        self.collide_map(self.tilemap, last, new, 0, dy)
+        ndx, ndy = new.x - orig.x, new.y - orig.y
         if not self.on_ground:
             self.v_speed -= consts['gravity'] * dt
         else:
             #gr = True
             self.v_speed = 0
-        #self.target.on_ground = bool(new.y == last.y)
-        #print self.target.on_ground
-        self._move_to(*new.center)
-        
-    def move(self, dx, dy):
-        vec = eu.Vector2(int(dx), int(dy))
+        vec = eu.Vector2(int(ndx), int(ndy))
+        #print vec
         self.position += vec
-        #print vec, self.cshape
         self.cshape.center += vec
         if self.actual_hit is not None:
             self.actual_hit.move(vec)
@@ -131,9 +134,9 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         l = self.width/2 + other.width/2
         dd = l - abs(d.x)
         if(d.x > 0):
-            self.move(-dd, 0.0)
+            self._move(-dd, 0.0)
         else:
-            self.move(dd, 0.0)
+            self._move(dd, 0.0)
         
         
     def start_attack(self, endp):
