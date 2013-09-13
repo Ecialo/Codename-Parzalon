@@ -135,7 +135,8 @@ class Weapon(pyglet.event.EventDispatcher):
         else:
             stp = eu.Vector2(*endp)
         stp = self.master.from_global_to_self(stp)
-        stp.x = stp.x/abs(stp.x) * self.master.width/2
+        stp.x = stp.x/abs(stp.x) if stp.x != 0 else 0
+        stp.x *= self.master.width/2
         stp.y = interval_proection(stp.y, (-self.master.height/2,
                                            self.master.height/2))
         stp = self.master.from_self_to_global(stp)

@@ -79,7 +79,10 @@ def _intersect_linesegment2_rectangle(L, R): #Pavgran: implemented
         elif p3.y > R.p.y + R.v.y:
             p3.x += (p1.x - p2.x) * (R.p.y + R.v.y - p3.y) / (p1.y - p2.y)
             p3.y = R.p.y + R.v.y
-        return LineSegment2(p3, res[0])
+        if p3 == res[0]:
+            return p3
+        else:
+            return LineSegment2(p3, res[0])
 
 def _intersect_circle_rectangle(C, R):
     pass

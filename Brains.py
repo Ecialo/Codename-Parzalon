@@ -17,8 +17,6 @@ import consts as con
 
 consts = con.consts
 
-LEFT, UP, RIGHT, DOWN = 0b1000, 0b0100, 0b0010, 0b0001 #This bad
-
 class Brain(ac.Action):
     
     master = property(lambda self: self.target)
@@ -140,7 +138,7 @@ class Primitive_AI(Brain):
                 self.prev_move = 0
                 self.master.walk(dir, dt)
                 #Brick on way. Must jump over
-                if self.master.wall & (LEFT | RIGHT):
+                if self.master.wall & (con.LEFT | con.RIGHT):
                     self.master.jump()
                 #Parry if any danger
                 for hit_wd in self.visible_hits_wd:

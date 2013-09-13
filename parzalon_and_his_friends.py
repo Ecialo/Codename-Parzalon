@@ -28,19 +28,19 @@ consts = con.consts
 class Level_Collider(tiles.RectMapCollider):
     
     def collide_bottom(self, dy):
-        self.wall |= 0b0001
+        self.wall |= con.DOWN
         self.on_ground = True
     
     def collide_top(self, dy):
-        self.wall |= 0b0100
+        self.wall |= con.UP
         self.v_speed = 0
     
     def collide_left(self, dx):
-        self.wall |= 0b1000
+        self.wall |= con.LEFT
         #pass
     
     def collide_right(self, dy):
-        self.wall |= 0b0010
+        self.wall |= con.RIGHT
         #pass
         #pass
 
@@ -98,7 +98,7 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         dy = self.v_speed * dt if self.v_speed != 0 else 0
         dy += + ndy
         self.on_ground = False
-        self.wall = 0b0000
+        self.wall = con.NO_TR
         #print vec, self.cshape
         orig = self.get_rect()
         last = self.get_rect()
@@ -143,9 +143,9 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         l = self.width/2 + other.width/2
         dd = l - abs(d.x)
         if(d.x > 0):
-            self._move(-dd, 0.0)
+            self._move(-dd, 0, 0)
         else:
-            self._move(dd, 0.0)
+            self._move(dd, 0, 0)
         
         
     def start_attack(self, endp):
@@ -171,12 +171,12 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         return pos - self.position
 
 
-class Some_Kind_Of_Area(layer.ScrollableLayer):
+class Level_Layer(layer.ScrollableLayer):
     
     is_event_handler = True
     
     def __init__(self, scripts, force_ground, scroller):
-        super(Some_Kind_Of_Area, self).__init__()
+        super(Level_Layer, self).__init__()
         
         #Controller
         self.loc_mouse_handler = {'pos': (0, 0),
@@ -329,7 +329,7 @@ def create_level(filename):
     scripts = data['Scripts']
     
     scroller = layer.ScrollingManager()
-    player_layer = Some_Kind_Of_Area(scripts, force, scroller)
+    player_layer = Level_Layer(scripts, force, scroller)
     
     scroller.add(back, z = -1)
     scroller.add(force, z = 0)
