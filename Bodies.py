@@ -8,11 +8,14 @@ from cocos import euclid as eu
 import geometry as gm
 import consts as con
 import effects as eff
+import box
 
 consts = con.consts
 
+
 def death(body_part):
     body_part.master.destroy()
+
 
 class Body_Part():
     
@@ -29,7 +32,7 @@ class Body_Part():
         
         # Center relatively body
         p = gm.Point2(center.x - h_width, center.y - h_height)
-        v = eu.Vector2(h_width * 2, h_width * 2)
+        v = eu.Vector2(h_width * 2, h_height * 2)
         self.shape = gm.Rectangle(p, v)
         self.stab_priority = stab_priority
         self.chop_priority = chop_priority
@@ -51,7 +54,21 @@ class Chest(Body_Part):
     
     def __init__(self, master):
         #super(Chest, self).__init__(master, eu.Vector2(0.0, 0.0), 45.0, 111.0, 1, 1)
-        Body_Part.__init__(self,master, eu.Vector2(0.0, 0.0), 45.0, 111.0, 1, 1)
+        Body_Part.__init__(self, master, eu.Vector2(0, 0), 40, 25, 1, 1)
+
+
+class Head(Body_Part):
+    def __init__(self, master):
+        #super(Chest, self).__init__(master, eu.Vector2(0.0, 0.0), 45.0, 111.0, 1, 1)
+        Body_Part.__init__(self, master, eu.Vector2(0, 57), 15, 20, 2, 2)
+
+
+
+class Legs(Body_Part):
+    def __init__(self, master):
+        #super(Chest, self).__init__(master, eu.Vector2(0.0, 0.0), 45.0, 111.0, 1, 1)
+        Body_Part.__init__(self,master, eu.Vector2(0, -77), 33, 25, 1, 1)
+
 
 class Body():
     
@@ -67,7 +84,7 @@ class Body():
         self.master.destroy()
     
     def take_hit(self, hit):
-        #Overlaps cshapes is not garantie of successful attack
+        #Overlaps cshapes is not guarantee of successful attack
         #Need to compare shapes and traces
         x, y = hit.end.x, hit.end.y
         if not self.master.touches_point(x, y):
@@ -83,6 +100,10 @@ class Body():
                 part.take_hit(hit)
                 return #True
         #return False
+
+    def show_hitboxes(self):
+        for bp in self.body_parts:
+            self.master.add(box.Box(bp.shape, (255, 0, 0, 255)))
     
     
 
@@ -93,5 +114,5 @@ class Human(Body):
     
     def __init__(self, master):
         #super(Human, self).__init__(master, [Chest(self)])
-        Body.__init__(self, master, [Chest(self)])
+        Body.__init__(self, master, [Chest(self), Head(self), Legs(self)])
 

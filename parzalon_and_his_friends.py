@@ -18,9 +18,9 @@ from cocos import layer
 
 #import geometry as gm
 import consts as con
-import Brains as br
-import Weapons as wp
-import Bodies as bd
+import brains as br
+import weapons as wp
+import bodies as bd
 import effects as eff
 
 consts = con.consts
@@ -62,7 +62,9 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         
         self.on_ground = False
         self.v_speed = 0
-        self.wall = 0b0000 #OMG! This is a BITMASK!!!
+        self.wall = con.NO_TR
+
+        self.recovery = 0.0
     
     actual_hit = property(lambda self: self.weapon.actual_hit)
     height = property(lambda self: self.body.img.height)
@@ -162,6 +164,9 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
     
     def touches_point(self, x, y):
         return self.cshape.touches_point(x, y)
+
+    def show_hitboxes(self):
+        self.body.show_hitboxes()
         
     def from_self_to_global(self, pos):
         #print type(pos)(pos + self.position)
@@ -237,6 +242,9 @@ class Level_Layer(layer.ScrollableLayer):
         self.opponent.do(br.Primitive_AI())
         #self.opponent.do(br.Dummy())
         self.hero.do(br.Controller())
+
+        self.hero.show_hitboxes()
+        self.opponent.show_hitboxes()
         
         #Run
         self.schedule(self.update)
