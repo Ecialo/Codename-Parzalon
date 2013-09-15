@@ -37,12 +37,10 @@ class Level_Collider(tiles.RectMapCollider):
     
     def collide_left(self, dx):
         self.wall |= con.LEFT
-        #pass
     
     def collide_right(self, dy):
         self.wall |= con.RIGHT
-        #pass
-        #pass
+
 
 class Actor(cocos.sprite.Sprite, Level_Collider):
     
@@ -64,7 +62,7 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         self.v_speed = 0
         self.wall = con.NO_TR
 
-        self.recovery = 0.0
+        self.recovery = 0.0  # Time before moment when acton can be controlled again
     
     actual_hit = property(lambda self: self.weapon.actual_hit)
     height = property(lambda self: self.body.img.height)
@@ -72,36 +70,54 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
     attack_perform = property(lambda self: self.weapon.attack_perform)
     
     def destroy(self):
+
+        """
+        Remove Actor from level
+        """
+
         self.weapon.dearm()
-        #self.master.get_ancestor(cocos.layer.ScrollableLayer)
         self.fight_group = -1
         self.kill()
         
     def walk(self, hor_dir, dt):
-        #gr = False
-        #print self.on_ground
-        #dy = self.key[self.bind['up']] - self.key[self.bind['down']]
+
+        """
+        Move Actor in horizontal_direction with his body speed
+        """
 
         dx = hor_dir * self.body.speed * dt
-        #self.target.on_ground = bool(new.y == last.y)
-        #print self.target.on_ground
-        #print dx, dy
         self._move(dx, 0, dt)
 
     def stay(self, dt):
+
+        """
+        Do not move Actor
+        """
+
         self._move(0, 0, dt)
 
     def attack(self, stp, enp):
+
+        """
+        Create Hit with Actor's Weapon. Hit start in start_point
+        and end in end_point
+        """
+
         self.start_attack(stp)
         self.aim(enp)
         self.perform()
         
     def _move(self, dx, ndy, dt):
+
+        """
+        Try to move Actor on dx, ndy with registrations all collisions
+        with map.
+        """
+
         dy = self.v_speed * dt if self.v_speed != 0 else 0
-        dy += + ndy
+        dy += ndy
         self.on_ground = False
         self.wall = con.NO_TR
-        #print vec, self.cshape
         orig = self.get_rect()
         last = self.get_rect()
         new = last.copy()
@@ -114,31 +130,41 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         if not self.on_ground:
             self.v_speed -= consts['gravity'] * dt
         else:
-            #gr = True
             self.v_speed = 0
         vec = eu.Vector2(int(ndx), int(ndy))
-        #print vec
         self.position += vec
         self.cshape.center += vec
         if self.actual_hit is not None:
             self.actual_hit._move(vec)
     
     def jump(self):
+
+        """
+        Actor jump with his body jump speed.
+        """
+
         self.v_speed = consts['params']['human']['jump_speed']
         self.on_ground = False
         
     def move_to(self, x, y):
-        #Move Actor and all attached obj to x, y
+
+        """
+        Place Actor to x, y.
+        """
+
         old = self.cshape.center.copy()
         vec = eu.Vector2(int(x), int(y))
         self.position = vec
-        #print vec, self.cshape
         self.cshape.center = vec
         if self.actual_hit is not None:
             self.actual_hit._move(vec - old)
     
     def stand_off(self, other):
-        #print 111
+
+        """
+        Push aside Actor from other collidable object
+        """
+
         s_c = self.cshape.center
         o_c = other.cshape.center
         d = o_c - s_c
@@ -148,31 +174,70 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
             self._move(-dd, 0, 0)
         else:
             self._move(dd, 0, 0)
-        
-        
-    def start_attack(self, endp):
-        self.weapon.start_attack(endp)
+
+    def start_attack(self, start_point):
+
+        """
+        Set up start point of attack
+        """
+
+        self.weapon.start_attack(start_point)
         
     def perform(self):
+
+        """
+        Send current actual_hit to Level as collidable object
+        for further checking of hit or miss
+        """
+
         self.weapon.perform()
     
-    def aim(self, endp):
-        self.weapon.aim(endp)
+    def aim(self, end_point):
+
+        """
+        Set up end point of attack
+        """
+
+        self.weapon.aim(end_point)
         
     def take_hit(self, hit):
-        return self.body.take_hit(hit)
+
+        """
+        Check with every Body_Part is Hit hit or not.
+        """
+
+        self.body.take_hit(hit)
     
     def touches_point(self, x, y):
+
+        """
+        Checks whether the point lies on the actor
+        """
+
         return self.cshape.touches_point(x, y)
 
     def show_hitboxes(self):
+
+        """
+        Show hitboxes of every Body_Part
+        """
+
         self.body.show_hitboxes()
         
     def from_self_to_global(self, pos):
-        #print type(pos)(pos + self.position)
+
+        """
+        Recalculate position from Actors base to Level base
+        """
+
         return pos + self.position
     
     def from_global_to_self(self, pos):
+
+        """
+        Recalculate position from Level base to Actors base
+        """
+
         return pos - self.position
 
 
@@ -239,8 +304,8 @@ class Level_Layer(layer.ScrollableLayer):
                 self.opponent.move_to(dx, dy)
         
         #Set up brains
-        self.opponent.do(br.Primitive_AI())
-        #self.opponent.do(br.Dummy())
+        #self.opponent.do(br.Primitive_AI())
+        self.opponent.do(br.Dummy())
         self.hero.do(br.Controller())
 
         self.hero.show_hitboxes()
@@ -250,12 +315,26 @@ class Level_Layer(layer.ScrollableLayer):
         self.schedule(self.update)
         
     def _actor_kick_or_add(self, actor):
+
+        """
+        Remove Actor from self if he is dead
+        """
+
         if actor.fight_group >= 0:
             self.collman.add(actor)
         else:
             self.actors.remove(actor)
         
     def update(self, dt):
+
+        """
+        1)Update Hits in dynamic collision manager and remove overdue objects
+        2)Check all collisions between Hits
+        3)Update Actors in collisions managers and remove dead Actors
+        4)Check all collisions between Actors and immovable objects
+        5)Check all collisions between all dynamic objects
+        """
+
         #All collisions between movable objects calculate here
         self.collman.clear()
         for hit in self.hits:
@@ -294,22 +373,30 @@ class Level_Layer(layer.ScrollableLayer):
             
     
     def do_hit(self, hit):
-        #print "recive", hit
+
+        """
+        Callback from Weapon. Append Hit to Level for show.
+        """
+
         self.add(hit, z = 2)
         
     def hit_perform(self, hit):
-        #print "performed", hit
+
+        """
+        Callback from Weapon. Append Hit to collision manager for calculate collisions
+        """
+
         self.hits.append(hit)
         
     def remove_hit(self, hit):
-        #print "try to remove", hit
-        #hit.finish_hit()
+
+        """
+        Remove overdue Hit from game.
+        """
+
         hit.kill()
         self.hits.remove(hit)
-        
-    #def dearm_weapon(self, weapon):
-    #    pass
-    
+
     def on_mouse_motion(self, x, y, dx, dy):
         self.loc_mouse_handler['pos'] = self.scroller.pixel_from_screen(x, y)
         self.loc_mouse_handler['d'] = (dx, dy)
@@ -327,8 +414,12 @@ class Level_Layer(layer.ScrollableLayer):
         self.loc_mouse_handler[buttons] = False
 
 
-
 def create_level(filename):
+
+    """
+    Create scrollable Level from tmx map
+    """
+
     scene = cocos.scene.Scene()
     
     data = tiles.load(filename)
@@ -342,10 +433,8 @@ def create_level(filename):
     scroller.add(back, z = -1)
     scroller.add(force, z = 0)
     scroller.add(player_layer, z = 1)
-    
-    #scene.add(back, z = 0)
+
     scene.add(scroller, z = 1)
-    #scene.add(layer.ColorLayer(*consts['color']['white']), z = -1)
     return scene
 
 def main():

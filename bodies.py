@@ -90,10 +90,27 @@ class Body():
         if not self.master.touches_point(x, y):
             return #False
         inner_p = self.master.from_global_to_self(hit.trace.p)
-        inner_trace = gm.LineSegment2(gm.Point2(inner_p.x, inner_p.y), hit.trace.v)
-        self.body_parts.sort(lambda x, y: y.chop_priority - x.chop_priority)
+        inner_end_p = self.master.from_global_to_self(hit.trace.p + hit.trace.v)
+        inner_p = gm.Point2(inner_p.x, inner_p.y)
+        inner_end_p = gm.Point2(inner_end_p.x, inner_end_p.y)
+        inner_trace = gm.LineSegment2(inner_p, inner_end_p)
+        print inner_p, inner_end_p
+        self.body_parts.sort(lambda a, b: a.chop_priority - b.chop_priority)
         for part in self.body_parts:
-            if part.shape.intersect(inner_trace) is not None:
+            in_p = part.shape.intersect(inner_trace)
+            if in_p is not None:
+                print "Original coord of hit and his v",
+                print hit.trace.p, hit.trace.v
+                print "target position",
+                print self.master.position
+                print "Coord and v after recalculate to target system",
+                print inner_trace.p, inner_trace.v
+                print "Rectangle coord in target system, half height and half width ",
+                print part.shape.pc, part.shape.h_height, part.shape.h_width
+                print "Intersect segment of hit and rect",
+                print in_p
+                print "Start point and v of intersect segment",
+                print in_p.p, in_p.v
                 p = gm.Point2(x, y)
                 #print x, y
                 eff.Blood().add_to_surface(p)
