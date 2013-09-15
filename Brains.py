@@ -17,9 +17,13 @@ import consts as con
 
 consts = con.consts
 
+def _set_rec(self, val):
+    self.master.recovery = val
+
 class Brain(ac.Action):
     
     master = property(lambda self: self.target)
+    recovery = property(lambda self: self.master.recovery, _set_rec)
     
     def start(self):
         self.master.fight_group = self.fight_group
@@ -105,7 +109,6 @@ class Primitive_AI(Brain):
 
         self.prev_move = 0
         self.mt = 0.0
-        self.recovery = 0.0
         
     def sensing(self):
         self.clear_vision()

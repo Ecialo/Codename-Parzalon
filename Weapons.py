@@ -14,6 +14,7 @@ from cocos import euclid as eu
 import geometry as gm
 import consts as con
 import effects as eff
+import on_hit_effects as on_h
 
 consts = con.consts
 
@@ -21,17 +22,6 @@ def printer(master):
     def sub_printer(body_part):
         print "Take THIS!"
     return sub_printer
-
-
-def fab_damage(value):
-    def mast_damage(master):
-        def damage(body_part):
-            if body_part.armor > value:
-                body_part.armor -= value
-            else:
-                body_part.health -= value
-        return damage
-    return mast_damage
 
 def interval_proection(point, interval):
     if interval[0] <= point < interval[1]:
@@ -123,7 +113,7 @@ class Weapon(pyglet.event.EventDispatcher):
         self.hit_type = Slash
         self.length = length
         
-        self.effects = [fab_damage(3)(self)]
+        self.effects = [on_h.fab_damage(3)(self)]
         
         self.actual_hit = None
         self.attack_perform = False
