@@ -18,11 +18,6 @@ import on_hit_effects as on_h
 
 consts = con.consts
 
-def printer(master):
-    def sub_printer(body_part):
-        print "Take THIS!"
-    return sub_printer
-
 def interval_proection(point, interval):
     if interval[0] <= point < interval[1]:
         return point
@@ -36,7 +31,6 @@ def shape_to_cshape(shape):
     if isinstance(shape, gm.Rectangle):
         return cm.AARectShape(shape.pc, shape.h_width, shape.h_height)
     else:
-        #print shape.p.y, shape.v
         c = shape.p + shape.v/2
         return cm.AARectShape(c, abs(shape.v.x/2), abs(shape.v.y/2))
 
@@ -155,7 +149,6 @@ class Weapon(pyglet.event.EventDispatcher):
         self.actual_hit = None
         
     def dearm(self):
-        #self.dispatch_event('dearm_weapon', self)
         if self.attack_perform and self.actual_hit is not None:
             self.finish_hit()
         elif self.actual_hit is not None:

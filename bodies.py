@@ -38,6 +38,12 @@ class Body_Part():
         self.chop_priority = chop_priority
     
     def take_hit(self, hit):
+
+        """
+        Body Part receive all effects from Hit
+        and apply them to self
+        """
+
         for effect in hit.effects:
             effect(self)
         if self.health <= 0:
@@ -45,6 +51,11 @@ class Body_Part():
         print self.health, self.armor
         
     def destroy(self):
+
+        """
+        Remove self and apply some effects
+        """
+
         self.master.body_parts.remove(self)
         for effect in self.on_destroy_effects:
                 effect(self)
@@ -81,44 +92,48 @@ class Body():
         self.body_parts = body_parts
         
     def destroy(self):
+
+        """
+        Destroy Body's master
+        """
+
         self.master.destroy()
     
     def take_hit(self, hit):
+
+        """
+        1)Check is Hit hit any part of whole body
+        2)If yes then recalculate coords of Hit to self base
+        3)Sort Body Parts with priority whats depend from Hit type
+        4)Check is first priority part intersects with Hit
+        5)If yes take hit else get next and try again until Body Parts over
+        """
+
         #Overlaps cshapes is not guarantee of successful attack
         #Need to compare shapes and traces
         x, y = hit.end.x, hit.end.y
         if not self.master.touches_point(x, y):
-            return #False
+            return
         inner_p = self.master.from_global_to_self(hit.trace.p)
         inner_end_p = self.master.from_global_to_self(hit.trace.p + hit.trace.v)
         inner_p = gm.Point2(inner_p.x, inner_p.y)
         inner_end_p = gm.Point2(inner_end_p.x, inner_end_p.y)
         inner_trace = gm.LineSegment2(inner_p, inner_end_p)
-        print inner_p, inner_end_p
         self.body_parts.sort(lambda a, b: a.chop_priority - b.chop_priority)
         for part in self.body_parts:
             in_p = part.shape.intersect(inner_trace)
             if in_p is not None:
-                print "Original coord of hit and his v",
-                print hit.trace.p, hit.trace.v
-                print "target position",
-                print self.master.position
-                print "Coord and v after recalculate to target system",
-                print inner_trace.p, inner_trace.v
-                print "Rectangle coord in target system, half height and half width ",
-                print part.shape.pc, part.shape.h_height, part.shape.h_width
-                print "Intersect segment of hit and rect",
-                print in_p
-                print "Start point and v of intersect segment",
-                print in_p.p, in_p.v
                 p = gm.Point2(x, y)
-                #print x, y
                 eff.Blood().add_to_surface(p)
                 part.take_hit(hit)
-                return #True
-        #return False
+                return
 
     def show_hitboxes(self):
+
+        """
+        Draw hitboxes of all Body Parts.
+        """
+
         for bp in self.body_parts:
             self.master.add(box.Box(bp.shape, (255, 0, 0, 255)))
     
@@ -130,6 +145,5 @@ class Human(Body):
     base_speed = consts['params']['human']['speed']
     
     def __init__(self, master):
-        #super(Human, self).__init__(master, [Chest(self)])
         Body.__init__(self, master, [Chest(self), Head(self), Legs(self)])
 

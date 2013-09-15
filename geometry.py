@@ -1,4 +1,4 @@
-from cocos import euclid as eu
+import cocos.euclid as eu
 
 class Geometry(eu.Geometry):
 
@@ -58,8 +58,14 @@ def _intersect_linesegment2_rectangle(L, R): #Pavgran: implemented
     p2_in = _intersect_point2_rectangle(p2, R)
     res = filter(lambda x: x is not None, [p1_in, p2_in])
     if len(res) == 0:
-        L = Line2(L.p, L.v)
-        return L.intersect(R)
+        if p1.x < R.p.x and p2.x < R.p.x or\
+           p1.x > R.p.x + R.v.x and p2.x > R.p.x + R.v.x or\
+           p1.y < R.p.y and p2.y < R.p.y or\
+           p1.y > R.p.y + R.v.y and p2.y > R.p.y + R.v.y:
+            return None
+        else:
+            L = Line2(L.p, L.v)
+            return L.intersect(R)
     elif len(res) == 2:
         return LineSegment2(p1_in, p2_in)
     else:
@@ -247,7 +253,8 @@ class Rectangle(Geometry):
     pc = property(lambda self: self.plb + self.v/2, _set_c)
     h_height = property(lambda self: self.v.y/2)
     h_width = property(lambda self: self.v.x/2)
-    
+
+
     def __copy__(self):
         return self.__class__(self.p, self.v)
     
