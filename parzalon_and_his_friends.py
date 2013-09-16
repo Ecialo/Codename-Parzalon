@@ -79,13 +79,13 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         self.fight_group = -1
         self.kill()
         
-    def walk(self, hor_dir, dt):
+    def walk(self, horizontal_direction, dt):
 
         """
         Move Actor in horizontal_direction with his body speed
         """
 
-        dx = hor_dir * self.body.speed * dt
+        dx = horizontal_direction * self.body.speed * dt
         self._move(dx, 0, dt)
 
     def stay(self, dt):
@@ -96,15 +96,15 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
 
         self._move(0, 0, dt)
 
-    def attack(self, stp, enp):
+    def attack(self, start_point, end_point):
 
         """
         Create Hit with Actor's Weapon. Hit start in start_point
         and end in end_point
         """
 
-        self.start_attack(stp)
-        self.aim(enp)
+        self.start_attack(start_point)
+        self.aim(end_point)
         self.perform()
         
     def _move(self, dx, ndy, dt):

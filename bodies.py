@@ -64,20 +64,17 @@ class Body_Part():
 class Chest(Body_Part):
     
     def __init__(self, master):
-        #super(Chest, self).__init__(master, eu.Vector2(0.0, 0.0), 45.0, 111.0, 1, 1)
         Body_Part.__init__(self, master, eu.Vector2(0, 0), 40, 25, 1, 1)
 
 
 class Head(Body_Part):
     def __init__(self, master):
-        #super(Chest, self).__init__(master, eu.Vector2(0.0, 0.0), 45.0, 111.0, 1, 1)
         Body_Part.__init__(self, master, eu.Vector2(0, 57), 15, 20, 2, 2)
 
 
 
 class Legs(Body_Part):
     def __init__(self, master):
-        #super(Chest, self).__init__(master, eu.Vector2(0.0, 0.0), 45.0, 111.0, 1, 1)
         Body_Part.__init__(self,master, eu.Vector2(0, -77), 33, 25, 1, 1)
 
 

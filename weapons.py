@@ -18,7 +18,13 @@ import on_hit_effects as on_h
 
 consts = con.consts
 
+
 def interval_proection(point, interval):
+
+    """
+    Return point in interval closet to given
+    """
+
     if interval[0] <= point < interval[1]:
         return point
     elif point < interval[0]:
@@ -28,6 +34,11 @@ def interval_proection(point, interval):
 
 
 def shape_to_cshape(shape):
+
+    """
+    Transform geometry shape to collision shape
+    """
+
     if isinstance(shape, gm.Rectangle):
         return cm.AARectShape(shape.pc, shape.h_width, shape.h_height)
     else:
@@ -36,8 +47,7 @@ def shape_to_cshape(shape):
 
 
 class Slash(cocos.draw.Line):
-    
-    
+
     def __init__(self, stp, endp, master):
         self.master = master
         self.fight_group = master.master.fight_group + consts['slash_fight_group']
@@ -50,6 +60,11 @@ class Slash(cocos.draw.Line):
     effects = property(lambda self: self.master.effects)
   
     def _change_time_to_complete(self, time):
+
+        """
+        Update time to complete with representable color
+        """
+
         self._time_to_complete = time
         #print 111
         val = int(time * self._color_c)
@@ -59,10 +74,20 @@ class Slash(cocos.draw.Line):
                                 _change_time_to_complete)
                     
     def set_time_to_complete(self, time):
+
+        """
+        Init time and set color of line to dangerous red
+        """
+
         self._time_to_complete = time
         self._color_c = 255.0 / time
     
     def perform(self, time):
+
+        """
+        Morph line into real collideable figure.
+        """
+
         #Define geometry and time data
         v = self.end - self.start
         start = gm.Point2(self.start.x, self.start.y)
@@ -71,9 +96,19 @@ class Slash(cocos.draw.Line):
         self.set_time_to_complete(time)
     
     def finish_hit(self):
+
+        """
+        End life of this line
+        """
+
         self.master.finish_hit()
         
     def _move(self, vec):
+
+        """
+        Move end and start points of line
+        """
+
         self.start += vec
         self.end += vec
         if self.master.attack_perform:
@@ -81,6 +116,11 @@ class Slash(cocos.draw.Line):
             self.cshape.center += vec
     
     def parry(self, other):
+
+        """
+        Parry consider successful then two lines create defined angle
+        """
+
         p = self.trace.intersect(other.trace)
         if p is not None and self._cross_angle(other) <= consts['parry_cos_disp']:
             #print eff.Sparkles.add_to_surface
@@ -90,6 +130,11 @@ class Slash(cocos.draw.Line):
             self.finish_hit()
     
     def _cross_angle(self, other):
+
+        """
+        Calculate cos between two lines
+        """
+
         #Cos of angle between two hit lines
         v1 = self.trace.v
         v2 = other.trace.v
@@ -112,12 +157,17 @@ class Weapon(pyglet.event.EventDispatcher):
         self.actual_hit = None
         self.attack_perform = False
     
-    def start_attack(self, endp):
+    def start_attack(self, start_point):
+
+        """
+        Create line what start from closest to start point possible place near Actor.
+        """
+
         #Define start point of hit line on screen
-        if isinstance(endp, eu.Vector2):
-            stp = endp.copy()
+        if isinstance(start_point, eu.Vector2):
+            stp = start_point.copy()
         else:
-            stp = eu.Vector2(*endp)
+            stp = eu.Vector2(*start_point)
         stp = self.master.from_global_to_self(stp)
         stp.x = stp.x/abs(stp.x) if stp.x != 0 else 0
         stp.x *= self.master.width/2
@@ -125,30 +175,49 @@ class Weapon(pyglet.event.EventDispatcher):
                                            self.master.height/2))
         stp = self.master.from_self_to_global(stp)
         #Define end point of hit line on screen
-        vec = endp - stp
+        vec = start_point - stp
         end = stp + vec.normalize()*self.length
         #Send line to holder in weapon for update end point and to screen for draw
         self.actual_hit = self.hit_type(stp, end, self)
         self.dispatch_event('do_hit', self.actual_hit)
         
     def aim(self, endp):
-        #Define new end point
+
+        """
+        Define new end point
+        """
+
         stp = self.actual_hit.start
         vec = endp - stp
         end = stp + vec.normalize()*self.length
         self.actual_hit.end = end
         
     def perform(self):
+
+        """
+        Create full collidable obj from line and memor what attack is going on
+        """
+
         self.attack_perform = True
         self.actual_hit.perform(consts['test_slash_time'])
         self.dispatch_event('hit_perform', self.actual_hit)
         
     def finish_hit(self):
+
+        """
+        Remove current Hit and complete attack
+        """
+
         self.dispatch_event('remove_hit', self.actual_hit)
         self.attack_perform = False
         self.actual_hit = None
         
     def dearm(self):
+
+        """
+        Weapon now can't do anything
+        """
+
         if self.attack_perform and self.actual_hit is not None:
             self.finish_hit()
         elif self.actual_hit is not None:
