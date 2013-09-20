@@ -30,16 +30,19 @@ class Level_Collider(tiles.RectMapCollider):
     def collide_bottom(self, dy):
         self.wall |= con.DOWN
         self.on_ground = True
+        self.vertical_speed = 0
     
     def collide_top(self, dy):
         self.wall |= con.UP
-        self.v_speed = 0
+        self.vertical_speed = 0
     
     def collide_left(self, dx):
         self.wall |= con.LEFT
+        self.horizontal_speed = 0
     
     def collide_right(self, dy):
         self.wall |= con.RIGHT
+        self.horizontal_speed = 0
 
 
 class Actor(cocos.sprite.Sprite, Level_Collider):
@@ -59,10 +62,13 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
                                 self.body.img.width/2, self.body.img.height/2)
         
         self.on_ground = False
-        self.v_speed = 0
+        self.vertical_speed = 0
+        self.horizontal_speed = 0
         self.wall = con.NO_TR
 
         self.recovery = 0.0  # Time before moment when acton can be controlled again
+
+        #self.schedule(self.update)
     
     actual_hit = property(lambda self: self.weapon.actual_hit)
     height = property(lambda self: self.body.img.height)
@@ -79,14 +85,15 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         self.fight_group = -1
         self.kill()
         
-    def walk(self, horizontal_direction, dt):
+    def walk(self, horizontal_direction):
 
         """
         Move Actor in horizontal_direction with his body speed
         """
+        d = horizontal_direction * self.body.speed
+        #if abs(self.horizontal_speed + d) > self.body.speed:
+        self.horizontal_speed = d
 
-        dx = horizontal_direction * self.body.speed * dt
-        self._move(dx, 0, dt)
 
     def stay(self, dt):
 
@@ -94,7 +101,7 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         Do not move Actor
         """
 
-        self._move(0, 0, dt)
+        self.horizontal_speed = 0
 
     def attack(self, start_point, end_point):
 
@@ -107,15 +114,13 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         self.aim(end_point)
         self.perform()
         
-    def _move(self, dx, ndy, dt):
+    def _move(self, dx, dy, dt):
 
         """
         Try to move Actor on dx, ndy with registrations all collisions
         with map.
         """
 
-        dy = self.v_speed * dt if self.v_speed != 0 else 0
-        dy += ndy
         self.on_ground = False
         self.wall = con.NO_TR
         orig = self.get_rect()
@@ -128,22 +133,31 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         self.collide_map(self.tilemap, last, new, 0, dy)
         ndx, ndy = new.x - orig.x, new.y - orig.y
         if not self.on_ground:
-            self.v_speed -= consts['gravity'] * dt
+            self.vertical_speed -= consts['gravity'] * dt
         else:
-            self.v_speed = 0
+            self.vertical_speed = 0
         vec = eu.Vector2(int(ndx), int(ndy))
         self.position += vec
         self.cshape.center += vec
         if self.actual_hit is not None:
             self.actual_hit._move(vec)
-    
+
+    def push(self, v):
+        self.horizontal_speed += v.x
+        self.vertical_speed += v.y
+
+    def update(self, dt):
+        dy = self.vertical_speed * dt if self.vertical_speed != 0 else 0
+        dx = self.horizontal_speed * dt if self.horizontal_speed != 0 else 0
+        self._move(dx, dy, dt)
+
     def jump(self):
 
         """
         Actor jump with his body jump speed.
         """
 
-        self.v_speed = consts['params']['human']['jump_speed']
+        self.vertical_speed = consts['params']['human']['jump_speed']
         self.on_ground = False
         
     def move_to(self, x, y):
@@ -292,12 +306,12 @@ class Level_Layer(layer.ScrollableLayer):
         
         #Move guys to location
         for sc in scripts:
-            if sc.properties.has_key('player'):
+            if 'player' in sc.properties:
                 r = self.hero.get_rect()
                 r.midbottom = sc.midbottom
                 dx, dy = r.center
                 self.hero.move_to(dx, dy)
-            elif sc.properties.has_key('opponent'):
+            elif 'opponent' in sc.properties:
                 r = self.opponent.get_rect()
                 r.midbottom = sc.midbottom
                 dx, dy = r.center

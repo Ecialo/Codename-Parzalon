@@ -152,7 +152,7 @@ class Weapon(pyglet.event.EventDispatcher):
         self.hit_type = Slash
         self.length = length
         
-        self.effects = [on_h.fab_damage(3)(self)]
+        self.effects = [on_h.damage(3)(self), on_h.knock_back(100)(self)]
         
         self.actual_hit = None
         self.attack_perform = False

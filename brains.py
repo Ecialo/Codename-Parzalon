@@ -30,6 +30,7 @@ class Brain(ac.Action):
         #self.tilemap = self.master.get_ancestor(cocos.layer.ScrollableLayer).force_ground
     
     def step(self, dt):
+        self.master.update(dt)
         self.sensing()
         self.activity(dt)
         
@@ -62,7 +63,7 @@ class Controller(Brain):
             self.master.jump()
         #print self.key
         #if abs(ndx) > 0.0 and ndy > 0.0:
-        self.master.walk(hor_dir, dt)
+        self.master.walk(hor_dir)
         
         if self.mouse[mouse.LEFT] and self.master.actual_hit is None:
             self.master.start_attack(self.mouse['pos'])
@@ -83,7 +84,6 @@ class Dummy(Brain):
     fight_group = consts['group']['opponent']
     
     def activity(self, dt):
-        self.master.walk(0, dt)
             
         if self.master.actual_hit is None:
             #print "Ololo"
@@ -139,7 +139,7 @@ class Primitive_AI(Brain):
             if wd > self.master.weapon.length * consts['effective_dst']:
                 self.mt = 0.0
                 self.prev_move = 0
-                self.master.walk(dir, dt)
+                self.master.walk(dir)
                 #Brick on way. Must jump over
                 if self.master.wall & (con.LEFT | con.RIGHT):
                     self.master.jump()
@@ -153,19 +153,9 @@ class Primitive_AI(Brain):
             else:
                 if self.mt > 0:
                     self.mt -= dt
-                    self.master.walk(self.prev_move, dt)
+                    self.master.walk(self.prev_move)
                 else:
-                    mv = rnd.random()
-                    if wd > self.closest and mv < 0.05:
-                        self.prev_move = dir
-                        self.mt = 0.1
-                        self.master.walk(dir, dt)
-                    elif mv < 0.01:
-                        self.prev_move = -dir
-                        self.mt = 0.5
-                        self.master.walk(-dir, dt)
-                    else:
-                        self.master.stay(dt)
+                   self.dance_around(wd, dir, dt)
                 #Parry if any danger
                 for hit_wd in self.visible_hits_wd:
                     if self.is_in_touch(hit_wd[0]):
@@ -175,9 +165,7 @@ class Primitive_AI(Brain):
                             break
                 #Die, my enemy!
                 else:
-                    if rnd.random() < 0.05:
-                        #print "123"
-                        self.random_attack(opp)
+                    self.random_attack(opp)
         else:
             self.master.stay(dt)
 
@@ -216,7 +204,7 @@ class Primitive_AI(Brain):
         self.recovery = 0.05
 
     def random_attack(self, other):
-        if self.recovery > 0.0 or self.master.actual_hit is not None:
+        if rnd.random() < 0.05 or self.recovery > 0.0 or self.master.actual_hit is not None:
             return
         dire = other.position[0] - self.master.position[0]
         dire = dire/abs(dire) if dire != 0 else 0
@@ -229,6 +217,19 @@ class Primitive_AI(Brain):
         end = (targ_x, targ_y)
         self.master.attack(start, end)
         self.recovery = 0.05
+
+    def dance_around(self, wd, dir, dt):
+        mv = rnd.random()
+        if wd > self.closest and mv < 0.05:
+            self.prev_move = dir
+            self.mt = 0.1
+            self.master.walk(dir)
+        elif mv < 0.01:
+            self.prev_move = -dir
+            self.mt = 0.5
+            self.master.walk(-dir)
+        else:
+            self.master.stay(dt)
 
 if __name__ == "__main__":
     print "Hello World"
