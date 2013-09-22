@@ -17,13 +17,16 @@ import consts as con
 
 consts = con.consts
 
+
 def _set_rec(self, val):
     self.master.recovery = val
+
 
 class Brain(ac.Action):
     
     master = property(lambda self: self.target)
     recovery = property(lambda self: self.master.recovery, _set_rec)
+    hands = property(lambda self: self.master.hands)
     
     def start(self):
         self.master.fight_group = self.fight_group
@@ -39,6 +42,7 @@ class Brain(ac.Action):
     
     def activity(self, dt):
         pass
+
 
 class Controller(Brain):
     
@@ -57,26 +61,40 @@ class Controller(Brain):
          self.master.get_ancestor(layer.ScrollableLayer).scroller
     
     def activity(self, dt):
-        #print self.target.on_ground
+        #Move
         hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
         if self.key[self.bind['jump']] and self.master.on_ground:
             self.master.jump()
-        #print self.key
-        #if abs(ndx) > 0.0 and ndy > 0.0:
         self.master.walk(hor_dir)
-        
-        if self.mouse[self.bind['first_hand']] and self.master.actual_hit is None:
-            self.master.start_attack(self.mouse['pos'], self.key[self.bind['alt_mode']])
-        elif self.mouse[self.bind['first_hand']] and self.master.actual_hit is not None and not self.master.attack_perform:
-            self.master.aim(self.mouse['pos'])
-        elif not self.mouse[self.bind['first_hand']] and self.master.actual_hit is not None\
-             and not self.master.attack_perform:
-            self.master.perform()
+
+        #Action
+        first_hand_ac = self.mouse[self.bind['first_hand']]
+        second_hand_ac = self.mouse[self.bind['second_hand']]
+        alt = self.key[self.bind['alt_mode']]
+        pos = self.mouse['pos']
+        first_item = self.hands[con.FIRST_HAND]
+        second_item = self.hands[con.SECOND_HAND]
+
+        if first_hand_ac and not first_item.on_use:
+            first_item.start_use(pos, con.STAB if alt else con.CHOP)
+        elif first_hand_ac and first_item.on_use:
+            first_item.continue_use(pos)
+        elif not first_hand_ac and first_item.on_use:
+            first_item.end_use()
         else:
             pass
-        cx, cy = self.master.position
+
+        if second_hand_ac and second_item.actual_hit is None:
+            second_item.start_use(pos, con.STAB if alt else con.CHOP)
+        elif second_hand_ac and second_item.actual_hit is not None and not second_item.attack_perform:
+            second_item.continue_use(pos)
+        elif not second_hand_ac and second_item.actual_hit is not None and not second_item.attack_perform:
+            second_item.end_use()
+        else:
+            pass
+        #cx, cy = self.master.position
         #print cx, cy
-        self.scroller.set_focus(cx, cy)
+        self.scroller.set_focus(*self.master.position)
 
 
 class Dummy(Brain):
@@ -102,8 +120,7 @@ class Primitive_AI(Brain):
     
     def start(self):
         Brain.start(self)
-        self.vision = \
-                self.master.get_ancestor(layer.ScrollableLayer).collman
+        self.vision = self.master.get_ancestor(layer.ScrollableLayer).collman
         self.visible_actors_wd = []
         self.visible_hits_wd = []
 
@@ -136,7 +153,7 @@ class Primitive_AI(Brain):
             d = opp.cshape.center.x - self.master.cshape.center.x
             dir = d/abs(d) if d != 0 else 0
             #Too far for attack.Come closer.
-            if wd > self.master.weapon.length * consts['effective_dst']:
+            if wd > self.master.hands[0].length * consts['effective_dst']:
                 self.mt = 0.0
                 self.prev_move = 0
                 self.master.walk(dir)
@@ -146,7 +163,7 @@ class Primitive_AI(Brain):
                 #Parry if any danger
                 for hit_wd in self.visible_hits_wd:
                     if self.is_in_touch(hit_wd[0]):
-                        if self.is_enemy(hit_wd[0]) and rnd.random() < self.mastery:
+                        if self.is_enemy(hit_wd[0]):
                             #print "!!!"
                             self.parry(hit_wd[0])
             #Close enough for attack. Dance across
@@ -155,17 +172,18 @@ class Primitive_AI(Brain):
                     self.mt -= dt
                     self.master.walk(self.prev_move)
                 else:
-                   self.dance_around(wd, dir, dt)
+                    self.dance_around(wd, dir, dt)
                 #Parry if any danger
                 for hit_wd in self.visible_hits_wd:
                     if self.is_in_touch(hit_wd[0]):
-                        if self.is_enemy(hit_wd[0]) and rnd.random() < self.mastery:
+                        if self.is_enemy(hit_wd[0]):
                             #print "!!!"
                             self.parry(hit_wd[0])
                             break
                 #Die, my enemy!
                 else:
                     self.random_attack(opp)
+
         else:
             self.master.stay()
 
@@ -183,15 +201,16 @@ class Primitive_AI(Brain):
 
     def is_enemy(self, other):
         if other.fight_group < 100:
-            return self.master.fight_group == other.fight_group
+            return self.master.fight_group is not other.fight_group
         else:
-            return self.master.fight_group == other.base_fight_group
+            return self.master.fight_group is not other.base_fight_group
 
     def is_in_touch(self, other):
         return self.master.cshape.overlaps(other.cshape)
 
     def parry(self, hit):
-        if self.recovery > 0.0 or self.master.actual_hit is not None:
+        if rnd.random() < self.mastery or self.recovery > 0.0 or self.master.actual_hit is not None:
+            #print 13
             return
         #print "parry"
         h = hit.start.y

@@ -127,8 +127,9 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         vec = eu.Vector2(int(ndx), int(ndy))
         self.position += vec
         self.cshape.center += vec
-        if self.actual_hit is not None:
-            self.actual_hit._move(vec)
+        for hand in self.hands:
+            if hand.actual_hit is not None:
+                hand.actual_hit._move(vec)
 
     def push(self, v):
         self.horizontal_speed += v.x
@@ -147,8 +148,8 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         speed -= consts['rubbing'] * dt
         self.horizontal_speed = speed * d if speed >= 0 else 0
 
-    def get_item(self, item):
-        self.hands[0] = item
+    def get_item(self, item, num=0):
+        self.hands[num] = item
         item.master = self
 
     def jump(self):
@@ -166,8 +167,9 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         vec = eu.Vector2(int(x), int(y))
         self.position = vec
         self.cshape.center = vec
-        if self.actual_hit is not None:
-            self.actual_hit._move(vec - old)
+        for hand in self.hands:
+            if hand.actual_hit is not None:
+                hand.actual_hit._move(vec - old)
     
     def stand_off(self, other):
         """
@@ -272,6 +274,7 @@ class Level_Layer(layer.ScrollableLayer):
         #Append hero
         self.hero = Actor(bd.Human)
         self.hero.get_item(wp.Standard_Weapon(self))
+        self.hero.get_item(wp.Standard_Weapon(self), 1)
         #self.hero.weapon.push_handlers(self)
         #self.hero.move(200, 200)
         self.add(self.hero, z=2)
@@ -279,6 +282,7 @@ class Level_Layer(layer.ScrollableLayer):
         #Append opponent
         self.opponent = Actor(bd.Human)
         self.opponent.get_item(wp.Standard_Weapon(self))
+        self.opponent.get_item(wp.Empty_Hand(self), 1)
         #self.opponent.weapon.push_handlers(self)
         #self.opponent.move(400, 200)
         self.add(self.opponent, z=2)
@@ -330,8 +334,10 @@ class Level_Layer(layer.ScrollableLayer):
         #All collisions between movable objects calculate here
         self.collman.clear()
         for hit in self.hits:
-            if hit.time_to_complete <= 0:
+            if hit.time_to_complete <= 0 and not hit.completed:
                 hit.finish_hit()
+            elif hit.completed:
+                pass
             else:
                 hit.time_to_complete = hit.time_to_complete - dt
                 self.collman.add(hit)

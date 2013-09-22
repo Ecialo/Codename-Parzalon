@@ -32,19 +32,23 @@ def interval_proection(point, interval):
         return interval[1]
 
 
-class Hand(pyglet.event.EventDispatcher):
+class Item(pyglet.event.EventDispatcher):
+
+    def __init__(self):
+        super(Item, self).__init__()
+        self.on_use = False
 
     def start_use(self, *args):
-        pass
+        self.on_use = True
 
     def continue_use(self, *args):
         pass
 
     def end_use(self, *args):
-        pass
+        self.on_use = False
 
 
-class Weapon(Hand):
+class Weapon(Item):
     
     def __init__(self, name, length, weight, effects, environment):
         super(Weapon, self).__init__()
@@ -58,7 +62,7 @@ class Weapon(Hand):
         self.chop_time = consts['test_slash_time']
         self.stab_time = consts['test_slash_time']
         
-        self.effects = map(lambda eff: eff(self), effects)
+        self.effects = effects
         
         self.actual_hit = None
         self.attack_perform = False
@@ -69,6 +73,7 @@ class Weapon(Hand):
         """
         Create line what start from closest to start point possible place near Actor.
         """
+        super(Weapon, self).start_use()
         #Define start point of hit line on screen
         start_point, hit_pattern = args
         if isinstance(start_point, eu.Vector2):
@@ -107,21 +112,19 @@ class Weapon(Hand):
         self.dispatch_event('hit_perform', self.actual_hit)
         
     def finish_hit(self):
-
         """
         Remove current Hit and complete attack
         """
-
         self.dispatch_event('remove_hit', self.actual_hit)
         self.attack_perform = False
         self.actual_hit = None
+        self.on_use = False
+        #print "ololo"
         
     def dearm(self):
-
         """
         Weapon now can't do anything
         """
-
         if self.attack_perform and self.actual_hit is not None:
             self.finish_hit()
         elif self.actual_hit is not None:
@@ -139,5 +142,13 @@ class Standard_Weapon(Weapon):
         super(Standard_Weapon, self).__init__("wp",
                                               100,
                                               20,
-                                              [on_h.damage(3), on_h.knock_back(100)],
+                                              [on_h.damage(0), on_h.knock_back(100)],
+                                              environment)
+
+class Empty_Hand(Weapon):
+    def __init__(self, environment):
+        super(Empty_Hand, self).__init__("h",
+                                              0,
+                                              0,
+                                              [],
                                               environment)

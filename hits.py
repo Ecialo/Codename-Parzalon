@@ -32,6 +32,7 @@ class Slash(cocos.draw.Line):
         self.base_fight_group = master.master.fight_group
         super(Slash, self).__init__(stp, endp, (0, 255, 0, 255))
 
+        self.completed = False
         self._time_to_complete = 0.0
         self._color_c = 0.0
 
@@ -40,7 +41,7 @@ class Slash(cocos.draw.Line):
 
         self.hit_pattern = hit_pattern
 
-    effects = property(lambda self: self.master.effects)
+    effects = property(lambda self: map(lambda eff: eff(self), self.master.effects))
 
     def _change_time_to_complete(self, time):
         """
@@ -76,6 +77,7 @@ class Slash(cocos.draw.Line):
         """
         End life of this line
         """
+        self.completed = True
         self.master.finish_hit()
 
     def _move(self, vec):
@@ -92,13 +94,15 @@ class Slash(cocos.draw.Line):
         """
         Parry consider successful then two lines create defined angle
         """
+        if self.fight_group is other.fight_group:
+            return
         self_uncompleteness = self.time_to_complete/self.master.stab_time if self.hit_pattern == con.STAB \
             else self.time_to_complete/self.master.chop_time
         other_uncompleteness = other.time_to_complete/other.master.stab_time if other.hit_pattern == con.STAB \
             else other.time_to_complete/other.master.chop_time
         first = self if self_uncompleteness < other_uncompleteness else other
-        #second = self if first is other else other
-        if first.hit_pattern is con.STAB:
+        second = self if first is other else other
+        if second.hit_pattern is con.STAB:
             return
         p = self.trace.intersect(other.trace)
         if p is not None and self._cross_angle(other) <= consts['parry_cos_disp']:
