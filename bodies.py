@@ -108,6 +108,8 @@ class Body():
 
         #Overlaps cshapes is not guarantee of successful attack
         #Need to compare shapes and traces
+        if hit.base_fight_group is self.master.fight_group:
+            return
         x, y = hit.end.x, hit.end.y
         if not self.master.touches_point(x, y):
             return
@@ -116,7 +118,10 @@ class Body():
         inner_p = gm.Point2(inner_p.x, inner_p.y)
         inner_end_p = gm.Point2(inner_end_p.x, inner_end_p.y)
         inner_trace = gm.LineSegment2(inner_p, inner_end_p)
-        self.body_parts.sort(lambda a, b: a.chop_priority - b.chop_priority)
+        if hit.hit_pattern is con.CHOP:
+            self.body_parts.sort(lambda a, b: a.chop_priority - b.chop_priority)
+        else:
+            self.body_parts.sort(lambda a, b: a.stab_priority - b.stab_priority)
         for part in self.body_parts:
             in_p = part.shape.intersect(inner_trace)
             if in_p is not None:

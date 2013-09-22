@@ -17,7 +17,9 @@ consts = {'window': {'width': 800,
                        'down': key.S,
                        'up': key.W,
                        'jump': key.SPACE,
-                       'weapon_key_one': mouse.LEFT},
+                       'alt_mode': key.LSHIFT,
+                       'first_hand': mouse.LEFT,
+                       'second_hand': mouse.RIGHT},
           'color': {'white': (255, 255, 255, 255)},
           'img': {'human': pyglet.resource.image('chelovek_v2.png')},
           'params': {'human': {'speed': 200,
@@ -31,10 +33,12 @@ consts = {'window': {'width': 800,
           'effective_dst': 2.0/3.0,
           'test_slash_time': 0.8,
           'gravity': 1500,
+          'rubbing': 100,
           'slash_fight_group': 100
          }
 
 LEFT, UP, RIGHT, DOWN, NO_TR = 0b1000, 0b0100, 0b0010, 0b0001, 0b0000
+CHOP, STAB = xrange(2)
 
 if __name__ == "__main__":
     print "Hello World"

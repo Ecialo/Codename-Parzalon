@@ -65,14 +65,14 @@ class Controller(Brain):
         #if abs(ndx) > 0.0 and ndy > 0.0:
         self.master.walk(hor_dir)
         
-        if self.mouse[mouse.LEFT] and self.master.actual_hit is None:
-            self.master.start_attack(self.mouse['pos'])
-        elif self.mouse[mouse.LEFT] and self.master.actual_hit is not None and not self.master.attack_perform:
+        if self.mouse[self.bind['first_hand']] and self.master.actual_hit is None:
+            self.master.start_attack(self.mouse['pos'], self.key[self.bind['alt_mode']])
+        elif self.mouse[self.bind['first_hand']] and self.master.actual_hit is not None and not self.master.attack_perform:
             self.master.aim(self.mouse['pos'])
-        elif not self.mouse[mouse.LEFT] and self.master.actual_hit is not None\
+        elif not self.mouse[self.bind['first_hand']] and self.master.actual_hit is not None\
              and not self.master.attack_perform:
             self.master.perform()
-        else: 
+        else:
             pass
         cx, cy = self.master.position
         #print cx, cy
@@ -167,7 +167,7 @@ class Primitive_AI(Brain):
                 else:
                     self.random_attack(opp)
         else:
-            self.master.stay(dt)
+            self.master.stay()
 
     def clear_vision(self):
         self.visible_actors_wd = []
@@ -185,7 +185,7 @@ class Primitive_AI(Brain):
         if other.fight_group < 100:
             return self.master.fight_group == other.fight_group
         else:
-            return self.master.fight_group == other.fight_group % consts['slash_fight_group']
+            return self.master.fight_group == other.base_fight_group
 
     def is_in_touch(self, other):
         return self.master.cshape.overlaps(other.cshape)
@@ -229,7 +229,7 @@ class Primitive_AI(Brain):
             self.mt = 0.5
             self.master.walk(-dir)
         else:
-            self.master.stay(dt)
+            self.master.stay()
 
 if __name__ == "__main__":
     print "Hello World"

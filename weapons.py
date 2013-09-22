@@ -7,14 +7,13 @@ __date__ = "$24.08.2013 12:52:47$"
 
 import pyglet
 
-import cocos
-from cocos import collision_model as cm
+#from cocos import collision_model as cm
 from cocos import euclid as eu
 
-import geometry as gm
+#import geometry as gm
 import consts as con
-import effects as eff
 import on_hit_effects as on_h
+import hits as hit
 
 consts = con.consts
 
@@ -33,137 +32,45 @@ def interval_proection(point, interval):
         return interval[1]
 
 
-def shape_to_cshape(shape):
+class Hand(pyglet.event.EventDispatcher):
 
-    """
-    Transform geometry shape to collision shape
-    """
+    def start_use(self, *args):
+        pass
 
-    if isinstance(shape, gm.Rectangle):
-        return cm.AARectShape(shape.pc, shape.h_width, shape.h_height)
-    else:
-        c = shape.p + shape.v/2
-        return cm.AARectShape(c, abs(shape.v.x/2), abs(shape.v.y/2))
+    def continue_use(self, *args):
+        pass
+
+    def end_use(self, *args):
+        pass
 
 
-class Slash(cocos.draw.Line):
-
-    def __init__(self, stp, endp, master):
-        self.master = master
-        self.fight_group = master.master.fight_group + consts['slash_fight_group']
-        super(Slash, self).__init__(stp, endp, (0, 255, 0, 255))
-        self._time_to_complete = 0.0
-        self._color_c = 0.0
-        self.cshape = None
-        self.trace = None
+class Weapon(Hand):
     
-    effects = property(lambda self: self.master.effects)
-  
-    def _change_time_to_complete(self, time):
-
-        """
-        Update time to complete with representable color
-        """
-
-        self._time_to_complete = time
-        #print 111
-        val = int(time * self._color_c)
-        self.color = (255 - val, val, 0, 255)
-    
-    time_to_complete = property(lambda self: self._time_to_complete,
-                                _change_time_to_complete)
-                    
-    def set_time_to_complete(self, time):
-
-        """
-        Init time and set color of line to dangerous red
-        """
-
-        self._time_to_complete = time
-        self._color_c = 255.0 / time
-    
-    def perform(self, time):
-
-        """
-        Morph line into real collideable figure.
-        """
-
-        #Define geometry and time data
-        v = self.end - self.start
-        start = gm.Point2(self.start.x, self.start.y)
-        self.trace = gm.LineSegment2(start, v)
-        self.cshape = shape_to_cshape(self.trace)
-        self.set_time_to_complete(time)
-    
-    def finish_hit(self):
-
-        """
-        End life of this line
-        """
-
-        self.master.finish_hit()
-        
-    def _move(self, vec):
-
-        """
-        Move end and start points of line
-        """
-
-        self.start += vec
-        self.end += vec
-        if self.master.attack_perform:
-            self.trace.p += vec
-            self.cshape.center += vec
-    
-    def parry(self, other):
-
-        """
-        Parry consider successful then two lines create defined angle
-        """
-
-        p = self.trace.intersect(other.trace)
-        if p is not None and self._cross_angle(other) <= consts['parry_cos_disp']:
-            #print eff.Sparkles.add_to_surface
-            #print p
-            eff.Sparkles().add_to_surface(p)
-            other.finish_hit()
-            self.finish_hit()
-    
-    def _cross_angle(self, other):
-
-        """
-        Calculate cos between two lines
-        """
-
-        #Cos of angle between two hit lines
-        v1 = self.trace.v
-        v2 = other.trace.v
-        angle = abs((v1.x * v2.x + v1.y * v2.y)/(abs(v1)*abs(v2)))
-        #print angle
-        return angle
-        
-
-
-class Weapon(pyglet.event.EventDispatcher):
-    
-    def __init__(self, master, length):
+    def __init__(self, name, length, weight, effects, environment):
         super(Weapon, self).__init__()
-        self.master = master
-        self.hit_type = Slash
+        self.master = None
+
+        self.name = name
+        self.hit_type = hit.Slash
         self.length = length
+        self.weight = weight
+
+        self.chop_time = consts['test_slash_time']
+        self.stab_time = consts['test_slash_time']
         
-        self.effects = [on_h.damage(3)(self), on_h.knock_back(100)(self)]
+        self.effects = map(lambda eff: eff(self), effects)
         
         self.actual_hit = None
         self.attack_perform = False
-    
-    def start_attack(self, start_point):
 
+        self.push_handlers(environment)
+    
+    def start_use(self, *args):
         """
         Create line what start from closest to start point possible place near Actor.
         """
-
         #Define start point of hit line on screen
+        start_point, hit_pattern = args
         if isinstance(start_point, eu.Vector2):
             stp = start_point.copy()
         else:
@@ -178,28 +85,25 @@ class Weapon(pyglet.event.EventDispatcher):
         vec = start_point - stp
         end = stp + vec.normalize()*self.length
         #Send line to holder in weapon for update end point and to screen for draw
-        self.actual_hit = self.hit_type(stp, end, self)
+        self.actual_hit = self.hit_type(stp, end, self, hit_pattern)
         self.dispatch_event('do_hit', self.actual_hit)
         
-    def aim(self, endp):
-
+    def continue_use(self, *args):
         """
         Define new end point
         """
-
-        stp = self.actual_hit.start
-        vec = endp - stp
-        end = stp + vec.normalize()*self.length
+        end_point = args[0]
+        start_point = self.actual_hit.start
+        vec = end_point - start_point
+        end = start_point + vec.normalize()*self.length
         self.actual_hit.end = end
         
-    def perform(self):
-
+    def end_use(self, *args):
         """
         Create full collidable obj from line and memor what attack is going on
         """
-
         self.attack_perform = True
-        self.actual_hit.perform(consts['test_slash_time'])
+        self.actual_hit.perform(self.chop_time)
         self.dispatch_event('hit_perform', self.actual_hit)
         
     def finish_hit(self):
@@ -228,5 +132,12 @@ Weapon.register_event_type('do_hit')
 Weapon.register_event_type('hit_perform')
 Weapon.register_event_type('remove_hit')
 
-if __name__ == "__main__":
-    print "Hello World"
+
+class Standard_Weapon(Weapon):
+
+    def __init__(self, environment):
+        super(Standard_Weapon, self).__init__("wp",
+                                              100,
+                                              20,
+                                              [on_h.damage(3), on_h.knock_back(100)],
+                                              environment)
