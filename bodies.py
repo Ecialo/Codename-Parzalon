@@ -131,14 +131,11 @@ class Body():
                 return
 
     def show_hitboxes(self):
-
         """
         Draw hitboxes of all Body Parts.
         """
-
         for bp in self.body_parts:
             self.master.add(box.Box(bp.shape, (255, 0, 0, 255)))
-    
     
 
 class Human(Body):

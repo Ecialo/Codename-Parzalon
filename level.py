@@ -1,0 +1,215 @@
+__author__ = 'Ecialo'
+
+#import pyglet
+from pyglet.window import key
+from pyglet.window import mouse
+
+import cocos
+from cocos.director import director
+from cocos import collision_model as cm
+from cocos import layer
+from cocos import tiles
+
+import effects as eff
+import bodies as bd
+import weapons as wp
+import brains as br
+import actor as ac
+import hits
+import consts as con
+
+consts = con.consts
+
+
+class Level_Layer(layer.ScrollableLayer):
+
+    is_event_handler = True
+
+    def __init__(self, scripts, force_ground, scroller):
+        super(Level_Layer, self).__init__()
+
+        #Controller
+        self.loc_mouse_handler = {'pos': (0, 0),
+                                  'd': (0, 0),
+                                  mouse.LEFT: False,
+                                  mouse.RIGHT: False,
+                                  mouse.MIDDLE: False}
+
+        self.loc_key_handler = key.KeyStateHandler()
+        director.window.push_handlers(self.loc_key_handler)
+
+        #Tilemaps. Setup this on Actor.
+        self.scroller = scroller
+        self.force_ground = force_ground
+        ac.Actor.tilemap = force_ground  # This bad
+
+        #Setup layer for effects
+        eff.Advanced_Emitter.surface = self  # This bad
+
+        #Collision managers. For static global and dynamic screen objects
+        self.collman = cm.CollisionManagerBruteForce()
+        self.static_collman = cm.CollisionManagerBruteForce()
+
+        #Lists of dynamic objs
+        self.hits = []
+        self.actors = []
+
+        #Append ground
+        #self.add(force_ground, z = 1)
+
+        #Append hero
+        self.hero = ac.Actor(bd.Human)
+        self.hero.get_item(wp.Standard_Weapon(self))
+        self.hero.get_item(wp.Standard_Weapon(self))
+        #self.hero.weapon.push_handlers(self)
+        #self.hero.move(200, 200)
+        self.add(self.hero, z=2)
+
+        #Append opponent
+        self.opponent = ac.Actor(bd.Human)
+        self.opponent.get_item(wp.Standard_Weapon(self))
+        #self.opponent.get_item(wp.Empty_Hand(self), 1)
+        #self.opponent.weapon.push_handlers(self)
+        #self.opponent.move(400, 200)
+        self.add(self.opponent, z=2)
+        self.actors.append(self.opponent)
+
+        #Move guys to location
+        for sc in scripts:
+            if 'player' in sc.properties:
+                r = self.hero.get_rect()
+                r.midbottom = sc.midbottom
+                dx, dy = r.center
+                self.hero.move_to(dx, dy)
+            elif 'opponent' in sc.properties:
+                r = self.opponent.get_rect()
+                r.midbottom = sc.midbottom
+                dx, dy = r.center
+                self.opponent.move_to(dx, dy)
+
+        #Set up brains
+        self.opponent.do(br.Primitive_AI())
+        #self.opponent.do(br.Dummy())
+        self.hero.do(br.Controller())
+
+        self.hero.show_hitboxes()
+        self.opponent.show_hitboxes()
+
+        #Run
+        self.schedule(self.update)
+
+    def _actor_kick_or_add(self, actor):
+        """
+        Remove Actor from self if he is dead
+        """
+        if actor.fight_group >= 0:
+            self.collman.add(actor)
+        else:
+            self.actors.remove(actor)
+
+    def update(self, dt):
+
+        """
+        1)Update Hits in dynamic collision manager and remove overdue objects
+        2)Check all collisions between Hits
+        3)Update Actors in collisions managers and remove dead Actors
+        4)Check all collisions between Actors and immovable objects
+        5)Check all collisions between all dynamic objects
+        """
+
+        #All collisions between movable objects calculate here
+        self.collman.clear()
+        for hit in self.hits:
+            if hit.time_to_complete <= 0 and not hit.completed:
+                hit.finish_hit()
+            elif hit.completed:
+                pass
+            else:
+                hit.time_to_complete = hit.time_to_complete - dt
+                self.collman.add(hit)
+
+        for hit_1, hit_2 in self.collman.iter_all_collisions():
+            hit_1.parry(hit_2)
+
+        self.collman.add(self.hero)
+        map(self._actor_kick_or_add, self.actors)
+
+        for obj1, obj2 in self.collman.iter_all_collisions():
+            ob1_hit = isinstance(obj1, hits.Slash)
+            ob2_hit = isinstance(obj2, hits.Slash)
+            if ob1_hit and ob2_hit:
+                pass
+            elif ob1_hit and obj1.time_to_complete <= 0:
+                obj2.take_hit(obj1)
+            elif ob2_hit and obj2.time_to_complete <= 0:
+                obj1.take_hit(obj2)
+            elif not ob1_hit and not ob2_hit:
+                #print obj1.fight_group, obj2.fight_group, consts['group']['hero']
+                if obj1.fight_group == consts['group']['hero']:
+                    obj1.stand_off(obj2)
+                elif obj2.fight_group == consts['group']['hero']:
+                    obj2.stand_off(obj1)
+                else:
+                    pass
+            else:
+                pass
+
+    def do_hit(self, hit):
+        """
+        Callback from Weapon. Append Hit to Level for show.
+        """
+        self.add(hit, z=2)
+
+    def hit_perform(self, hit):
+        """
+        Callback from Weapon. Append Hit to collision manager for calculate collisions
+        """
+        self.hits.append(hit)
+
+    def remove_hit(self, hit):
+        """
+        Remove overdue Hit from game.
+        """
+        #print hit
+        hit.kill()
+        self.hits.remove(hit)
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        self.loc_mouse_handler['pos'] = self.scroller.pixel_from_screen(x, y)
+        self.loc_mouse_handler['d'] = (dx, dy)
+
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifers):
+        self.loc_mouse_handler['pos'] = self.scroller.pixel_from_screen(x, y)
+        self.loc_mouse_handler['d'] = (dx, dy)
+
+    def on_mouse_press(self, x, y, buttons, modifers):
+        self.loc_mouse_handler['pos'] = self.scroller.pixel_from_screen(x, y)
+        self.loc_mouse_handler[buttons] = True
+
+    def on_mouse_release(self, x, y, buttons, modifers):
+        self.loc_mouse_handler['pos'] = self.scroller.pixel_from_screen(x, y)
+        self.loc_mouse_handler[buttons] = False
+
+
+def create_level(filename):
+
+    """
+    Create scrollable Level from tmx map
+    """
+
+    scene = cocos.scene.Scene()
+
+    data = tiles.load(filename)
+    back = data['Background']
+    force = data['Player Level']
+    scripts = data['Scripts']
+
+    scroller = layer.ScrollingManager()
+    player_layer = Level_Layer(scripts, force, scroller)
+
+    scroller.add(back, z=-1)
+    scroller.add(force, z=0)
+    scroller.add(player_layer, z=1)
+
+    scene.add(scroller, z=1)
+    return scene

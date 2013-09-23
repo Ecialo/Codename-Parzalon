@@ -142,13 +142,6 @@ class Standard_Weapon(Weapon):
         super(Standard_Weapon, self).__init__("wp",
                                               100,
                                               20,
-                                              [on_h.damage(0), on_h.knock_back(100)],
+                                              [on_h.damage(5), on_h.knock_back(100)],
                                               environment)
 
-class Empty_Hand(Weapon):
-    def __init__(self, environment):
-        super(Empty_Hand, self).__init__("h",
-                                              0,
-                                              0,
-                                              [],
-                                              environment)

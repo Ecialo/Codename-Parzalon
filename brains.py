@@ -79,7 +79,7 @@ class Controller(Brain):
             first_item.start_use(pos, con.STAB if alt else con.CHOP)
         elif first_hand_ac and first_item.on_use:
             first_item.continue_use(pos)
-        elif not first_hand_ac and first_item.on_use:
+        elif not first_hand_ac and first_item.on_use and not first_item.attack_perform:
             first_item.end_use()
         else:
             pass
@@ -97,23 +97,34 @@ class Controller(Brain):
         self.scroller.set_focus(*self.master.position)
 
 
-class Dummy(Brain):
-    
+class Enemy_Brain(Brain):
+
     fight_group = consts['group']['opponent']
+
+    def choose_free_hand(self):
+        for hand in self.hands:
+            if not hand.on_use:
+                return hand
+        return None
+
+    def use_hand(self, hand, start_args=[], continue_args=[], end_args=[]):
+        hand.start_use(*start_args)
+        hand.continue_use(*continue_args)
+        hand.end_use(*end_args)
+
+
+class Dummy(Enemy_Brain):
     
     def activity(self, dt):
-            
-        if self.master.actual_hit is None:
-            #print "Ololo"
-            self.master.start_attack(self.master.position -
-                                     eu.Vector2(self.master.width, 0.0))
-            self.master.aim(self.master.position + eu.Vector2(-50.0, 50.0))
-            self.master.perform()
+        hand = self.choose_free_hand()
+        if hand is not None:
+            start = self.master.position - eu.Vector2(self.master.width, 0.0)
+            target = self.master.position + eu.Vector2(-50.0, 50.0)
+            self.use_hand(hand, [start, con.CHOP], [target])
 
 
-class Primitive_AI(Brain):
-    
-    fight_group = consts['group']['opponent']
+class Primitive_AI(Enemy_Brain):
+
     mastery = consts['params']['primitive']['mastery']
     range_of_vision = consts['params']['primitive']['range_of_vision']
     closest = consts['params']['primitive']['closest']
@@ -172,7 +183,7 @@ class Primitive_AI(Brain):
                     self.mt -= dt
                     self.master.walk(self.prev_move)
                 else:
-                    self.dance_around(wd, dir, dt)
+                    self.dance_around(wd, dir)
                 #Parry if any danger
                 for hit_wd in self.visible_hits_wd:
                     if self.is_in_touch(hit_wd[0]):
@@ -209,7 +220,8 @@ class Primitive_AI(Brain):
         return self.master.cshape.overlaps(other.cshape)
 
     def parry(self, hit):
-        if rnd.random() < self.mastery or self.recovery > 0.0 or self.master.actual_hit is not None:
+        hand = self.choose_free_hand()
+        if rnd.random() < self.mastery or self.recovery > 0.0 or hand is None:
             #print 13
             return
         #print "parry"
@@ -219,11 +231,12 @@ class Primitive_AI(Brain):
         v = self.cross_hit_trace(hit)
         x = self.master.position[0] + self.master.width*dire
         start = eu.Vector2(x, h)
-        self.master.attack(start, start + v)
+        self.use_hand(hand, [start, con.CHOP], [start+v])
         self.recovery = 0.05
 
     def random_attack(self, other):
-        if rnd.random() < 0.05 or self.recovery > 0.0 or self.master.actual_hit is not None:
+        hand = self.choose_free_hand()
+        if rnd.random() < 0.05 or self.recovery > 0.0 or hand is None:
             return
         dire = other.position[0] - self.master.position[0]
         dire = dire/abs(dire) if dire != 0 else 0
@@ -234,10 +247,10 @@ class Primitive_AI(Brain):
         targ_y = other.position[1] + rnd.randint(-other.height/2, -other.height/2)
         start = eu.Vector2(x, h)
         end = (targ_x, targ_y)
-        self.master.attack(start, end)
+        self.use_hand(hand, [start, con.CHOP], [end])
         self.recovery = 0.05
 
-    def dance_around(self, wd, dir, dt):
+    def dance_around(self, wd, dir):
         mv = rnd.random()
         if wd > self.closest and mv < 0.05:
             self.prev_move = dir

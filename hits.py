@@ -77,6 +77,8 @@ class Slash(cocos.draw.Line):
         """
         End life of this line
         """
+        if self.completed:
+            return
         self.completed = True
         self.master.finish_hit()
 
