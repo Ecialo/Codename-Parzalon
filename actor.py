@@ -9,6 +9,7 @@ import consts as con
 
 consts = con.consts
 
+
 class Level_Collider(tiles.RectMapCollider):
 
     def collide_bottom(self, dy):
@@ -80,15 +81,6 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         Do not move Actor
         """
         self.horizontal_speed = 0
-
-    def attack(self, start_point, end_point):
-        """
-        Create Hit with Actor's Weapon. Hit start in start_point
-        and end in end_point
-        """
-        self.start_attack(start_point)
-        self.aim(end_point)
-        self.perform()
 
     def _move(self, dx, dy):
 
