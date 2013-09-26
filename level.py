@@ -10,6 +10,7 @@ from cocos import collision_model as cm
 from cocos import layer
 from cocos import tiles
 
+import movable_object
 import effects as eff
 import bodies as bd
 import weapons as wp
@@ -41,7 +42,7 @@ class Level_Layer(layer.ScrollableLayer):
         #Tilemaps. Setup this on Actor.
         self.scroller = scroller
         self.force_ground = force_ground
-        ac.Actor.tilemap = force_ground  # This bad
+        movable_object.Movable_Object.tilemap = force_ground  # This bad
 
         #Setup layer for effects
         eff.Advanced_Emitter.surface = self  # This bad
@@ -88,8 +89,8 @@ class Level_Layer(layer.ScrollableLayer):
                 self.opponent.move_to(dx, dy)
 
         #Set up brains
-        self.opponent.do(br.Primitive_AI())
-        #self.opponent.do(br.Dummy())
+        #self.opponent.do(br.Primitive_AI())
+        self.opponent.do(br.Dummy())
         self.hero.do(br.Controller())
 
         self.hero.show_hitboxes()
@@ -154,25 +155,35 @@ class Level_Layer(layer.ScrollableLayer):
             else:
                 pass
 
-    def do_hit(self, hit):
+    def on_do_hit(self, hit):
         """
         Callback from Weapon. Append Hit to Level for show.
         """
         self.add(hit, z=2)
 
-    def hit_perform(self, hit):
+    def on_hit_perform(self, hit):
         """
         Callback from Weapon. Append Hit to collision manager for calculate collisions
         """
         self.hits.append(hit)
 
-    def remove_hit(self, hit):
+    def on_remove_hit(self, hit):
         """
         Remove overdue Hit from game.
         """
         #print hit
         hit.kill()
         self.hits.remove(hit)
+
+    def on_drop_item(self, item):
+        self.add(item, z=3)
+
+    def on_get_up_item(self, item):
+        self.static_collman.remove_tricky(item)
+        item.kill()
+
+    def on_lay_item(self, item):
+        self.static_collman.add(item)
 
     def on_mouse_motion(self, x, y, dx, dy):
         self.loc_mouse_handler['pos'] = self.scroller.pixel_from_screen(x, y)

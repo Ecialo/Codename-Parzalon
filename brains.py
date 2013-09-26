@@ -30,6 +30,7 @@ class Brain(ac.Action):
     
     def start(self):
         self.master.fight_group = self.fight_group
+        self.static_objs = self.master.get_ancestor(layer.ScrollableLayer).static_collman
         #self.tilemap = self.master.get_ancestor(cocos.layer.ScrollableLayer).force_ground
     
     def step(self, dt):
@@ -77,7 +78,7 @@ class Controller(Brain):
 
         if first_hand_ac and not first_item.on_use:
             first_item.start_use(pos, con.STAB if alt else con.CHOP)
-        elif first_hand_ac and first_item.on_use:
+        elif first_hand_ac and first_item.on_use and not first_item.attack_perform:
             first_item.continue_use(pos)
         elif not first_hand_ac and first_item.on_use and not first_item.attack_perform:
             first_item.end_use()
@@ -92,6 +93,13 @@ class Controller(Brain):
             second_item.end_use()
         else:
             pass
+
+        gain = self.key[self.bind['gain']]
+        if gain:
+            items = self.static_objs.objs_touching_point(*pos)
+            for item in items:
+                self.master.get_item(item)
+                item.get_up()
         #cx, cy = self.master.position
         #print cx, cy
         self.scroller.set_focus(*self.master.position)

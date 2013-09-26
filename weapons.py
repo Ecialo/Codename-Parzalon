@@ -7,23 +7,22 @@ __date__ = "$24.08.2013 12:52:47$"
 
 import pyglet
 
-#from cocos import collision_model as cm
+from cocos import collision_model as cm
 from cocos import euclid as eu
 
 #import geometry as gm
 import consts as con
 import on_hit_effects as on_h
 import hits as hit
+import movable_object as mova
 
 consts = con.consts
 
 
 def interval_proection(point, interval):
-
     """
     Return point in interval closet to given
     """
-
     if interval[0] <= point < interval[1]:
         return point
     elif point < interval[0]:
@@ -32,10 +31,14 @@ def interval_proection(point, interval):
         return interval[1]
 
 
-class Item(pyglet.event.EventDispatcher):
+class Item(mova.Movable_Object, pyglet.event.EventDispatcher):
 
-    def __init__(self):
-        super(Item, self).__init__()
+    def __init__(self, img):
+        cshape = cm.AARectShape(eu.Vector2(0, 0), img.height/2, img.width/2)
+        mova.Movable_Object.__init__(self, img, cshape)
+        pyglet.event.EventDispatcher.__init__(self)
+
+        self.master = None
         self.on_use = False
 
     def start_use(self, *args):
@@ -47,13 +50,30 @@ class Item(pyglet.event.EventDispatcher):
     def end_use(self, *args):
         self.on_use = False
 
+    def drop(self):
+        self.position = self.master.position
+        self.cshape.center = self.master.cshape.center.copy()
+        self.horizontal_speed = self.master.horizontal_speed
+        self.vertical_speed = self.master.vertical_speed
+        self.dispatch_event('on_drop_item', self)
+        self.schedule(self.update)
+
+    def get_up(self):
+        self.dispatch_event('on_get_up_item', self)
+
+    def update(self, dt):
+        mova.Movable_Object.update(self, dt)
+        if self.wall & con.DOWN:
+            self.dispatch_event('on_lay_item', self)
+            self.unschedule(self.update)
+Item.register_event_type('on_drop_item')
+Item.register_event_type('on_get_up_item')
+Item.register_event_type('on_lay_item')
 
 class Weapon(Item):
     
     def __init__(self, name, length, weight, effects, environment):
-        super(Weapon, self).__init__()
-        self.master = None
-
+        super(Weapon, self).__init__(consts['img']['weapon'])
         self.name = name
         self.hit_type = hit.Slash
         self.length = length
@@ -91,7 +111,7 @@ class Weapon(Item):
         end = stp + vec.normalize()*self.length
         #Send line to holder in weapon for update end point and to screen for draw
         self.actual_hit = self.hit_type(stp, end, self, hit_pattern)
-        self.dispatch_event('do_hit', self.actual_hit)
+        self.dispatch_event('on_do_hit', self.actual_hit)
         
     def continue_use(self, *args):
         """
@@ -109,13 +129,13 @@ class Weapon(Item):
         """
         self.attack_perform = True
         self.actual_hit.perform(self.chop_time)
-        self.dispatch_event('hit_perform', self.actual_hit)
+        self.dispatch_event('on_hit_perform', self.actual_hit)
         
     def finish_hit(self):
         """
         Remove current Hit and complete attack
         """
-        self.dispatch_event('remove_hit', self.actual_hit)
+        self.dispatch_event('on_remove_hit', self.actual_hit)
         self.attack_perform = False
         self.actual_hit = None
         self.on_use = False
@@ -129,11 +149,11 @@ class Weapon(Item):
             self.finish_hit()
         elif self.actual_hit is not None:
             self.actual_hit.kill()
-        self.pop_handlers()
+        #self.pop_handlers()
         
-Weapon.register_event_type('do_hit')
-Weapon.register_event_type('hit_perform')
-Weapon.register_event_type('remove_hit')
+Weapon.register_event_type('on_do_hit')
+Weapon.register_event_type('on_hit_perform')
+Weapon.register_event_type('on_remove_hit')
 
 
 class Standard_Weapon(Weapon):

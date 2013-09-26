@@ -5,51 +5,24 @@ from cocos import collision_model as cm
 from cocos import tiles
 from cocos import euclid as eu
 
+import movable_object
 import consts as con
 
 consts = con.consts
 
 
-class Level_Collider(tiles.RectMapCollider):
-
-    def collide_bottom(self, dy):
-        self.wall |= con.DOWN
-        self.on_ground = True
-        self.vertical_speed = 0
-
-    def collide_top(self, dy):
-        self.wall |= con.UP
-        self.vertical_speed = 0
-
-    def collide_left(self, dx):
-        self.wall |= con.LEFT
-        #self.horizontal_speed = 0
-
-    def collide_right(self, dy):
-        self.wall |= con.RIGHT
-        #self.horizontal_speed = 0
-
-
-class Actor(cocos.sprite.Sprite, Level_Collider):
+class Actor(movable_object.Movable_Object):
 
     is_event_handler = True
-    tilemap = None
 
     def __init__(self, body):
         self.fight_group = -1
 
         self.hands = []
-
         self.body = body(self)
-        super(Actor, self).__init__(self.body.img)
 
-        self.cshape = cm.AARectShape(eu.Vector2(*self.position),
-                                     self.body.img.width/2, self.body.img.height/2)
-
-        self.on_ground = False
-        self.vertical_speed = 0
-        self.horizontal_speed = 0
-        self.wall = con.NO_TR
+        cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
+        super(Actor, self).__init__(self.body.img, cshape)
 
         self.recovery = 0.0  # Time before moment when acton can be controlled again
 
@@ -63,9 +36,19 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         """
         Remove Actor from level
         """
-        self.hands[0].dearm()
+        for item in self.hands:
+            item.dearm()
+            item.drop()
         self.fight_group = -1
         self.kill()
+
+    def _move(self, dx, dy):
+        old = self.cshape.center.copy()
+        super(Actor, self)._move(dx, dy)
+        vec = self.cshape.center.copy() - old
+        for hand in self.hands:
+            if hand.actual_hit is not None:
+                hand.actual_hit._move(vec)
 
     def walk(self, horizontal_direction):
         """
@@ -82,51 +65,14 @@ class Actor(cocos.sprite.Sprite, Level_Collider):
         """
         self.horizontal_speed = 0
 
-    def _move(self, dx, dy):
-
-        """
-        Try to move Actor on dx, ndy with registrations all collisions
-        with map.
-        """
-
-        self.on_ground = False
-        self.wall = con.NO_TR
-        orig = self.get_rect()
-        last = self.get_rect()
-        new = last.copy()
-        new.x += dx
-        self.collide_map(self.tilemap, last, new, dx, 0)
-        last = new.copy()
-        new.y += dy
-        self.collide_map(self.tilemap, last, new, 0, dy)
-        ndx, ndy = new.x - orig.x, new.y - orig.y
-        vec = eu.Vector2(int(ndx), int(ndy))
-        self.position += vec
-        self.cshape.center += vec
-        for hand in self.hands:
-            if hand.actual_hit is not None:
-                hand.actual_hit._move(vec)
-
     def push(self, v):
         self.horizontal_speed += v.x
         self.vertical_speed += v.y
 
-    def update(self, dt):
-        dy = self.vertical_speed * dt if self.vertical_speed != 0 else 0
-        dx = self.horizontal_speed * dt if self.horizontal_speed != 0 else 0
-        self._move(dx, dy)
-        if not self.on_ground:
-            self.vertical_speed -= consts['gravity'] * dt
-        else:
-            self.vertical_speed = 0
-        speed = abs(self.horizontal_speed)
-        d = self.horizontal_speed/speed if self.horizontal_speed != 0 else 0
-        speed -= consts['rubbing'] * dt
-        self.horizontal_speed = speed * d if speed >= 0 else 0
-
     def get_item(self, item):
         self.hands.append(item)
         item.master = self
+
 
     def jump(self):
         """
