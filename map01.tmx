@@ -51,7 +51,7 @@
     <property name="player" value="yes"/>
    </properties>
   </object>
-  <object name="opponent" type="Position" x="1798" y="2591" width="138" height="84">
+  <object name="opponent" type="Position" x="1101" y="2584" width="138" height="84">
    <properties>
     <property name="opponent" value="yes"/>
    </properties>

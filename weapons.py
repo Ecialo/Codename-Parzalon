@@ -31,10 +31,10 @@ def interval_proection(point, interval):
         return interval[1]
 
 
-class Item(mova.Movable_Object, pyglet.event.EventDispatcher):
+class Item(mova.Movable_Object):
 
     def __init__(self, img):
-        cshape = cm.AARectShape(eu.Vector2(0, 0), img.height/2, img.width/2)
+        cshape = cm.AARectShape(eu.Vector2(0, 0), img.width/2, img.height/2,)
         mova.Movable_Object.__init__(self, img, cshape)
         pyglet.event.EventDispatcher.__init__(self)
 
@@ -70,10 +70,11 @@ Item.register_event_type('on_drop_item')
 Item.register_event_type('on_get_up_item')
 Item.register_event_type('on_lay_item')
 
+
 class Weapon(Item):
     
-    def __init__(self, name, length, weight, effects, environment):
-        super(Weapon, self).__init__(consts['img']['weapon'])
+    def __init__(self, name, img, length, weight, effects, environment):
+        super(Weapon, self).__init__(img)
         self.name = name
         self.hit_type = hit.Slash
         self.length = length
@@ -129,9 +130,9 @@ class Weapon(Item):
         """
         self.attack_perform = True
         self.actual_hit.perform(self.chop_time)
-        self.dispatch_event('on_hit_perform', self.actual_hit)
+        self.dispatch_event('on_perform_hit', self.actual_hit)
         
-    def finish_hit(self):
+    def destroy(self):
         """
         Remove current Hit and complete attack
         """
@@ -146,22 +147,73 @@ class Weapon(Item):
         Weapon now can't do anything
         """
         if self.attack_perform and self.actual_hit is not None:
-            self.finish_hit()
+            self.destroy()
         elif self.actual_hit is not None:
             self.actual_hit.kill()
         #self.pop_handlers()
         
 Weapon.register_event_type('on_do_hit')
-Weapon.register_event_type('on_hit_perform')
+Weapon.register_event_type('on_perform_hit')
 Weapon.register_event_type('on_remove_hit')
+
+
+class Throwable_Weapon(Weapon):
+
+    def __init__(self, name, img, length, weight, effects, throw_speed, environment):
+        Weapon.__init__(self, name, img, length, weight, effects, environment)
+        self.throw_speed = throw_speed
+        self.alt = 0
+
+    def start_use(self, *args):
+        if args[-1] == 0:
+            Weapon.start_use(self, *args)
+            self.alt = 0
+        else:
+            self.on_use = True
+            self.alt = 1
+
+    def continue_use(self, *args):
+        if self.alt == 0:
+            Weapon.continue_use(self, *args)
+        else:
+            pass
+
+    def end_use(self, *args):
+        if self.alt == 0:
+            Weapon.end_use(self, *args)
+        else:
+            end_point = eu.Vector2(*args[0])
+            v = end_point - self.master.cshape.center
+            hit_zone = hit.Hit_Zone(self, self.image, v, 300, self.master.position)
+            self.actual_hit = hit_zone
+            self.dispatch_event('on_launch_missile', hit_zone)
+            self.on_use = False
+            hit_zone.show_hitboxes()
+            self.master.hands.remove(self)
+
+    def destroy_missile(self):
+        self.dispatch_event('on_remove_missile', self.actual_hit)
+        self.actual_hit = None
+Throwable_Weapon.register_event_type('on_launch_missile')
+Throwable_Weapon.register_event_type('on_remove_missile')
+
+
+class Knife(Throwable_Weapon):
+    def __init__(self, environment):
+        super(Throwable_Weapon, self).__init__("kn",
+                                               consts['img']['knife'],
+                                               50,
+                                               20,
+                                               [on_h.damage(1), on_h.cleave],
+                                               environment)
 
 
 class Standard_Weapon(Weapon):
 
     def __init__(self, environment):
         super(Standard_Weapon, self).__init__("wp",
+                                              consts['img']['weapon'],
                                               100,
                                               20,
                                               [on_h.damage(5), on_h.knock_back(100)],
                                               environment)
-

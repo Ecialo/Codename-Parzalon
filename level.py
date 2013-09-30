@@ -53,6 +53,7 @@ class Level_Layer(layer.ScrollableLayer):
 
         #Lists of dynamic objs
         self.hits = []
+        self.missiles = []
         self.actors = []
 
         #Append ground
@@ -61,7 +62,8 @@ class Level_Layer(layer.ScrollableLayer):
         #Append hero
         self.hero = ac.Actor(bd.Human)
         self.hero.get_item(wp.Standard_Weapon(self))
-        self.hero.get_item(wp.Standard_Weapon(self))
+        for i in xrange(20):
+            self.hero.get_item(wp.Knife(self))
         #self.hero.weapon.push_handlers(self)
         #self.hero.move(200, 200)
         self.add(self.hero, z=2)
@@ -121,39 +123,36 @@ class Level_Layer(layer.ScrollableLayer):
         #All collisions between movable objects calculate here
         self.collman.clear()
         for hit in self.hits:
-            if hit.time_to_complete <= 0 and not hit.completed:
-                hit.finish_hit()
+            if hit.time_to_complete <= 0.0 and not hit.completed:
+                hit.destroy()
             elif hit.completed:
                 pass
             else:
                 hit.time_to_complete = hit.time_to_complete - dt
                 self.collman.add(hit)
 
+        for missile in self.missiles:
+            self.collman.add(missile)
+
         for hit_1, hit_2 in self.collman.iter_all_collisions():
-            hit_1.parry(hit_2)
+            hit_1.collide(hit_2)
 
         self.collman.add(self.hero)
         map(self._actor_kick_or_add, self.actors)
 
         for obj1, obj2 in self.collman.iter_all_collisions():
-            ob1_hit = isinstance(obj1, hits.Slash)
-            ob2_hit = isinstance(obj2, hits.Slash)
-            if ob1_hit and ob2_hit:
-                pass
-            elif ob1_hit and obj1.time_to_complete <= 0:
-                obj2.take_hit(obj1)
-            elif ob2_hit and obj2.time_to_complete <= 0:
-                obj1.take_hit(obj2)
-            elif not ob1_hit and not ob2_hit:
-                #print obj1.fight_group, obj2.fight_group, consts['group']['hero']
-                if obj1.fight_group == consts['group']['hero']:
-                    obj1.stand_off(obj2)
-                elif obj2.fight_group == consts['group']['hero']:
-                    obj2.stand_off(obj1)
-                else:
-                    pass
-            else:
-                pass
+            obj1.collide(obj2)
+
+    def on_launch_missile(self, missile):
+        self.add(missile, z=2)
+        self.missiles.append(missile)
+
+    def on_remove_missile(self, missile):
+        #print missile
+        self.missiles.remove(missile)
+        #if self.collman.knows(missile):
+        #    self.collman.remove_tricky(missile)
+        missile.kill()
 
     def on_do_hit(self, hit):
         """
@@ -161,10 +160,11 @@ class Level_Layer(layer.ScrollableLayer):
         """
         self.add(hit, z=2)
 
-    def on_hit_perform(self, hit):
+    def on_perform_hit(self, hit):
         """
         Callback from Weapon. Append Hit to collision manager for calculate collisions
         """
+        #print hit.master.master.fight_group
         self.hits.append(hit)
 
     def on_remove_hit(self, hit):
@@ -172,8 +172,10 @@ class Level_Layer(layer.ScrollableLayer):
         Remove overdue Hit from game.
         """
         #print hit
-        hit.kill()
         self.hits.remove(hit)
+        #if self.collman.knows(hit):
+        #    self.collman.remove_tricky(hit)
+        hit.kill()
 
     def on_drop_item(self, item):
         self.add(item, z=3)

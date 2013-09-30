@@ -3,12 +3,15 @@ __author__ = 'Ecialo'
 
 import cocos
 from cocos import collision_model as cm
-#from cocos import euclid as eu
+from cocos import euclid as eu
+from cocos import layer
 
 import geometry as gm
 import consts as con
 import effects as eff
-#import on_hit_effects as on_h
+import movable_object as mova
+import collides as coll
+import box
 
 consts = con.consts
 
@@ -40,8 +43,9 @@ class Slash(cocos.draw.Line):
         self.trace = None
 
         self.hit_pattern = hit_pattern
+        self.features = set()
 
-    effects = property(lambda self: map(lambda eff: eff(self), self.master.effects))
+    effects = property(lambda self: filter(None, map(lambda eff: eff(self), self.master.effects)))
 
     def _change_time_to_complete(self, time):
         """
@@ -62,6 +66,18 @@ class Slash(cocos.draw.Line):
         self._time_to_complete = time
         self._color_c = 255.0 / time
 
+    def collide(self, other):
+        other._collide_slash(self)
+
+    def _collide_slash(self, other):
+        coll.collide_slash_slash(self, other)
+
+    def _collide_actor(self, other):
+        coll.collide_actor_slash(other, self)
+
+    def _collide_hit_zone(self, other):
+        coll.collide_slash_hit_zone(self, other)
+
     def perform(self, time):
         """
         Morph line into real collideable figure.
@@ -73,14 +89,14 @@ class Slash(cocos.draw.Line):
         self.cshape = shape_to_cshape(self.trace)
         self.set_time_to_complete(time)
 
-    def finish_hit(self):
+    def destroy(self):
         """
         End life of this line
         """
         if self.completed:
             return
         self.completed = True
-        self.master.finish_hit()
+        self.master.destroy()
 
     def _move(self, vec):
         """
@@ -111,8 +127,8 @@ class Slash(cocos.draw.Line):
             #print eff.Sparkles.add_to_surface
             #print p
             eff.Sparkles().add_to_surface(p)
-            other.finish_hit()
-            self.finish_hit()
+            other.destroy()
+            self.destroy()
 
     def _cross_angle(self, other):
         """
@@ -124,3 +140,85 @@ class Slash(cocos.draw.Line):
         angle = abs((v1.x * v2.x + v1.y * v2.y)/(abs(v1)*abs(v2)))
         #print angle
         return angle
+
+
+def on_level_collide_destroy(update_fun):
+
+    def dec_update(self, dt):
+        #print self.wall
+        update_fun(self, dt)
+        if self.wall is not con.NO_TR:
+            print self.wall
+            self.destroy()
+    return dec_update
+
+
+def non_gravity_update(self, dt):
+    #print self.position, self.cshape.center,
+    start_point = self.cshape.center.copy()
+    dy = self.vertical_speed * dt if self.vertical_speed != 0 else 0
+    dx = self.horizontal_speed * dt if self.horizontal_speed != 0 else 0
+    self._move(dx, dy)
+    #print start_point, self.cshape.center
+    v = self.cshape.center - start_point
+    #print v
+    self.trace.p += v
+    #print self.trace.p
+    #print self.wall
+
+
+class _Hit_Zone(mova.Movable_Object):
+
+    def __init__(self, master, img, vector, speed, position=(0, 0)):
+        #cshape = cm.AARectShape(eu.Vector2(*position), img.width/2, img.height/2)
+        self.trace = gm.Rectangle(gm.Point2(0, 0), eu.Vector2(img.width, img.height))
+        self.trace.pc = position
+        cshape = shape_to_cshape(self.trace)
+        v = vector/abs(vector) * speed
+        mova.Movable_Object.__init__(self, img, cshape, position, v.y, v.x)
+        self.master = master
+        self.fight_group = master.master.fight_group + consts['slash_fight_group']
+        self.base_fight_group = master.master.fight_group
+        self.features = set()
+        self.hit_pattern = con.STAB
+
+        self.schedule(self.update)
+        #print self.update
+
+    update = on_level_collide_destroy(non_gravity_update)
+    effects = property(lambda self: filter(None, map(lambda eff: eff(self), self.master.effects)))
+
+    def destroy(self):
+        self.master.destroy_missile()
+
+    def collide(self, other):
+        other._collide_hit_zone(self)
+
+    def _collide_hit_zone(self, other):
+        coll.collide_hit_zone_hit_zone(self, other)
+
+    def _collide_actor(self, other):
+        coll.collide_actor_hit_zone(other, self)
+
+    def _collide_slash(self, other):
+        coll.collide_slash_hit_zone(other, self)
+
+    def show_hitboxes(self):
+        shape = self.trace.copy()
+        shape.pc = (0, 0)
+        self.add(box.Box(shape, (255, 0, 0, 255)), z=5)
+
+
+class _Visible_Hit_Zone(_Hit_Zone):
+    pass
+
+
+class _Invisible_Hit_Zone(_Hit_Zone):
+    pass
+
+
+def Hit_Zone(master, img, v, speed, position=(0, 0)):
+        if img is None:
+            return _Invisible_Hit_Zone()
+        else:
+            return _Visible_Hit_Zone(master, img, v, speed, position)

@@ -1,5 +1,8 @@
 __author__ = 'Ecialo'
 
+import consts as con
+
+
 def damage(value):
     def mast_damage(master):
         def fab_damage(body_part):
@@ -26,3 +29,11 @@ def stun(value):
             pass
         return fab_stun
     return mast_stun
+
+
+def cleave(master):
+    master.features.add(con.CLEAVE)
+
+
+def penetrate(master):
+    master.features.add(con.PENETRATE)

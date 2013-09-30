@@ -2,11 +2,11 @@ __author__ = 'Ecialo'
 
 import cocos
 from cocos import collision_model as cm
-from cocos import tiles
 from cocos import euclid as eu
 
 import movable_object
 import consts as con
+import collides as coll
 
 consts = con.consts
 
@@ -31,6 +31,18 @@ class Actor(movable_object.Movable_Object):
     height = property(lambda self: self.body.img.height)
     width = property(lambda self: self.body.img.width)
     #attack_perform = property(lambda self: self.hands[0].attack_perform)
+
+    def collide(self, other):
+        other._collide_actor(self)
+
+    def _collide_actor(self, other):
+        coll.collide_actor_actor(self, other)
+
+    def _collide_hit_zone(self, other):
+        coll.collide_actor_hit_zone(self, other)
+
+    def _collide_slash(self, other):
+        coll.collide_actor_slash(self, other)
 
     def destroy(self):
         """
@@ -73,7 +85,6 @@ class Actor(movable_object.Movable_Object):
         self.hands.append(item)
         item.master = self
 
-
     def jump(self):
         """
         Actor jump with his body jump speed.
@@ -92,20 +103,6 @@ class Actor(movable_object.Movable_Object):
         for hand in self.hands:
             if hand.actual_hit is not None:
                 hand.actual_hit._move(vec - old)
-
-    def stand_off(self, other):
-        """
-        Push aside Actor from other collidable object
-        """
-        s_c = self.cshape.center
-        o_c = other.cshape.center
-        d = o_c - s_c
-        l = self.width/2 + other.width/2
-        dd = l - abs(d.x)
-        if d.x > 0:
-            self._move(-dd, 0)
-        else:
-            self._move(dd, 0)
 
     def take_hit(self, hit):
         """

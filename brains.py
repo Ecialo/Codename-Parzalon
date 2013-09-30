@@ -69,30 +69,32 @@ class Controller(Brain):
         self.master.walk(hor_dir)
 
         #Action
+        items = len(self.hands)
         first_hand_ac = self.mouse[self.bind['first_hand']]
-        second_hand_ac = self.mouse[self.bind['second_hand']]
         alt = self.key[self.bind['alt_mode']]
         pos = self.mouse['pos']
         first_item = self.hands[con.FIRST_HAND]
-        second_item = self.hands[con.SECOND_HAND]
 
         if first_hand_ac and not first_item.on_use:
             first_item.start_use(pos, con.STAB if alt else con.CHOP)
         elif first_hand_ac and first_item.on_use and not first_item.attack_perform:
             first_item.continue_use(pos)
         elif not first_hand_ac and first_item.on_use and not first_item.attack_perform:
-            first_item.end_use()
+            first_item.end_use(pos)
         else:
             pass
 
-        if second_hand_ac and second_item.actual_hit is None:
-            second_item.start_use(pos, con.STAB if alt else con.CHOP)
-        elif second_hand_ac and second_item.actual_hit is not None and not second_item.attack_perform:
-            second_item.continue_use(pos)
-        elif not second_hand_ac and second_item.actual_hit is not None and not second_item.attack_perform:
-            second_item.end_use()
-        else:
-            pass
+        if items > 1:
+            second_hand_ac = self.mouse[self.bind['second_hand']]
+            second_item = self.hands[con.SECOND_HAND]
+            if second_hand_ac and second_item.actual_hit is None:
+                second_item.start_use(pos, con.STAB if alt else con.CHOP)
+            elif second_hand_ac and second_item.on_use and not second_item.attack_perform:
+                second_item.continue_use(pos)
+            elif not second_hand_ac and second_item.on_use and not second_item.attack_perform:
+                second_item.end_use(pos)
+            else:
+                pass
 
         gain = self.key[self.bind['gain']]
         if gain:
@@ -124,6 +126,7 @@ class Enemy_Brain(Brain):
 class Dummy(Enemy_Brain):
     
     def activity(self, dt):
+        pass
         hand = self.choose_free_hand()
         if hand is not None:
             start = self.master.position - eu.Vector2(self.master.width, 0.0)

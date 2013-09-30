@@ -1,5 +1,6 @@
 import cocos.euclid as eu
 
+
 class Geometry(eu.Geometry):
 
     def _intersect_unimplemented(self, other):
@@ -13,14 +14,16 @@ class Geometry(eu.Geometry):
     
     _intersect_rectangle = _intersect_unimplemented
     _connect_rectangle = _connect_unimplemented
-    
+
+
 def _intersect_point2_rectangle(P, R):
     if R.p.x <= P.x <= R.p.x + R.v.x and\
        R.p.y <= P.y <= R.p.y + R.v.y:
            return P.copy()
     else:
         return None
-    
+
+
 def _intersect_line2_rectangle(L, R): #Pavgran: reworked
     l_line = Line2(R.plb, R.plt)
     r_line = Line2(R.prb, R.prt)
@@ -50,6 +53,7 @@ def _intersect_line2_rectangle(L, R): #Pavgran: reworked
         return res[0]
     else:
         return LineSegment2(res[0], res[1])
+
 
 def _intersect_linesegment2_rectangle(L, R): #Pavgran: implemented
     p1 = L.p1
@@ -90,8 +94,10 @@ def _intersect_linesegment2_rectangle(L, R): #Pavgran: implemented
         else:
             return LineSegment2(p3, res[0])
 
+
 def _intersect_circle_rectangle(C, R):
     pass
+
 
 def _intersect_rectangle_rectangle(A, B): #Pavgran: implemented
     lba_inb = _intersect_point2_rectangle(A.plb, B)
@@ -181,15 +187,17 @@ def _intersect_rectangle_rectangle(A, B): #Pavgran: implemented
 def _connect_point2_rectangle(P, R):
     pass
 
+
 def _connect_line2_rectangle(L, R):
     pass
+
 
 def _connect_circle_rectangle(C, R):
     pass
 
+
 def _connect_rectangle_rectangle(A, B):
     pass
-
 
 
 def _set_lb(self, other): #Pavgran: added parameter checking
@@ -197,26 +205,29 @@ def _set_lb(self, other): #Pavgran: added parameter checking
         other = Point2(*other)
     self.p = other.copy()
 
+
 def _set_rb(self, other): #Pavgran: added parameter checking
     if not isinstance(other, Point2):
         other = Point2(*other)
     self.p = other - eu.Vector2(self.v.x, 0.0)
+
 
 def _set_lt(self, other): #Pavgran: added parameter checking
     if not isinstance(other, Point2):
         other = Point2(*other)
     self.p = other - eu.Vector2(0.0, self.v.y)
 
+
 def _set_rt(self, other): #Pavgran: added parameter checking
     if not isinstance(other, Point2):
         other = Point2(*other)
     self.p = other - eu.Vector2(self.v.x, self.v.y)
 
+
 def _set_c(self, other): #Pavgran: added parameter checking
     if not isinstance(other, Point2):
         other = Point2(*other)
     self.p = other - eu.Vector2(self.v.x, self.v.y)/2
-
 
 
 class Rectangle(Geometry):
@@ -253,7 +264,6 @@ class Rectangle(Geometry):
     pc = property(lambda self: self.plb + self.v/2, _set_c)
     h_height = property(lambda self: self.v.y/2)
     h_width = property(lambda self: self.v.x/2)
-
 
     def __copy__(self):
         return self.__class__(self.p, self.v)
@@ -304,7 +314,6 @@ class Rectangle(Geometry):
         return _connect_rectangle_rectangle(other, self)
 
 
-
 class Circle(Geometry, eu.Circle):
     
     def _intersect_rectangle(self, other):
@@ -312,6 +321,7 @@ class Circle(Geometry, eu.Circle):
     
     def _connect_rectangle(self, other):
         return _connect_circle_rectangle(self, other)
+
 
 class Point2(Geometry, eu.Point2):
     
@@ -321,6 +331,7 @@ class Point2(Geometry, eu.Point2):
     def _connect_rectangle(self, other):
         return _connect_point2_rectangle(self, other)
 
+
 class Line2(Geometry, eu.Line2):
     
     def _intersect_rectangle(self, other):
@@ -329,9 +340,11 @@ class Line2(Geometry, eu.Line2):
     def _connect_rectangle(self, other):
         return _connect_line2_rectangle(self, other)
 
+
 class Ray2(Line2, eu.Ray2):
     
     pass
+
 
 class LineSegment2(Line2, eu.LineSegment2):
     
