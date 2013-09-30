@@ -177,7 +177,7 @@ class _Hit_Zone(mova.Movable_Object):
         v = vector/abs(vector) * speed
         mova.Movable_Object.__init__(self, img, cshape, position, v.y, v.x)
         self.master = master
-        self.fight_group = master.master.fight_group + consts['slash_fight_group']
+        self.fight_group = master.master.fight_group + consts['missile_fight_group']
         self.base_fight_group = master.master.fight_group
         self.features = set()
         self.hit_pattern = con.STAB

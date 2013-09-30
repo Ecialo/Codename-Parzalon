@@ -37,7 +37,8 @@ consts = {'window': {'width': 800,
           'test_slash_time': 0.8,
           'gravity': 1500,
           'rubbing': 100,
-          'slash_fight_group': 100}
+          'slash_fight_group': 100,
+          'missile_fight_group': 1000}
 
 LEFT, UP, RIGHT, DOWN, NO_TR = 0b1000, 0b0100, 0b0010, 0b0001, 0b0000
 CHOP, STAB = xrange(2)

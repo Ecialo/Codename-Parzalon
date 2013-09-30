@@ -154,8 +154,10 @@ class Primitive_AI(Enemy_Brain):
         for obj_wd in self.vision.objs_near_wdistance(self.master, self.range_of_vision):
             if obj_wd[0].fight_group < consts['slash_fight_group']:
                 self.visible_actors_wd.append(obj_wd)
-            else:
+            elif obj_wd[0].fight_group < consts['missile_fight_group']:
                 self.visible_hits_wd.append(obj_wd)
+            else:
+                pass
     
     def activity(self, dt):
         #print self.master.cshape.center

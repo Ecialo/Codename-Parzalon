@@ -91,8 +91,8 @@ class Level_Layer(layer.ScrollableLayer):
                 self.opponent.move_to(dx, dy)
 
         #Set up brains
-        #self.opponent.do(br.Primitive_AI())
-        self.opponent.do(br.Dummy())
+        self.opponent.do(br.Primitive_AI())
+        #AAself.opponent.do(br.Dummy())
         self.hero.do(br.Controller())
 
         self.hero.show_hitboxes()
