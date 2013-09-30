@@ -48,7 +48,7 @@ class Body_Part():
             effect(self)
         if self.health <= 0:
             self.destroy()
-        print self.health, self.armor
+        #print self.health, self.armor
         
     def destroy(self):
 
