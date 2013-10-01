@@ -42,7 +42,7 @@
    <property name="obstackle" value="yes"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJzt2k1O60AQRWGbNcBCGbE+zMZQDSKiyAHb1M/trvNJd4h5cOjwbLIsAAAAAAAAANDHp8MyPk8X9rW+rtd3pkf055gB5wMA5rQtvOaq2JafHvyfpNatheF81LpvgVq00EELHbTQQQsdtNBBi1zcN2jhvloL5wMAAEAT78vQcuU+hnuZOJyPXiI7H73e18F1cPb18GwPj+t1evaqcD5+06mFOlrooIUOWuighQ5a6KCFDlrooIUOWuighQ5a6KCFDlrooIUOWpyzPew/fyP2Wld7P7v2/Xhf69a1x7PXkcpz0fW9MYqv6V17KLYwHXuotjDdeii3MJ16qLcwXXqM0MJ06DFKCzP7/eBILWZHCx0dW6g9P/vr+kff07+3yucnR/fx4jePJvbxb+v+rl77ds6eXVdl3j08mnifP6Vn79nnw/OceBjx909ED4UmI7YwUT0qm4zawkT2qGgycgsT3SOzyegtTEaPjCYztDBZPSKbzNLCZPaIaDJTC5Pdw7PJbC1MRQ+PJhEtFO5hq3rcN2Gxz0sqZs/jqv8NjDHGGGOMMcYYY4wxxvruG2cTWus=
+   eJzt2k1O60AQRWGbDTCBhTJifZiNoRpERMgB29TP7a7zSXeIeXDo8GyyLAAAAAAAAADQx4fDMj5PF/a1vqzXd6ZH9OeYAecDAOa0LbzmqtiW7x78n6TWrYXhfNS6b4FatNBBCx200EELHbTQQYtc3Ddo4b5aC+cDAABAE+/L0HLlPoZ7mTicj14iOx+93ufBdXD29fBsD4/rdXr2qnA+ftOphTpa6KCFDlrooIUOWuighQ5a6KCFDlrooIUOWuighQ5a6KCFDlqcs/3Yf/5G7LWu9n527fvxttata49HryOV56Lre2MUX9O79lBsYTr2UG1huvVQbmE69VBvYbr0GKGF6dBjlBZm9vvBkVrMjhY6OrZQe3721/WPvqd/b5XPT47u/clvHk3s41/X/V299u2cPbquyrx7eDTxPn9Kz96zz4fnOfEw4u+fiB4KTUZsYaJ6VDYZtYWJ7FHRZOQWJrpHZpPRW5iMHhlNZmhhsnpENpmlhcnsEdFkphYmu4dnk9lamIoeHk0iWjw7X++Kqh73TVjs85KK2fO46n8DY4wxxhhjjDHGGGOMsb77Aqg9Wjk=
   </data>
  </layer>
  <objectgroup name="Scripts" width="100" height="100">
@@ -51,7 +51,7 @@
     <property name="player" value="yes"/>
    </properties>
   </object>
-  <object name="opponent" type="Position" x="1798" y="2591" width="138" height="84">
+  <object name="opponent" type="Position" x="2095" y="2593" width="138" height="84">
    <properties>
     <property name="opponent" value="yes"/>
    </properties>

@@ -48,7 +48,7 @@ class Body_Part():
             effect(self)
         if self.health <= 0:
             self.destroy()
-        print self.health, self.armor
+        #print self.health, self.armor
         
     def destroy(self):
 
@@ -70,7 +70,6 @@ class Chest(Body_Part):
 class Head(Body_Part):
     def __init__(self, master):
         Body_Part.__init__(self, master, eu.Vector2(0, 57), 15, 20, 2, 2)
-
 
 
 class Legs(Body_Part):
@@ -108,16 +107,14 @@ class Body():
 
         #Overlaps cshapes is not guarantee of successful attack
         #Need to compare shapes and traces
-        if hit.base_fight_group is self.master.fight_group:
-            return
-        x, y = hit.end.x, hit.end.y
-        if not self.master.touches_point(x, y):
-            return
+        #x, y = hit.end.x, hit.end.y
+        #print hit.trace.p, hit.trace.v
         inner_p = self.master.from_global_to_self(hit.trace.p)
-        inner_end_p = self.master.from_global_to_self(hit.trace.p + hit.trace.v)
         inner_p = gm.Point2(inner_p.x, inner_p.y)
-        inner_end_p = gm.Point2(inner_end_p.x, inner_end_p.y)
-        inner_trace = gm.LineSegment2(inner_p, inner_end_p)
+        inner_trace = hit.trace.copy()
+        inner_trace.p = inner_p
+        cleaved = False
+        #inner_trace = gm.LineSegment2(inner_p, hit.trace.v)
         if hit.hit_pattern is con.CHOP:
             self.body_parts.sort(lambda a, b: a.chop_priority - b.chop_priority)
         else:
@@ -125,10 +122,19 @@ class Body():
         for part in self.body_parts:
             in_p = part.shape.intersect(inner_trace)
             if in_p is not None:
-                p = gm.Point2(x, y)
+                p = self.master.from_self_to_global(part.shape.pc)
                 eff.Blood().add_to_surface(p)
                 part.take_hit(hit)
+                #print hit.features, con.CLEAVE not in hit.features
+                if con.CLEAVE not in hit.features:
+                    break
+                cleaved = True
+        else:
+            if not cleaved:
                 return
+        #print "Olollolo"
+        if con.PENETRATE not in hit.features:
+            hit.destroy()
 
     def show_hitboxes(self):
         """
