@@ -7,9 +7,17 @@ from cocos import euclid as eu
 import movable_object
 import consts as con
 import collides as coll
+import animation
 
 consts = con.consts
 
+def animate(func):
+    def decorate(*args, **kwargs):
+        if args[0].state != func.__name__:
+            args[0].state = func.__name__
+            args[0].image = args[0].body.anim[func.__name__]
+        func(*args, **kwargs)
+    return decorate
 
 class Actor(movable_object.Movable_Object):
 
@@ -20,6 +28,7 @@ class Actor(movable_object.Movable_Object):
 
         self.hands = []
         self.body = body(self)
+        self.state = 'stay'
 
         cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
         super(Actor, self).__init__(self.body.img, cshape)
@@ -62,6 +71,7 @@ class Actor(movable_object.Movable_Object):
             if hand.actual_hit is not None:
                 hand.actual_hit._move(vec)
 
+    @animate
     def walk(self, horizontal_direction):
         """
         Move Actor in horizontal_direction with his body speed
@@ -71,6 +81,7 @@ class Actor(movable_object.Movable_Object):
             #if abs(self.horizontal_speed + d) > self.body.speed:
             self.horizontal_speed = d
 
+    @animate
     def stay(self):
         """
         Do not move Actor
@@ -85,6 +96,7 @@ class Actor(movable_object.Movable_Object):
         self.hands.append(item)
         item.master = self
 
+    @animate
     def jump(self):
         """
         Actor jump with his body jump speed.

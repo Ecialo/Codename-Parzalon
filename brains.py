@@ -66,7 +66,10 @@ class Controller(Brain):
         hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
         if self.key[self.bind['jump']] and self.master.on_ground:
             self.master.jump()
-        self.master.walk(hor_dir)
+        if hor_dir == 0:
+            self.master.stay()
+        else:
+            self.master.walk(hor_dir)
 
         #Action
         items = len(self.hands)

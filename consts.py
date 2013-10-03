@@ -38,7 +38,9 @@ consts = {'window': {'width': 800,
           'gravity': 1500,
           'rubbing': 100,
           'slash_fight_group': 100,
-          'missile_fight_group': 1000}
+          'missile_fight_group': 1000,
+          'animation_frames': {'walk': ('2.jpg', '3.jpg')}
+          }
 
 LEFT, UP, RIGHT, DOWN, NO_TR = 0b1000, 0b0100, 0b0010, 0b0001, 0b0000
 CHOP, STAB = xrange(2)

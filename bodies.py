@@ -9,6 +9,7 @@ import geometry as gm
 import consts as con
 import effects as eff
 import box
+import pyglet
 
 consts = con.consts
 
@@ -16,6 +17,10 @@ consts = con.consts
 def death(body_part):
     body_part.master.destroy()
 
+def make_animation(frames):
+    image_sequence = map(lambda img: pyglet.image.load(img), frames)
+    animation = pyglet.image.Animation.from_image_sequence(image_sequence, 0.5, True)
+    return animation
 
 class Body_Part():
     
@@ -146,9 +151,10 @@ class Body():
 
 class Human(Body):
     
-    img = consts['img']['human']
+    anim = {'walk': make_animation(consts['animation_frames']['walk']), 'stay': consts['img']['human'], 'jump': consts['img']['human']}
+    img = anim['stay']
     base_speed = consts['params']['human']['speed']
-    
+
     def __init__(self, master):
         Body.__init__(self, master, [Chest(self), Head(self), Legs(self)])
 
