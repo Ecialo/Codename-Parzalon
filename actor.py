@@ -7,7 +7,6 @@ from cocos import euclid as eu
 import movable_object
 import consts as con
 import collides as coll
-import animation
 
 consts = con.consts
 
