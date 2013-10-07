@@ -1,8 +1,7 @@
 # To change this license header, choose License Headers in Project Properties.
 # To change this template file, choose Tools | Templates
 # and open the template in the editor.
-__author__="Ecialo"
-__date__ ="$24.08.2013 12:53:14$"
+__author__ = "Ecialo"
 
 from cocos import euclid as eu
 import geometry as gm
@@ -17,10 +16,12 @@ consts = con.consts
 def death(body_part):
     body_part.master.destroy()
 
+
 def make_animation(frames):
     image_sequence = map(lambda img: pyglet.image.load(img), frames)
     animation = pyglet.image.Animation.from_image_sequence(image_sequence, 0.5, True)
     return animation
+
 
 class Body_Part():
     
@@ -79,7 +80,7 @@ class Head(Body_Part):
 
 class Legs(Body_Part):
     def __init__(self, master):
-        Body_Part.__init__(self,master, eu.Vector2(0, -77), 33, 25, 1, 1)
+        Body_Part.__init__(self, master, eu.Vector2(0, -77), 33, 25, 1, 1)
 
 
 class Body():
@@ -139,7 +140,7 @@ class Body():
                 return
         #print "Olollolo"
         if con.PENETRATE not in hit.features:
-            hit.destroy()
+            hit.complete()
 
     def show_hitboxes(self):
         """
@@ -151,10 +152,11 @@ class Body():
 
 class Human(Body):
     
-    anim = {'walk': make_animation(consts['animation_frames']['walk']), 'stay': consts['img']['human'], 'jump': consts['img']['human']}
+    anim = {'walk': make_animation(consts['animation_frames']['walk']),
+            'stay': consts['img']['human'],
+            'jump': consts['img']['human']}
     img = anim['stay']
     base_speed = consts['params']['human']['speed']
 
     def __init__(self, master):
         Body.__init__(self, master, [Chest(self), Head(self), Legs(self)])
-

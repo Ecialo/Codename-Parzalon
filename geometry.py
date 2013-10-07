@@ -9,7 +9,7 @@ class Geometry(eu.Geometry):
     def _connect_unimplemented(self, other):
         super(Geometry, self)._connect_unimplemented(other)
 
-    def __ne__(self, other): #Pavgran: implemented
+    def __ne__(self, other):  # Pavgran: implemented
         return not self.__eq__(other)
     
     _intersect_rectangle = _intersect_unimplemented
@@ -45,7 +45,7 @@ def _intersect_line2_rectangle(L, R): #Pavgran: reworked
                if t_int is not None else None
     b_int_in = _intersect_point2_rectangle(b_int, R)\
                if b_int is not None else None
-    res = filter(lambda x: x is not None,\
+    res = filter(lambda x: x is not None,
                  [l_int_in, r_int_in, t_int_in, b_int_in])
     if len(res) == 0:
         return None
@@ -277,7 +277,7 @@ class Rectangle(Geometry):
             (plb.x, plb.y, plb.x, prt.y,
              prt.x, prt.y, prt.x, plb.y)
 
-    def __eq__(self, other): #Pavgran: implemented
+    def __eq__(self, other):  # Pavgran: implemented
         if isinstance(other, Rectangle):
             return self.p == other.p and self.v == other.v
         else:
@@ -348,7 +348,7 @@ class Ray2(Line2, eu.Ray2):
 
 class LineSegment2(Line2, eu.LineSegment2):
     
-    def __eq__(self, other): #Pavgran: implemented
+    def __eq__(self, other):  # Pavgran: implemented
         if isinstance(other, LineSegment2):
             p1 = self.p1
             p2 = self.p2
@@ -358,5 +358,5 @@ class LineSegment2(Line2, eu.LineSegment2):
         else:
             return False
 
-    def _intersect_rectangle(self, other): #Pavgran: implemented
+    def _intersect_rectangle(self, other):  # Pavgran: implemented
         return _intersect_linesegment2_rectangle(self, other)

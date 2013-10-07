@@ -1,6 +1,6 @@
 __author__ = 'Ecialo'
 
-import cocos
+#import cocos
 from cocos import collision_model as cm
 from cocos import euclid as eu
 
@@ -10,6 +10,7 @@ import collides as coll
 
 consts = con.consts
 
+
 def animate(func):
     def decorate(*args, **kwargs):
         if args[0].state != func.__name__:
@@ -17,6 +18,7 @@ def animate(func):
             args[0].image = args[0].body.anim[func.__name__]
         func(*args, **kwargs)
     return decorate
+
 
 class Actor(movable_object.Movable_Object):
 
@@ -57,7 +59,6 @@ class Actor(movable_object.Movable_Object):
         Remove Actor from level
         """
         for item in self.hands:
-            item.dearm()
             item.drop()
         self.fight_group = -1
         self.kill()
@@ -66,9 +67,7 @@ class Actor(movable_object.Movable_Object):
         old = self.cshape.center.copy()
         super(Actor, self)._move(dx, dy)
         vec = self.cshape.center.copy() - old
-        for hand in self.hands:
-            if hand.actual_hit is not None:
-                hand.actual_hit._move(vec)
+        map(lambda hand: hand.attached_move(vec), self.hands)
 
     @animate
     def walk(self, horizontal_direction):
@@ -111,9 +110,7 @@ class Actor(movable_object.Movable_Object):
         vec = eu.Vector2(int(x), int(y))
         self.position = vec
         self.cshape.center = vec
-        for hand in self.hands:
-            if hand.actual_hit is not None:
-                hand.actual_hit._move(vec - old)
+        map(lambda hand: hand.attached_move(vec - old), self.hands)
 
     def take_hit(self, hit):
         """

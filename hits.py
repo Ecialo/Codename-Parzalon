@@ -31,8 +31,8 @@ class Slash(cocos.draw.Line):
 
     def __init__(self, stp, endp, master, hit_pattern=con.CHOP):
         self.master = master
-        self.fight_group = master.master.fight_group + consts['slash_fight_group']
-        self.base_fight_group = master.master.fight_group
+        self.fight_group = master.owner.fight_group + consts['slash_fight_group']
+        self.base_fight_group = master.owner.fight_group
         super(Slash, self).__init__(stp, endp, (0, 255, 0, 255))
 
         self.completed = False
@@ -89,14 +89,14 @@ class Slash(cocos.draw.Line):
         self.cshape = shape_to_cshape(self.trace)
         self.set_time_to_complete(time)
 
-    def destroy(self):
+    def complete(self):
         """
         End life of this line
         """
         if self.completed:
             return
         self.completed = True
-        self.master.destroy()
+        self.master.complete()
 
     def _move(self, vec):
         """
@@ -104,7 +104,7 @@ class Slash(cocos.draw.Line):
         """
         self.start += vec
         self.end += vec
-        if self.master.attack_perform:
+        if self.trace is not None:
             self.trace.p += vec
             self.cshape.center += vec
 
@@ -115,9 +115,9 @@ class Slash(cocos.draw.Line):
         if self.fight_group is other.fight_group:
             return
         self_uncompleteness = self.time_to_complete/self.master.stab_time if self.hit_pattern == con.STAB \
-            else self.time_to_complete/self.master.chop_time
+            else self.time_to_complete/self.master.swing_time
         other_uncompleteness = other.time_to_complete/other.master.stab_time if other.hit_pattern == con.STAB \
-            else other.time_to_complete/other.master.chop_time
+            else other.time_to_complete/other.master.swing_time
         first = self if self_uncompleteness < other_uncompleteness else other
         second = self if first is other else other
         if second.hit_pattern is con.STAB:
@@ -127,8 +127,8 @@ class Slash(cocos.draw.Line):
             #print eff.Sparkles.add_to_surface
             #print p
             eff.Sparkles().add_to_surface(p)
-            other.destroy()
-            self.destroy()
+            other.complete()
+            self.complete()
 
     def _cross_angle(self, other):
         """
@@ -149,7 +149,7 @@ def on_level_collide_destroy(update_fun):
         update_fun(self, dt)
         if self.wall is not con.NO_TR:
             print self.wall
-            self.destroy()
+            self.complete()
     return dec_update
 
 
@@ -177,8 +177,8 @@ class _Hit_Zone(mova.Movable_Object):
         v = vector/abs(vector) * speed
         mova.Movable_Object.__init__(self, img, cshape, position, v.y, v.x)
         self.master = master
-        self.fight_group = master.master.fight_group + consts['missile_fight_group']
-        self.base_fight_group = master.master.fight_group
+        self.fight_group = master.owner.fight_group + consts['missile_fight_group']
+        self.base_fight_group = master.owner.fight_group
         self.features = set()
         self.hit_pattern = con.STAB
 
@@ -188,7 +188,7 @@ class _Hit_Zone(mova.Movable_Object):
     update = on_level_collide_destroy(non_gravity_update)
     effects = property(lambda self: filter(None, map(lambda eff: eff(self), self.master.effects)))
 
-    def destroy(self):
+    def complete(self):
         self.master.destroy_missile()
 
     def collide(self, other):

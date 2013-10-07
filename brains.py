@@ -7,8 +7,6 @@ __date__ = "$24.08.2013 12:52:23$"
 
 import random as rnd
 
-from pyglet.window import mouse
-
 from cocos import actions as ac
 from cocos import euclid as eu
 from cocos import layer
@@ -18,8 +16,8 @@ import consts as con
 consts = con.consts
 
 
-def _set_rec(self, val):
-    self.master.recovery = val
+def _set_rec(self, value):
+    self.master.recovery = value
 
 
 class Brain(ac.Action):
@@ -80,9 +78,9 @@ class Controller(Brain):
 
         if first_hand_ac and not first_item.on_use:
             first_item.start_use(pos, con.STAB if alt else con.CHOP)
-        elif first_hand_ac and first_item.on_use and not first_item.attack_perform:
+        elif first_hand_ac and first_item.on_use and first_item.available:
             first_item.continue_use(pos)
-        elif not first_hand_ac and first_item.on_use and not first_item.attack_perform:
+        elif not first_hand_ac and first_item.on_use and first_item.available:
             first_item.end_use(pos)
         else:
             pass
@@ -90,11 +88,11 @@ class Controller(Brain):
         if items > 1:
             second_hand_ac = self.mouse[self.bind['second_hand']]
             second_item = self.hands[con.SECOND_HAND]
-            if second_hand_ac and second_item.actual_hit is None:
+            if second_hand_ac and not second_item.on_use:
                 second_item.start_use(pos, con.STAB if alt else con.CHOP)
-            elif second_hand_ac and second_item.on_use and not second_item.attack_perform:
+            elif second_hand_ac and second_item.on_use and second_item.available:
                 second_item.continue_use(pos)
-            elif not second_hand_ac and second_item.on_use and not second_item.attack_perform:
+            elif not second_hand_ac and second_item.on_use and second_item.available:
                 second_item.end_use(pos)
             else:
                 pass
@@ -210,7 +208,6 @@ class Primitive_AI(Enemy_Brain):
                 #Die, my enemy!
                 else:
                     self.random_attack(opp)
-
         else:
             self.master.stay()
 

@@ -45,7 +45,5 @@ consts = {'window': {'width': 800,
 LEFT, UP, RIGHT, DOWN, NO_TR = 0b1000, 0b0100, 0b0010, 0b0001, 0b0000
 CHOP, STAB = xrange(2)
 FIRST_HAND, SECOND_HAND = 0, -1
+FIRST, SECOND = xrange(2)
 CLEAVE, PENETRATE = xrange(2)
-
-if __name__ == "__main__":
-    print "Hello World"

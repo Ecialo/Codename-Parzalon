@@ -16,7 +16,6 @@ import bodies as bd
 import weapons as wp
 import brains as br
 import actor as ac
-import hits
 import consts as con
 
 consts = con.consts
@@ -61,7 +60,7 @@ class Level_Layer(layer.ScrollableLayer):
 
         #Append hero
         self.hero = ac.Actor(bd.Human)
-        self.hero.get_item(wp.Standard_Weapon(self))
+        self.hero.get_item(wp.Sword(self))
         for i in xrange(20):
             self.hero.get_item(wp.Knife(self))
         #self.hero.weapon.push_handlers(self)
@@ -70,7 +69,7 @@ class Level_Layer(layer.ScrollableLayer):
 
         #Append opponent
         self.opponent = ac.Actor(bd.Human)
-        self.opponent.get_item(wp.Standard_Weapon(self))
+        self.opponent.get_item(wp.Sword(self))
         #self.opponent.get_item(wp.Empty_Hand(self), 1)
         #self.opponent.weapon.push_handlers(self)
         #self.opponent.move(400, 200)
@@ -92,7 +91,7 @@ class Level_Layer(layer.ScrollableLayer):
 
         #Set up brains
         self.opponent.do(br.Primitive_AI())
-        #AAself.opponent.do(br.Dummy())
+        #self.opponent.do(br.Dummy())
         self.hero.do(br.Controller())
 
         self.hero.show_hitboxes()
@@ -124,7 +123,7 @@ class Level_Layer(layer.ScrollableLayer):
         self.collman.clear()
         for hit in self.hits:
             if hit.time_to_complete <= 0.0 and not hit.completed:
-                hit.destroy()
+                hit.complete()
             elif hit.completed:
                 pass
             else:
@@ -171,10 +170,7 @@ class Level_Layer(layer.ScrollableLayer):
         """
         Remove overdue Hit from game.
         """
-        #print hit
         self.hits.remove(hit)
-        #if self.collman.knows(hit):
-        #    self.collman.remove_tricky(hit)
         hit.kill()
 
     def on_drop_item(self, item):
