@@ -1,9 +1,22 @@
 __author__ = 'Ecialo'
-
+from random import randint
 from cocos import collision_model as cm
 from cocos import euclid as eu
 import movable_object as mova
 import consts as con
+
+
+def length(value):
+    def add_length(master):
+        master.length = value
+    return add_length
+
+
+def ammo(value):
+    def add_ammo(master):
+        master.max_ammo = value
+        master.ammo = value
+    return add_ammo
 
 
 class Item(mova.Movable_Object):
@@ -17,8 +30,8 @@ class Item(mova.Movable_Object):
     def drop(self):
         self.position = self.master.position
         self.cshape.center = self.master.cshape.center.copy()
-        self.horizontal_speed = self.master.horizontal_speed
-        self.vertical_speed = self.master.vertical_speed
+        self.horizontal_speed = self.master.horizontal_speed + randint(-500, 500)
+        self.vertical_speed = self.master.vertical_speed + randint(-100, 100)
         self.dispatch_event('on_drop_item', self)
         self.schedule(self.update)
 
@@ -37,7 +50,7 @@ Item.register_event_type('on_lay_item')
 
 class Usage_Item(Item):
 
-    def __init__(self, img, first_usage, second_usage, environment):
+    def __init__(self, img, first_usage, second_usage, addi_props=[]):
         Item.__init__(self, img)
         self.first_usage = first_usage(self)
         self.second_usage = second_usage(self) if second_usage is not None else self.first_usage
@@ -46,7 +59,11 @@ class Usage_Item(Item):
         self.on_use = False
         self.available = True
 
+        map(lambda prop: prop(self), addi_props)
+
+    def __call__(self, environment):
         self.push_handlers(environment)
+        return self
 
     def start_use(self, *args):
         alt = args[-1]
@@ -79,13 +96,6 @@ class Usage_Item(Item):
         Item.drop(self)
 Usage_Item.register_event_type('on_launch_missile')
 Usage_Item.register_event_type('on_remove_missile')
-
-
-class Weapon(Usage_Item):
-
-    def __init__(self, img, length, first_usage, second_usage, environment):
-        Usage_Item.__init__(self, img, first_usage, second_usage, environment)
-        self.length = length
 Usage_Item.register_event_type('on_do_hit')
 Usage_Item.register_event_type('on_perform_hit')
 Usage_Item.register_event_type('on_remove_hit')

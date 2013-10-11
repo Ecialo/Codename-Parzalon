@@ -64,8 +64,8 @@ class Throw(Usage):
         self.master.on_use = False
         self.master.available = True
 
-    def destroy_missile(self):
-        self.master.dispatch_event('on_remove_missile', self.actual_hit)
+    def destroy_missile(self, missile):
+        self.master.dispatch_event('on_remove_missile', missile)
 
 
 class Swing(Usage):
@@ -147,5 +147,21 @@ class Stab(Swing):
 
 class Shoot(Usage):
 
-    def __init__(self):
-        pass
+    def __init__(self, effects, bullet_image):
+        self.bullet_image = bullet_image
+        self.effects = effects
+
+    def end_use(self, *args):
+        if self.master.ammo > 0:
+            end_point = eu.Vector2(*args[0])
+            v = end_point - self.owner.cshape.center
+            hit_zone = hit.Hit_Zone(self, self.bullet_image, v, 300, self.owner.position)
+            self.actual_hit = hit_zone
+            self.master.dispatch_event('on_launch_missile', hit_zone)
+            hit_zone.show_hitboxes()
+            self.master.on_use = False
+            self.master.available = True
+            self.master.ammo -= 1
+
+    def destroy_missile(self, missile):
+        self.master.dispatch_event('on_remove_missile', missile)

@@ -24,7 +24,9 @@ consts = {'window': {'width': 800,
           'color': {'white': (255, 255, 255, 255)},
           'img': {'human': pyglet.resource.image('chelovek_v2.png'),
                   'weapon': pyglet.resource.image('sword.png'),
-                  'knife': pyglet.resource.image('knife.png')},
+                  'knife': pyglet.resource.image('knife.png'),
+                  'bullet': pyglet.resource.image('bullet.png'),
+                  'rifle': pyglet.resource.image('fuzeja.png')},
           'params': {'human': {'speed': 200,
                                'jump_speed': 1000},
                      'primitive': {'range_of_vision': 400,
@@ -39,7 +41,7 @@ consts = {'window': {'width': 800,
           'rubbing': 100,
           'slash_fight_group': 100,
           'missile_fight_group': 1000,
-          'animation_frames': {'walk': ('2.jpg', '3.jpg')}
+          'animation_frames': {'walk': ('2.png', '3.png')}
           }
 
 LEFT, UP, RIGHT, DOWN, NO_TR = 0b1000, 0b0100, 0b0010, 0b0001, 0b0000

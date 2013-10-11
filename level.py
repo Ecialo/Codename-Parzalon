@@ -60,16 +60,17 @@ class Level_Layer(layer.ScrollableLayer):
 
         #Append hero
         self.hero = ac.Actor(bd.Human)
-        self.hero.get_item(wp.Sword(self))
-        for i in xrange(20):
-            self.hero.get_item(wp.Knife(self))
+        self.hero.get_item(wp.Sword()(self))
+        #for i in xrange(20):
+        #    self.hero.get_item(wp.Knife()(self))
+        self.hero.get_item(wp.Musket()(self))
         #self.hero.weapon.push_handlers(self)
         #self.hero.move(200, 200)
         self.add(self.hero, z=2)
 
         #Append opponent
         self.opponent = ac.Actor(bd.Human)
-        self.opponent.get_item(wp.Sword(self))
+        self.opponent.get_item(wp.Sword()(self))
         #self.opponent.get_item(wp.Empty_Hand(self), 1)
         #self.opponent.weapon.push_handlers(self)
         #self.opponent.move(400, 200)

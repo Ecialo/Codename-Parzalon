@@ -189,7 +189,7 @@ class _Hit_Zone(mova.Movable_Object):
     effects = property(lambda self: filter(None, map(lambda eff: eff(self), self.master.effects)))
 
     def complete(self):
-        self.master.destroy_missile()
+        self.master.destroy_missile(self)
 
     def collide(self, other):
         other._collide_hit_zone(self)
