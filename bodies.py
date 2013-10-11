@@ -54,6 +54,8 @@ class Body_Part():
             effect(self)
         if self.health <= 0:
             self.destroy()
+        elif self.master.health <= 0:
+            self.master.destroy()
         #print self.health, self.armor
         
     def destroy(self):
@@ -91,7 +93,8 @@ class Body():
     def __init__(self, master, body_parts):
         self.master = master
         self.speed = self.base_speed
-        self.body_parts = body_parts
+        self.body_parts = map(lambda x: x(self), body_parts)
+        self.health = sum(map(lambda x: x.max_health, body_parts))/2
         
     def destroy(self):
 
@@ -159,4 +162,4 @@ class Human(Body):
     base_speed = consts['params']['human']['speed']
 
     def __init__(self, master):
-        Body.__init__(self, master, [Chest(self), Head(self), Legs(self)])
+        Body.__init__(self, master, [Chest, Head, Legs])
