@@ -27,6 +27,8 @@ class Actor(movable_object.Movable_Object):
     def __init__(self, body):
         self.fight_group = -1
 
+        self.direction = 1
+
         self.hands = []
         self.body = body(self)
         self.state = 'stay'
@@ -60,6 +62,8 @@ class Actor(movable_object.Movable_Object):
         """
         for item in self.hands:
             item.drop()
+        for armor in filter(lambda x: (x.slot - con.ARMOR > 0), self.body.body_parts):
+            armor.drop()
         self.fight_group = -1
         self.kill()
 
@@ -78,6 +82,8 @@ class Actor(movable_object.Movable_Object):
             d = horizontal_direction * self.body.speed
             #if abs(self.horizontal_speed + d) > self.body.speed:
             self.horizontal_speed = d
+            if self.direction != horizontal_direction:
+                self.turn()
 
     @animate
     def stay(self):
@@ -86,13 +92,23 @@ class Actor(movable_object.Movable_Object):
         """
         self.horizontal_speed = 0
 
+    def turn(self):
+        self.direction = -self.direction
+        self.body.turn()
+
     def push(self, v):
         self.horizontal_speed += v.x
         self.vertical_speed += v.y
 
     def get_item(self, item):
-        self.hands.append(item)
-        item.master = self
+        if item.slot == con.HAND:
+            self.hands.append(item)
+            item.master = self
+        else:
+            for body_part in self.body.body_parts:
+                if body_part.slot is item.slot:
+                    body_part.get_on(item)
+                    break
 
     @animate
     def jump(self):

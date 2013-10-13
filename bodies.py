@@ -28,13 +28,13 @@ class Body_Part():
     max_health = 10
     max_armor = 10
     
-    def __init__(self, master, center, h_height, h_width, stab_priority, chop_priority):
+    def __init__(self, master, center, h_height, h_width, stab_priority, chop_priority, on_destroy_effects=[]):
         self.master = master
         
         self.health = self.max_health
         self.armor = self.max_armor
         
-        self.on_destroy_effects = [death]
+        self.on_destroy_effects = on_destroy_effects
         
         # Center relatively body
         p = gm.Point2(center.x - h_width, center.y - h_height)
@@ -42,14 +42,23 @@ class Body_Part():
         self.shape = gm.Rectangle(p, v)
         self.stab_priority = stab_priority
         self.chop_priority = chop_priority
-    
-    def take_hit(self, hit):
 
+        self.attached = None
+
+    position = property(lambda self: self.master.master.from_self_to_global(self.shape.pc))
+    horizontal_speed = property(lambda self: self.master.horizontal_speed)
+    vertical_speed = property(lambda self: self.master.vertical_speed)
+
+    def turn(self):
+        c = self.shape.pc
+        self.shape.pc = (-c[0], c[1])
+        #print 11
+
+    def take_hit(self, hit):
         """
         Body Part receive all effects from Hit
         and apply them to self
         """
-
         for effect in hit.effects:
             effect(self)
         if self.health <= 0:
@@ -57,32 +66,47 @@ class Body_Part():
         elif self.master.health <= 0:
             self.master.destroy()
         #print self.health, self.armor
-        
-    def destroy(self):
 
+    def get_on(self, item):
+        self.attached = item
+        item.master = self
+        item.shell.master = self.master
+        self.master.body_parts.append(item.shell)
+
+    def destroy(self):
         """
         Remove self and apply some effects
         """
-
         self.master.body_parts.remove(self)
         for effect in self.on_destroy_effects:
                 effect(self)
         
 
 class Chest(Body_Part):
+
+    slot = con.CHEST
     
     def __init__(self, master):
-        Body_Part.__init__(self, master, eu.Vector2(0, 0), 40, 25, 1, 1)
+        Body_Part.__init__(self, master, eu.Vector2(0, 0), 40, 25, 2, 2,
+                           [death])
 
 
 class Head(Body_Part):
+
+    slot = con.HEAD
+
     def __init__(self, master):
-        Body_Part.__init__(self, master, eu.Vector2(0, 57), 15, 20, 2, 2)
+        Body_Part.__init__(self, master, eu.Vector2(0, 57), 15, 20, 2, 2,
+                           [death])
 
 
 class Legs(Body_Part):
+
+    slot = con.LEGS
+
     def __init__(self, master):
-        Body_Part.__init__(self, master, eu.Vector2(0, -77), 33, 25, 1, 1)
+        Body_Part.__init__(self, master, eu.Vector2(0, -77), 33, 25, 2, 2,
+                           [death])
 
 
 class Body():
@@ -95,14 +119,18 @@ class Body():
         self.speed = self.base_speed
         self.body_parts = map(lambda x: x(self), body_parts)
         self.health = sum(map(lambda x: x.max_health, body_parts))/2
+
+    horizontal_speed = property(lambda self: self.master.horizontal_speed)
+    vertical_speed = property(lambda self: self.master.vertical_speed)
         
     def destroy(self):
-
         """
         Destroy Body's master
         """
-
         self.master.destroy()
+
+    def turn(self):
+        map(lambda x: x.turn(), self.body_parts)
     
     def take_hit(self, hit):
 
@@ -128,6 +156,7 @@ class Body():
             self.body_parts.sort(lambda a, b: a.chop_priority - b.chop_priority)
         else:
             self.body_parts.sort(lambda a, b: a.stab_priority - b.stab_priority)
+        #print self.body_parts
         for part in self.body_parts:
             in_p = part.shape.intersect(inner_trace)
             if in_p is not None:
@@ -150,7 +179,8 @@ class Body():
         Draw hitboxes of all Body Parts.
         """
         for bp in self.body_parts:
-            self.master.add(box.Box(bp.shape, (255, 0, 0, 255)))
+            color = (255, 0, 0, 255) if bp.slot - 100 < 0 else (0, 0, 255, 255)
+            self.master.add(box.Box(bp.shape, color))
     
 
 class Human(Body):
