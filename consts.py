@@ -52,3 +52,4 @@ FIRST, SECOND = xrange(2)
 HAND, HEAD, CHEST, LEGS = xrange(4)
 ARMOR = 100
 CLEAVE, PENETRATE = xrange(2)
+LINE, RECTANGLE = xrange(2)

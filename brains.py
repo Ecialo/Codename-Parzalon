@@ -128,11 +128,11 @@ class Dummy(Enemy_Brain):
     
     def activity(self, dt):
         pass
-        #hand = self.choose_free_hand()
-        #if hand is not None:
-        #    start = self.master.position - eu.Vector2(self.master.width, 0.0)
-        #    target = self.master.position + eu.Vector2(-50.0, 50.0)
-        #    self.use_hand(hand, [start, con.CHOP], [target])
+        hand = self.choose_free_hand()
+        if hand is not None:
+            start = self.master.position - eu.Vector2(self.master.width, 0.0)
+            target = self.master.position + eu.Vector2(-50.0, 50.0)
+            self.use_hand(hand, [start, con.CHOP], [target])
 
 
 class Primitive_AI(Enemy_Brain):

@@ -43,6 +43,7 @@ class Item(mova.Movable_Object):
         self.horizontal_speed = self.master.horizontal_speed + randint(-500, 500)
         self.vertical_speed = self.master.vertical_speed + randint(-100, 100)
         self.dispatch_event('on_drop_item', self)
+        self.master = None
         #print 123412421
         self.schedule(self.update)
 

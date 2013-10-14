@@ -56,10 +56,10 @@ class Throw(Usage):
     def end_use(self, *args):
         end_point = eu.Vector2(*args[0])
         v = end_point - self.owner.cshape.center
-        hit_zone = hit.Hit_Zone(self, self.master.image, v, 300, self.owner.position)
+        hit_zone = hit.Hit_Zone(self, self.master.image, v, 300, self.owner.position, con.LINE)
         self.actual_hit = hit_zone
         self.master.dispatch_event('on_launch_missile', hit_zone)
-        hit_zone.show_hitboxes()
+        #hit_zone.show_hitboxes()
         self.owner.hands.remove(self.master)
         self.master.on_use = False
         self.master.available = True

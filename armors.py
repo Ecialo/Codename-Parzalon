@@ -19,12 +19,9 @@ def armor_crash(armor):
 
 class Shell(Body_Part):
 
-    def drop(self):
-        #print 11111
-        sl = self.slot - con.ARMOR
-        for body_part in self.master.body_parts:
-            if body_part.slot is sl:
-                body_part.attached.drop()
+    def remove(self):
+        self.master.body_parts.remove(self)
+        self.master = None
 
 
 class Armor(items.Item):
@@ -39,6 +36,7 @@ class Armor(items.Item):
 
     def drop(self):
         #print 2222222
+        self.shell.remove()
         self.master.attached = None
         items.Item.drop(self)
 

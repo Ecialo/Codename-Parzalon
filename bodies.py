@@ -68,6 +68,8 @@ class Body_Part():
         #print self.health, self.armor
 
     def get_on(self, item):
+        if self.attached is not None:
+            self.attached.drop()
         self.attached = item
         item.master = self
         item.shell.master = self.master

@@ -62,8 +62,8 @@ class Actor(movable_object.Movable_Object):
         """
         for item in self.hands:
             item.drop()
-        for armor in filter(lambda x: (x.slot - con.ARMOR > 0), self.body.body_parts):
-            armor.drop()
+        for armor in filter(lambda x: (x.attached is not None), self.body.body_parts):
+            armor.attached.drop()
         self.fight_group = -1
         self.kill()
 
