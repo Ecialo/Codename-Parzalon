@@ -57,10 +57,9 @@ class FrameMenu(Menu):
         self.position = (0, -80)
         self.frame = 0
 
-        items = []
-        items.append(EntryMenuItem('Number of Frame', self.on_change_frame, str(0)))
-        items.append(EntryMenuItem('Its duration', self.on_change_duration, str(0)))
-        items.append(MenuItem('Back', self.on_back))
+        items = [EntryMenuItem('Number of Frame', self.on_change_frame, str(0)),
+                 EntryMenuItem('Its duration', self.on_change_duration, str(0)),
+                 MenuItem('Back', self.on_back)]
         self.create_menu(items)
 
     def on_change_frame(self, value):
@@ -74,27 +73,29 @@ class FrameMenu(Menu):
 
 
 class MyMenu(Menu):
-    def __init__(self, d, f):
+    def __init__(self, d):
         super(MyMenu, self).__init__()
         self.font_item['font_name'] = 'Edit Undo Line BRK',
         self.font_item['color'] = (32, 16, 32, 255)
         self.font_item['font_size'] = 16
         self.font_item_selected['font_size'] = 20
         self.d = d
-        self.f = f
+        self.f = ''
         self.new_file = True
         self.position = (0, -80)
-
-        items = []
-        items.append(EntryMenuItem('Choose name of image', self.on_choose_name, ''))
-        items.append(MenuItem('Start animation', self.on_start_animation))
-        items.append(MenuItem('Stop animation', self.on_stop_animation))
-        items.append(MenuItem('Change Frame Duration', self.on_change_frame_duration))
-        items.append(EntryMenuItem('Change Frame Height', self.on_change_frame_height, ''))
-        items.append(EntryMenuItem('Change Frame Width', self.on_change_frame_width, ''))
-        items.append(MenuItem('Save', self.on_save))
-        items.append(MenuItem('Quit', self.on_quit))
+        items = [EntryMenuItem('Choose name of image', self.on_choose_name, ''),
+                 MenuItem('Start animation', self.on_start_animation),
+                 MenuItem('Stop animation', self.on_stop_animation),
+                 MenuItem('Change Frame Duration', self.on_change_frame_duration),
+                 EntryMenuItem('Change Frame Height', self.on_change_frame_height, ''),
+                 EntryMenuItem('Change Frame Width', self.on_change_frame_width, ''),
+                 EntryMenuItem('Change Name of File', self.on_change_name_of_file, ''),
+                 MenuItem('Save', self.on_save),
+                 MenuItem('Quit', self.on_quit)]
         self.create_menu(items)
+
+    def on_change_name_of_file(self, value):
+        self.f = value
 
     def on_choose_name(self, value):
         self.new_file = True
@@ -119,7 +120,6 @@ class MyMenu(Menu):
         self.d.add(self.d.animation, z = 2)
         self.parent.switch_to(2)
 
-
     def on_stop_animation(self):
         self.d.animation.kill()
 
@@ -128,13 +128,13 @@ class MyMenu(Menu):
         self.parent.switch_to(1)
 
     def on_save(self):
-        self.f = open('config', 'a')
+        ff = open(self.f, 'a')
         s = ' '.join(map(str, self.d.duration_list))
-        self.f.write(self.d.name + '\n')
-        self.f.write(str(self.d.frame_height) + '\n')
-        self.f.write(str(self.d.frame_width) + '\n')
-        self.f.write(s + '\n\n')
-        self.f.close()
+        ff.write(self.d.name + '\n')
+        ff.write(str(self.d.frame_height) + '\n')
+        ff.write(str(self.d.frame_width) + '\n')
+        ff.write(s + '\n\n')
+        ff.close()
 
     def on_quit(self):
         pyglet.app.exit()
@@ -159,10 +159,10 @@ class AnimLayer(Menu):
 
 director.init(resizable=True)
 d = Dealing_With_Animations('image', 80, 80)
-f = open('config', 'a')
+#f = open('config', 'a')
 scene = Scene()
 scene.add(d, z = 2)
 scene.add(ColorLayer(190,190,190,190))
-scene.add(MultiplexLayer(MyMenu(d, f), FrameMenu(d), AnimLayer(d)), z = 2)
+scene.add(MultiplexLayer(MyMenu(d), FrameMenu(d), AnimLayer(d)), z = 2)
 director.run(scene)
-f.close()
+#f.close()
