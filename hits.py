@@ -4,14 +4,15 @@ __author__ = 'Ecialo'
 import cocos
 from cocos import collision_model as cm
 from cocos import euclid as eu
-from cocos import layer
+#from cocos import layer
 
 import geometry as gm
 import consts as con
-import effects as eff
+#import effects as eff
 import movable_object as mova
 import collides as coll
 import box
+from collides import cross_angle
 
 consts = con.consts
 
@@ -46,6 +47,9 @@ class Slash(cocos.draw.Line):
         self.features = set()
 
     effects = property(lambda self: filter(None, map(lambda eff: eff(self), self.master.effects)))
+
+    def uncompleteness(self):
+        return self.time_to_complete/self.master.swing_time
 
     def _change_time_to_complete(self, time):
         """
@@ -108,39 +112,6 @@ class Slash(cocos.draw.Line):
             self.trace.p += vec
             self.cshape.center += vec
 
-    def parry(self, other):
-        """
-        Parry consider successful then two lines create defined angle
-        """
-        if self.fight_group is other.fight_group:
-            return
-        self_uncompleteness = self.time_to_complete/self.master.stab_time if self.hit_pattern == con.STAB \
-            else self.time_to_complete/self.master.swing_time
-        other_uncompleteness = other.time_to_complete/other.master.stab_time if other.hit_pattern == con.STAB \
-            else other.time_to_complete/other.master.swing_time
-        first = self if self_uncompleteness < other_uncompleteness else other
-        second = self if first is other else other
-        if second.hit_pattern is con.STAB:
-            return
-        p = self.trace.intersect(other.trace)
-        if p is not None and self._cross_angle(other) <= consts['parry_cos_disp']:
-            #print eff.Sparkles.add_to_surface
-            #print p
-            eff.Sparkles().add_to_surface(p)
-            other.complete()
-            self.complete()
-
-    def _cross_angle(self, other):
-        """
-        Calculate cos between two lines
-        """
-        #Cos of angle between two hit lines
-        v1 = self.trace.v
-        v2 = other.trace.v
-        angle = abs((v1.x * v2.x + v1.y * v2.y)/(abs(v1)*abs(v2)))
-        #print angle
-        return angle
-
 
 def on_level_collide_destroy(update_fun):
 
@@ -169,10 +140,18 @@ def non_gravity_update(self, dt):
 
 class _Hit_Zone(mova.Movable_Object):
 
-    def __init__(self, master, img, vector, speed, position=(0, 0)):
+    def __init__(self, master, img, vector, speed, position, hit_shape):
         #cshape = cm.AARectShape(eu.Vector2(*position), img.width/2, img.height/2)
-        self.trace = gm.Rectangle(gm.Point2(0, 0), eu.Vector2(img.width, img.height))
-        self.trace.pc = position
+        if hit_shape is con.RECTANGLE:
+            trace = gm.Rectangle(gm.Point2(0, 0), eu.Vector2(img.width, img.height))
+            trace.pc = position
+        elif hit_shape is con.LINE:
+            start_point = gm.Point2(position[0] - img.width/2, position[1] - img.height/2)
+            v = vector/abs(vector)*img.width
+            trace = gm.LineSegment2(start_point, v)
+            #TODO add rotation
+        self.hit_shape = hit_shape
+        self.trace = trace
         cshape = shape_to_cshape(self.trace)
         v = vector/abs(vector) * speed
         mova.Movable_Object.__init__(self, img, cshape, position, v.y, v.x)
@@ -182,13 +161,21 @@ class _Hit_Zone(mova.Movable_Object):
         self.features = set()
         self.hit_pattern = con.STAB
 
+        self.completed = False
+
         self.schedule(self.update)
         #print self.update
 
     update = on_level_collide_destroy(non_gravity_update)
     effects = property(lambda self: filter(None, map(lambda eff: eff(self), self.master.effects)))
 
+    def uncompleteness(self):
+        return 0.0
+
     def complete(self):
+        if self.completed:
+            return
+        self.completed = True
         self.master.destroy_missile(self)
 
     def collide(self, other):
@@ -217,8 +204,8 @@ class _Invisible_Hit_Zone(_Hit_Zone):
     pass
 
 
-def Hit_Zone(master, img, v, speed, position=(0, 0)):
+def Hit_Zone(master, img, v, speed, position=(0, 0), hit_shape = con.RECTANGLE):
         if img is None:
             return _Invisible_Hit_Zone()
         else:
-            return _Visible_Hit_Zone(master, img, v, speed, position)
+            return _Visible_Hit_Zone(master, img, v, speed, position, hit_shape)

@@ -26,7 +26,8 @@ consts = {'window': {'width': 800,
                   'weapon': pyglet.resource.image('sword.png'),
                   'knife': pyglet.resource.image('knife.png'),
                   'bullet': pyglet.resource.image('bullet.png'),
-                  'rifle': pyglet.resource.image('fuzeja.png')},
+                  'rifle': pyglet.resource.image('fuzeja.png'),
+                  'helmet': pyglet.resource.image('helm.png')},
           'params': {'human': {'speed': 200,
                                'jump_speed': 1000},
                      'primitive': {'range_of_vision': 400,
@@ -48,4 +49,7 @@ LEFT, UP, RIGHT, DOWN, NO_TR = 0b1000, 0b0100, 0b0010, 0b0001, 0b0000
 CHOP, STAB = xrange(2)
 FIRST_HAND, SECOND_HAND = 0, -1
 FIRST, SECOND = xrange(2)
+HAND, HEAD, CHEST, LEGS = xrange(4)
+ARMOR = 100
 CLEAVE, PENETRATE = xrange(2)
+LINE, RECTANGLE = xrange(2)

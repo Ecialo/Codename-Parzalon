@@ -21,18 +21,30 @@ def ammo(value):
 
 class Item(mova.Movable_Object):
 
+    slot = None
+
     def __init__(self, img):
         cshape = cm.AARectShape(eu.Vector2(0, 0), img.width/2, img.height/2,)
         mova.Movable_Object.__init__(self, img, cshape)
 
         self.master = None
 
+    def __call__(self, environment):
+        self.push_handlers(environment)
+        return self
+
+    def destroy(self):
+        pass
+
     def drop(self):
         self.position = self.master.position
-        self.cshape.center = self.master.cshape.center.copy()
+        #print self.position
+        self.cshape.center = eu.Vector2(self.position[0], self.position[1])
         self.horizontal_speed = self.master.horizontal_speed + randint(-500, 500)
         self.vertical_speed = self.master.vertical_speed + randint(-100, 100)
         self.dispatch_event('on_drop_item', self)
+        self.master = None
+        #print 123412421
         self.schedule(self.update)
 
     def get_up(self):
@@ -50,6 +62,8 @@ Item.register_event_type('on_lay_item')
 
 class Usage_Item(Item):
 
+    slot = con.HAND
+
     def __init__(self, img, first_usage, second_usage, addi_props=[]):
         Item.__init__(self, img)
         self.first_usage = first_usage(self)
@@ -60,10 +74,6 @@ class Usage_Item(Item):
         self.available = True
 
         map(lambda prop: prop(self), addi_props)
-
-    def __call__(self, environment):
-        self.push_handlers(environment)
-        return self
 
     def start_use(self, *args):
         alt = args[-1]
