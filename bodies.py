@@ -17,12 +17,6 @@ def death(body_part):
     body_part.master.destroy()
 
 
-def make_animation(frames):
-    image_sequence = map(lambda img: pyglet.image.load(img), frames)
-    animation = pyglet.image.Animation.from_image_sequence(image_sequence, 0.5, True)
-    return animation
-
-
 class Body_Part():
     
     max_health = 10
@@ -151,11 +145,49 @@ class Body():
         """
         for bp in self.body_parts:
             self.master.add(box.Box(bp.shape, (255, 0, 0, 255)))
+
+    def make_animation(self, anim_dict, filename):
+        f = open(filename)
+        while 1:
+            name = f.readline()
+            if not name:
+                break
+            name = name[0:len(name)-1]
+            frame_height = int(f.readline())
+            frame_width = int(f.readline())
+            duration_list = []
+            l = f.readline()
+            s = l.split(' ')
+            s[len(s)-1] = s[len(s)-1][0:len(s[len(s)-1])-1]
+            for i in range(len(s)):
+                duration_list.append(float(s[i]))
+            image = pyglet.image.load(name)
+            frames = []
+            start = image.height
+            i = 1
+            while start >= frame_height:
+                left_border = 0
+                bottom_border = image.height - frame_height*i
+                end = image.width
+                while end >= frame_width:
+                    cut = image.get_region(left_border, bottom_border, frame_width, frame_height)
+                    frames.append(cut)
+                    left_border += frame_width
+                    end -= frame_width
+                start -= frame_height
+                i += 1
+            image_sequence = map(lambda img: img, frames)
+            pyg_anim = pyglet.image.Animation.from_image_sequence(image_sequence, 0.2, True)
+            for i in range(len(duration_list)):
+                pyg_anim.frames[i].duration = float(duration_list[i])
+            anim_dict[name[0:len(name)-4]] = pyg_anim
+            f.readline()
+        f.close()
     
 
 class Human(Body):
     
-    anim = {'walk': make_animation(consts['animation_frames']['walk']),
+    anim = {'walk': consts['img']['human'],
             'stay': consts['img']['human'],
             'jump': consts['img']['human']}
     img = anim['stay']
@@ -163,3 +195,4 @@ class Human(Body):
 
     def __init__(self, master):
         Body.__init__(self, master, [Chest, Head, Legs])
+        #self.make_animation(self.anim_dict, classname)
