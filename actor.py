@@ -17,6 +17,17 @@ def animate(func):
             args[0].state = func.__name__
             args[0].image = args[0].body.anim[func.__name__]
         func(*args, **kwargs)
+    decorate.__name__ = func.__name__
+    return decorate
+
+
+def activity(func):
+    def decorate(*args, **kwargs):
+            if args[0].state != func.__name__:
+                #print 1234
+                map(args[0].body.recalculate_body_part_position, args[0].body.parts_pos[func.__name__])
+            func(*args, **kwargs)
+    decorate.__name__ = func.__name__
     return decorate
 
 
@@ -73,6 +84,7 @@ class Actor(movable_object.Movable_Object):
         vec = self.cshape.center.copy() - old
         map(lambda hand: hand.attached_move(vec), self.hands)
 
+    @activity
     @animate
     def walk(self, horizontal_direction):
         """
@@ -85,11 +97,17 @@ class Actor(movable_object.Movable_Object):
             if self.direction != horizontal_direction:
                 self.turn()
 
+    @activity
     @animate
     def stay(self):
         """
         Do not move Actor
         """
+        self.horizontal_speed = 0
+
+    @activity
+    @animate
+    def sit(self):
         self.horizontal_speed = 0
 
     def turn(self):
@@ -110,6 +128,7 @@ class Actor(movable_object.Movable_Object):
                     body_part.get_on(item)
                     break
 
+    @activity
     @animate
     def jump(self):
         """

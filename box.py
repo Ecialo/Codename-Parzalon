@@ -9,31 +9,41 @@ import cocos.euclid as eu
 
 
 class Box(Canvas):
-    rectangular = parameter()
+    r = parameter()
     stroke_width = parameter()
     color = parameter()
 
     def __init__(self, rectangular, color, stroke_width=1):
         super(Box, self).__init__()
         self.r = rectangular
+        self.hw, self.hh = self.r.v/2
         self.color = color
         self.stroke_width = stroke_width
+        self.schedule(self.update)
+
+    def update(self, dt):
+        self.position = self.r.pc
 
     def render(self):
+        #print 1
+        plb = (-self.hw, -self.hh)
+        plt = (-self.hw, self.hh)
+        prb = (self.hw, -self.hh)
+        prt = (self.hw, self.hh)
         self.set_color(self.color)
         self.set_stroke_width(self.stroke_width)
 
-        self.move_to(self.r.plb)
-        self.line_to(self.r.plt)
+        self.move_to(plb)
+        self.line_to(plt)
 
-        self.move_to(self.r.plt)
-        self.line_to(self.r.prt)
+        self.move_to(plt)
+        self.line_to(prt)
 
-        self.move_to(self.r.prt)
-        self.line_to(self.r.prb)
+        self.move_to(prt)
+        self.line_to(prb)
 
-        self.move_to(self.r.prb)
-        self.line_to(self.r.plb)
+        self.move_to(prb)
+        self.line_to(plb)
 
 
 

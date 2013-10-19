@@ -17,7 +17,7 @@ def death(body_part):
     body_part.master.destroy()
 
 
-class Body_Part():
+class Body_Part(object):
     
     max_health = 10
     max_armor = 10
@@ -46,6 +46,11 @@ class Body_Part():
     def turn(self):
         c = self.shape.pc
         self.shape.pc = (-c[0], c[1])
+
+    def set_pos(self, pos):
+        self.shape.pc = (pos[0] * self.master.master.direction, pos[1])
+        if self.attached is not None:
+            self.attached.shell.shape.pc = self.shape.pc
         #print 11
 
     def take_hit(self, hit):
@@ -105,8 +110,10 @@ class Legs(Body_Part):
                            [death])
 
 
-class Body():
-    
+class Body(object):
+
+    anim = {}
+    parts_pos = {}
     img = None
     base_speed = 0
     
@@ -180,7 +187,6 @@ class Body():
             color = (255, 0, 0, 255) if bp.slot - 100 < 0 else (0, 0, 255, 255)
             self.master.add(box.Box(bp.shape, color))
 
-
     def make_animation(self, anim_dict, filename):
         f = open(filename)
         while 1:
@@ -218,13 +224,25 @@ class Body():
             anim_dict[name[0:len(name)-4]] = pyg_anim
             f.readline()
         f.close()
-    
+
+    def recalculate_body_part_position(self, arg):
+        slot, pos = arg
+        for body_part in self.body_parts:
+            if body_part.slot is slot:
+                body_part.set_pos(pos)
+                break
+
 
 class Human(Body):
     
     anim = {'walk': consts['img']['human'],
             'stay': consts['img']['human'],
-            'jump': consts['img']['human']}
+            'jump': consts['img']['human'],
+            'sit': consts['img']['human_sit']}
+    parts_pos = {'walk': [(con.LEGS,(0, -77)), (con.CHEST,(0, 0)), (con.HEAD, (0, 57))],
+                 'stay': [(con.LEGS,(0, -77)), (con.CHEST,(0, 0)), (con.HEAD, (0, 57))],
+                 'jump': [(con.LEGS,(0, -77)), (con.CHEST,(0, 0)), (con.HEAD, (0, 57))],
+                 'sit': [(con.LEGS,(0, -77)), (con.CHEST,(0, 0)), (con.HEAD, (0, 17))]}
     img = anim['stay']
     base_speed = consts['params']['human']['speed']
 

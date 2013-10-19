@@ -50,24 +50,24 @@ class Controller(Brain):
     
     def start(self):
         Brain.start(self)
-        self.key = \
-         self.master.get_ancestor(layer.ScrollableLayer).loc_key_handler
+        self.key = self.master.get_ancestor(layer.ScrollableLayer).loc_key_handler
          
-        self.mouse = \
-         self.master.get_ancestor(layer.ScrollableLayer).loc_mouse_handler
+        self.mouse = self.master.get_ancestor(layer.ScrollableLayer).loc_mouse_handler
          
-        self.scroller = \
-         self.master.get_ancestor(layer.ScrollableLayer).scroller
+        self.scroller = self.master.get_ancestor(layer.ScrollableLayer).scroller
     
     def activity(self, dt):
         #Move
-        hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
-        if self.key[self.bind['jump']] and self.master.on_ground:
-            self.master.jump()
-        if hor_dir == 0:
-            self.master.stay()
+        if self.key[self.bind['down']]:
+            self.master.sit()
         else:
-            self.master.walk(hor_dir)
+            hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
+            if self.key[self.bind['jump']] and self.master.on_ground:
+                self.master.jump()
+            if hor_dir == 0:
+                self.master.stay()
+            else:
+                self.master.walk(hor_dir)
 
         #Action
         items = len(self.hands)
@@ -127,12 +127,13 @@ class Enemy_Brain(Brain):
 class Dummy(Enemy_Brain):
     
     def activity(self, dt):
+        self.master.sit()
         pass
-        hand = self.choose_free_hand()
-        if hand is not None:
-            start = self.master.position - eu.Vector2(self.master.width, 0.0)
-            target = self.master.position + eu.Vector2(-50.0, 50.0)
-            self.use_hand(hand, [start, con.CHOP], [target])
+        #hand = self.choose_free_hand()
+        #if hand is not None:
+        #    start = self.master.position - eu.Vector2(self.master.width, 0.0)
+        #    target = self.master.position + eu.Vector2(-50.0, 50.0)
+        #    self.use_hand(hand, [start, con.CHOP], [target])
 
 
 class Primitive_AI(Enemy_Brain):
