@@ -101,8 +101,12 @@ class Controller(Brain):
         if gain:
             items = self.static_objs.objs_touching_point(*pos)
             for item in items:
-                self.master.get_item(item)
+                self.master.inventory.put_item(item)
                 item.get_up()
+
+        inv = self.key[self.bind['inventory']]
+        if inv:
+            self.master.inventory.open()
         #cx, cy = self.master.position
         #print cx, cy
         self.scroller.set_focus(*self.master.position)

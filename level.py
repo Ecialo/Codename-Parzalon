@@ -18,6 +18,7 @@ import armors as ar
 import brains as br
 import actor as ac
 import consts as con
+from inventory import Inventory
 
 consts = con.consts
 
@@ -61,9 +62,11 @@ class Level_Layer(layer.ScrollableLayer):
 
         #Append hero
         self.hero = ac.Actor(bd.Human)
-        self.hero.get_item(wp.Sword()(self))
-        for i in xrange(20):
-            self.hero.get_item(wp.Knife()(self))
+        self.hero.inventory = Inventory(None, wp.Sword()(self), None, self.hero)
+        self.hero.inventory.get_item(self.hero.inventory.first_weapon)
+        #self.hero.get_item(wp.Sword()(self))
+        #for i in xrange(20):
+            #self.hero.get_item(wp.Knife()(self))
         #self.hero.get_item(wp.Musket()(self))
         #self.hero.get_item(ar.Helmet())
         #self.hero.weapon.push_handlers(self)
@@ -72,8 +75,11 @@ class Level_Layer(layer.ScrollableLayer):
 
         #Append opponent
         self.opponent = ac.Actor(bd.Human)
-        self.opponent.get_item(wp.Sword()(self))
-        self.opponent.get_item(ar.Helmet()(self))
+        self.opponent.inventory = Inventory(ar.Helmet()(self), wp.Sword()(self), None, self.opponent)
+        self.opponent.inventory.get_item(self.opponent.inventory.first_weapon)
+        self.opponent.inventory.get_item(self.opponent.inventory.helmet)
+        #self.opponent.get_item(wp.Sword()(self))
+        #self.opponent.get_item(ar.Helmet()(self))
         #self.opponent.get_item(wp.Empty_Hand(self), 1)
         #self.opponent.weapon.push_handlers(self)
         #self.opponent.move(400, 200)

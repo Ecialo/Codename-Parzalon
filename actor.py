@@ -7,6 +7,7 @@ from cocos import euclid as eu
 import movable_object
 import consts as con
 import collides as coll
+from inventory import Inventory
 
 consts = con.consts
 
@@ -43,7 +44,7 @@ class Actor(movable_object.Movable_Object):
         self.hands = []
         self.body = body(self)
         self.state = 'stay'
-
+        self.inventory = Inventory(None, None, None, self)
         cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
         super(Actor, self).__init__(self.body.img, cshape)
 
@@ -118,15 +119,15 @@ class Actor(movable_object.Movable_Object):
         self.horizontal_speed += v.x
         self.vertical_speed += v.y
 
-    def get_item(self, item):
-        if item.slot == con.HAND:
-            self.hands.append(item)
-            item.master = self
-        else:
-            for body_part in self.body.body_parts:
-                if body_part.slot is item.slot:
-                    body_part.get_on(item)
-                    break
+    #def get_item(self, item):
+    #    if item.slot == con.HAND:
+    #        self.hands.append(item)
+    #        item.master = self
+    #    else:
+    #        for body_part in self.body.body_parts:
+    #            if body_part.slot is item.slot:
+    #                body_part.get_on(item)
+    #                break
 
     @activity
     @animate
