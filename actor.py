@@ -49,6 +49,7 @@ class Actor(movable_object.Movable_Object):
         super(Actor, self).__init__(self.body.img, cshape)
 
         self.recovery = 0.0  # Time before moment when acton can be controlled again
+        #self.scale = 0.5
 
         #self.schedule(self.update)
 
@@ -67,6 +68,12 @@ class Actor(movable_object.Movable_Object):
 
     def _collide_slash(self, other):
         coll.collide_actor_slash(self, other)
+
+    def get_item(self, item):
+        self.inventory.get_item(item)
+
+    def put_item(self, item):
+        self.inventory.put_item(item)
 
     def destroy(self):
         """

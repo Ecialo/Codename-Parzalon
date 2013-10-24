@@ -4,6 +4,7 @@ from cocos.director import director
 
 import level
 import consts as con
+import cProfile
 
 consts = con.consts
 
@@ -16,3 +17,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+#o = open("parz.pyprof", 'w')
+#cProfile.run('main()', "parz.pyprof")
+#o.close()
