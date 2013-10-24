@@ -4,6 +4,7 @@
 
 __author__ = "Ecialo"
 __date__ = "$24.08.2013 12:54:13$"
+from os import path
 import pyglet
 from pyglet.window import key
 from pyglet.window import mouse
@@ -55,3 +56,4 @@ HAND, HEAD, CHEST, LEGS = xrange(4)
 ARMOR = 100
 CLEAVE, PENETRATE = xrange(2)
 LINE, RECTANGLE = xrange(2)
+UNIT, ITEM = xrange(2)

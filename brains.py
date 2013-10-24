@@ -101,7 +101,7 @@ class Controller(Brain):
         if gain:
             items = self.static_objs.objs_touching_point(*pos)
             for item in items:
-                self.master.inventory.put_item(item)
+                self.master.put_item(item)
                 item.get_up()
 
         inv = self.key[self.bind['inventory']]

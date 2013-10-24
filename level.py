@@ -17,15 +17,34 @@ import weapons as wp
 import armors as ar
 import brains as br
 import actor as ac
+import obj_db as db
 import consts as con
 from inventory import Inventory
 
 consts = con.consts
 
 
+def _spawn_unit(level, name, pos):
+    un_par = db.objs[name]
+    unit = ac.Actor(un_par['body'])
+    map(lambda x: unit.get_item(x()(level)), un_par['items'])
+    unit.move_to(*pos)
+    if un_par['brain'].fight_group is consts['group']['hero'] and level.hero is None:
+        level.hero = unit
+    elif un_par['brain'].fight_group is not consts['group']['hero']:
+        level.actors.append(unit)
+    else:
+        level.hero.destroy()
+        level.hero = unit
+    level.add(unit, z=2)
+    unit.do(un_par['brain']())
+
+
 class Level_Layer(layer.ScrollableLayer):
 
     is_event_handler = True
+
+    _spawn = {con.UNIT: _spawn_unit}
 
     def __init__(self, scripts, force_ground, scroller):
         super(Level_Layer, self).__init__()
@@ -61,51 +80,46 @@ class Level_Layer(layer.ScrollableLayer):
         #self.add(force_ground, z = 1)
 
         #Append hero
-        self.hero = ac.Actor(bd.Human)
-        self.hero.inventory = Inventory(None, wp.Sword()(self), None, self.hero)
-        self.hero.inventory.get_item(self.hero.inventory.first_weapon)
+        self.hero = None
         #self.hero.get_item(wp.Sword()(self))
         #for i in xrange(20):
-            #self.hero.get_item(wp.Knife()(self))
+        #    self.hero.get_item(wp.Knife()(self))
         #self.hero.get_item(wp.Musket()(self))
         #self.hero.get_item(ar.Helmet())
         #self.hero.weapon.push_handlers(self)
         #self.hero.move(200, 200)
-        self.add(self.hero, z=2)
+        #self.add(self.hero, z=2)
 
         #Append opponent
-        self.opponent = ac.Actor(bd.Human)
-        self.opponent.inventory = Inventory(ar.Helmet()(self), wp.Sword()(self), None, self.opponent)
-        self.opponent.inventory.get_item(self.opponent.inventory.first_weapon)
-        self.opponent.inventory.get_item(self.opponent.inventory.helmet)
+        #self.opponent = ac.Actor(bd.Human)
         #self.opponent.get_item(wp.Sword()(self))
         #self.opponent.get_item(ar.Helmet()(self))
         #self.opponent.get_item(wp.Empty_Hand(self), 1)
         #self.opponent.weapon.push_handlers(self)
         #self.opponent.move(400, 200)
-        self.add(self.opponent, z=2)
-        self.actors.append(self.opponent)
+        #self.add(self.opponent, z=2)
+        #self.actors.append(self.opponent)
 
         #Move guys to location
         for sc in scripts:
             if 'player' in sc.properties:
-                r = self.hero.get_rect()
-                r.midbottom = sc.midbottom
-                dx, dy = r.center
-                self.hero.move_to(dx, dy)
+                #r = self.hero.get_rect()
+                #r.midbottom = sc.midbottom
+                dx, dy = sc.center
+                self.spawn('hero', (dx, dy))
             elif 'opponent' in sc.properties:
-                r = self.opponent.get_rect()
-                r.midbottom = sc.midbottom
-                dx, dy = r.center
-                self.opponent.move_to(dx, dy)
+                #r = self.opponent.get_rect()
+                #r.midbottom = sc.midbottom
+                dx, dy = sc.center
+                self.spawn('dummy', (dx, dy))
 
         #Set up brains
         #self.opponent.do(br.Primitive_AI())
-        self.opponent.do(br.Dummy())
-        self.hero.do(br.Controller())
+        #self.opponent.do(br.Dummy())
+        #self.hero.do(br.Controller())
 
         self.hero.show_hitboxes()
-        self.opponent.show_hitboxes()
+        self.actors[0].show_hitboxes()
 
         #Run
         self.schedule(self.update)
@@ -151,6 +165,10 @@ class Level_Layer(layer.ScrollableLayer):
 
         for obj1, obj2 in self.collman.iter_all_collisions():
             obj1.collide(obj2)
+
+    def spawn(self, obj_name, pos):
+        if obj_name in db.objs:
+            self._spawn[db.objs[obj_name]['type']](self, obj_name, pos)
 
     def on_launch_missile(self, missile):
         self.add(missile, z=2)
