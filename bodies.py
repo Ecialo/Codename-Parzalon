@@ -248,4 +248,4 @@ class Human(Body):
 
     def __init__(self, master):
         Body.__init__(self, master, [Chest, Head, Legs])
-        #self.make_animation(self.anim_dict, classname)
+        self.make_animation(self.anim, 'human')
