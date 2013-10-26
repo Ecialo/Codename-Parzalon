@@ -155,6 +155,19 @@ class Actor(movable_object.Movable_Object):
         self.cshape.center = vec
         map(lambda hand: hand.attached_move(vec - old), self.hands)
 
+    def choose_free_hand(self):
+        for hand in self.hands:
+            if not hand.on_use:
+                return hand
+        return None
+
+    def use_hand(self, hand, start_args=con.EMPTY_LIST,
+                 continue_args=con.EMPTY_LIST,
+                 end_args=con.EMPTY_LIST):
+        hand.start_use(*start_args)
+        hand.continue_use(*continue_args)
+        hand.end_use(*end_args)
+
     def take_hit(self, hit):
         """
         Check with every Body_Part is Hit hit or not.

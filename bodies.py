@@ -22,7 +22,8 @@ class Body_Part(object):
     max_health = 10
     max_armor = 10
     
-    def __init__(self, master, center, h_height, h_width, stab_priority, chop_priority, on_destroy_effects=[]):
+    def __init__(self, master, center, h_height, h_width, stab_priority, chop_priority,
+                 on_destroy_effects=con.EMPTY_LIST):
         self.master = master
 
         self.health = self.max_health
@@ -239,10 +240,10 @@ class Human(Body):
             'stay': consts['img']['human'],
             'jump': consts['img']['human'],
             'sit': consts['img']['human_sit']}
-    parts_pos = {'walk': [(con.LEGS,(0, -77)), (con.CHEST,(0, 0)), (con.HEAD, (0, 57))],
-                 'stay': [(con.LEGS,(0, -77)), (con.CHEST,(0, 0)), (con.HEAD, (0, 57))],
-                 'jump': [(con.LEGS,(0, -77)), (con.CHEST,(0, 0)), (con.HEAD, (0, 57))],
-                 'sit': [(con.LEGS,(0, -77)), (con.CHEST,(0, 0)), (con.HEAD, (0, 17))]}
+    parts_pos = {'walk': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
+                 'stay': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
+                 'jump': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
+                 'sit': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 17))]}
     img = anim['stay']
     base_speed = consts['params']['human']['speed']
 

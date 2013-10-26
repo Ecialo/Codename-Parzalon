@@ -57,3 +57,4 @@ ARMOR = 100
 CLEAVE, PENETRATE = xrange(2)
 LINE, RECTANGLE = xrange(2)
 UNIT, ITEM = xrange(2)
+EMPTY_LIST = []

@@ -64,7 +64,8 @@ class Usage_Item(Item):
 
     slot = con.HAND
 
-    def __init__(self, img, first_usage, second_usage, addi_props=[]):
+    def __init__(self, img, first_usage, second_usage,
+                 mutators=con.EMPTY_LIST):
         Item.__init__(self, img)
         self.first_usage = first_usage(self)
         self.second_usage = second_usage(self) if second_usage is not None else self.first_usage
@@ -73,7 +74,7 @@ class Usage_Item(Item):
         self.on_use = False
         self.available = True
 
-        map(lambda prop: prop(self), addi_props)
+        map(lambda prop: prop(self), mutators)
 
     def start_use(self, *args):
         alt = args[-1]

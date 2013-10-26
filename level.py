@@ -111,7 +111,7 @@ class Level_Layer(layer.ScrollableLayer):
                 #r = self.opponent.get_rect()
                 #r.midbottom = sc.midbottom
                 dx, dy = sc.center
-                self.spawn('dummy', (dx, dy))
+                self.spawn('enemy', (dx, dy))
 
         #Set up brains
         #self.opponent.do(br.Primitive_AI())

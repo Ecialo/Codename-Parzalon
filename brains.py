@@ -3,61 +3,159 @@
 # and open the template in the editor.
 
 __author__ = "Ecialo"
-__date__ = "$24.08.2013 12:52:23$"
 
 import random as rnd
 
 from cocos import actions as ac
 from cocos import euclid as eu
 from cocos import layer
+import heapq as q
 
 import consts as con
 
 consts = con.consts
+
+COMPLETE = True
+
+
+def cross_hit_trace(self, hit):
+    v = hit.trace.v
+    nv = v.cross()
+    if v.x >= 0 and v.y < 0 or v.x < 0 and v.y < 0:
+        return nv
+    else:
+        return -nv
 
 
 def _set_rec(self, value):
     self.master.recovery = value
 
 
-class Brain(ac.Action):
-    
-    master = property(lambda self: self.target)
-    recovery = property(lambda self: self.master.recovery, _set_rec)
+class Task(object):
+
     hands = property(lambda self: self.master.hands)
-    
-    def start(self):
-        self.master.fight_group = self.fight_group
-        self.static_objs = self.master.get_ancestor(layer.ScrollableLayer).static_collman
-        #self.tilemap = self.master.get_ancestor(cocos.layer.ScrollableLayer).force_ground
-    
-    def step(self, dt):
-        self.master.update(dt)
-        self.sensing()
-        self.activity(dt)
-        
-    def sensing(self):
-        pass
-    
-    def activity(self, dt):
-        pass
+
+    def __init__(self, master, priority, time=None):
+        self.priority = priority
+        self.master = master
+        self.time = time
+
+    def __cmp__(self, other):
+        return other.priority - self.priority
+
+    def __call__(self, dt):
+        if self.time is not None:
+            self.time -= dt
+            return COMPLETE if self.time <= 0.0 else None
 
 
-class Controller(Brain):
-    
+class Walk(Task):
+
+    def __call__(self, dt):
+        self.master.walk(self.master.direction)
+        return Task.__call__(self, dt)
+
+
+class Dance_Around(Task):
+
+    def __init__(self, master, target, priority):
+        Task.__init__(self, master, priority)
+        self.target = target
+
+    def __call__(self, dt):
+        mv = rnd.random()
+        if mv < 0.05:
+            self.prev_move = dir
+            self.master.push_task(Walk(self.master, self.priority + 1, 0.1))
+        elif mv < 0.01:
+            self.prev_move = -dir
+            self.mt = 0.5
+            self.master.push_task(MoveBack(self.master, self.priority + 1, 0.1))
+        else:
+            pass
+        return Task.__call__(self, dt)
+
+
+class MoveBack(Task):
+
+    def __call__(self, dt):
+        self.master.walk(-self.master.direction)
+        return Task.__call__(self, dt)
+
+
+class Parry(Task):
+
+    def __init__(self, master, priority, target):
+        Task.__init__(self, master, priority)
+        self.target = target
+
+    def __call__(self, dt):
+        hit = self.target
+        hand = self.master.choose_free_hand()
+        if rnd.random() < self.mastery or hand is None:
+            #print 13
+            return COMPLETE
+        #print "parry"
+        h = hit.start.y
+        dire = hit.start.x - self.master.position[0]
+        dire = dire/abs(dire) if dire != 0 else 0
+        v = cross_hit_trace(hit)
+        x = self.master.position[0] + self.master.width*dire
+        start = eu.Vector2(x, h)
+        self.master.use_hand(hand, [start, con.CHOP], [start+v])
+        return COMPLETE
+
+
+class Random_Attack(Task):
+
+    def __init__(self, master, priority, target):
+        Task.__init__(self, master, priority)
+        self.target = target
+
+    def __call__(self, dt):
+        hand = self.master.choose_free_hand()
+        target = self.target
+        if rnd.random() < 0.05 or hand is None:
+            return COMPLETE
+        dire = target.position[0] - self.master.position[0]
+        dire = dire/abs(dire) if dire != 0 else 0
+        h = rnd.randint(-self.master.height/2, self.master.height/2)
+        h += self.master.position[1]
+        x = self.master.position[0] + self.master.width*dire
+        targ_x = target.position[0] + rnd.randint(-target.width/2, -target.width/2)
+        targ_y = target.position[1] + rnd.randint(-target.height/2, -target.height/2)
+        start = eu.Vector2(x, h)
+        end = (targ_x, targ_y)
+        self.master.use_hand(hand, [start, con.CHOP], [end])
+        return COMPLETE
+
+
+class Stay(Task):
+
+    def __call__(self, dt):
+        self.master.stay()
+        return COMPLETE
+
+
+class Turn(Task):
+
+    def __call__(self, dt):
+        self.master.direction = -self.master.direction
+        return COMPLETE
+
+
+class Controlling(Task):
+
     bind = consts['bindings']
-    fight_group = consts['group']['hero']
-    
-    def start(self):
-        Brain.start(self)
+
+    def __init__(self, master, priority):
+        Task.__init__(self, master, priority)
         self.key = self.master.get_ancestor(layer.ScrollableLayer).loc_key_handler
-         
         self.mouse = self.master.get_ancestor(layer.ScrollableLayer).loc_mouse_handler
-         
         self.scroller = self.master.get_ancestor(layer.ScrollableLayer).scroller
-    
-    def activity(self, dt):
-        #Move
+        self.static_objs = self.master.get_ancestor(layer.ScrollableLayer).static_collman
+
+    def __call__(self, dt):
         if self.key[self.bind['down']]:
             self.master.sit()
         else:
@@ -112,20 +210,64 @@ class Controller(Brain):
         self.scroller.set_focus(*self.master.position)
 
 
+class Task_Manager(object):
+
+    def __init__(self):
+        self.tasks = []
+
+    def cur_task(self):
+        return self.tasks[0]
+
+    def push_task(self, task):
+        q.heappush(self.tasks, task)
+
+    def pop_task(self):
+        return q.heappop(self.tasks)
+
+    def clear_queue(self):
+        self.tasks = []
+
+    def num_of_tasks(self):
+        return len(self.tasks)
+
+
+class Brain(ac.Action):
+    
+    master = property(lambda self: self.target)
+    #recovery = property(lambda self: self.master.recovery, _set_rec)
+    fight_group = -1
+    
+    def start(self):
+        self.master.fight_group = self.fight_group
+        self.task_manager = Task_Manager()
+        #self.tilemap = self.master.get_ancestor(cocos.layer.ScrollableLayer).force_ground
+    
+    def step(self, dt):
+        self.master.update(dt)
+        self.sensing()
+        self.activity(dt)
+        
+    def sensing(self):
+        pass
+    
+    def activity(self, dt):
+        if self.task_manager.cur_task()(dt) is COMPLETE:
+            self.task_manager.pop_task()
+
+
+class Controller(Brain):
+    
+    bind = consts['bindings']
+    fight_group = consts['group']['hero']
+    
+    def start(self):
+        Brain.start(self)
+        self.task_manager.push_task(Controlling(self.master, 1))
+
+
 class Enemy_Brain(Brain):
 
     fight_group = consts['group']['opponent']
-
-    def choose_free_hand(self):
-        for hand in self.hands:
-            if not hand.on_use:
-                return hand
-        return None
-
-    def use_hand(self, hand, start_args=[], continue_args=[], end_args=[]):
-        hand.start_use(*start_args)
-        hand.continue_use(*continue_args)
-        hand.end_use(*end_args)
 
 
 class Dummy(Enemy_Brain):
@@ -153,7 +295,8 @@ class Primitive_AI(Enemy_Brain):
         self.visible_hits_wd = []
 
         self.prev_move = 0
-        self.mt = 0.0
+        self.state = 'stay'
+        self.eff_dst = self.master.hands[0].length * consts['effective_dst']
         
     def sensing(self):
         self.clear_vision()
@@ -164,69 +307,38 @@ class Primitive_AI(Enemy_Brain):
                 self.visible_hits_wd.append(obj_wd)
             else:
                 pass
-    
-    def activity(self, dt):
-        #print self.master.cshape.center
-        #if self.master.wall & (LEFT | RIGHT):
-        #    print 123
-        if self.recovery > 0:
-            self.recovery -= dt
-        opp_wd = None
-        for obj_wd in self.visible_actors_wd:
-            if obj_wd[0].fight_group == consts['group']['hero']:
-                opp_wd = obj_wd
+        for unit_wd in self.visible_actors_wd:
+            unit, dst = unit_wd
+            if self.is_enemy(unit):
+                d = unit.cshape.center.x - self.master.cshape.center.x
+                d = d/abs(d) if d != 0 else 0
+                if d != self.master.direction:
+                    self.task_manager.push_task(Turn(self.master, 98))
+                if self.state is 'stay':
+                    self.state = 'approach'
+                    self.task_manager.push_task(Walk(self.master, 1))
+                elif self.state is 'approach':
+                    if dst <= self.eff_dst:
+                        self.state = 'eff'
+                        self.task_manager.push_task(Dance_Around(self.master, unit, 2))
+                elif self.state is 'eff':
+                    self.task_manager.push_task(Random_Attack(self.master, 97, unit))
+
                 break
-        #Saw enemy
-        if opp_wd is not None:
-            opp = opp_wd[0]
-            wd = opp_wd[1]
-            d = opp.cshape.center.x - self.master.cshape.center.x
-            dir = d/abs(d) if d != 0 else 0
-            #Too far for attack.Come closer.
-            if wd > self.master.hands[0].length * consts['effective_dst']:
-                self.mt = 0.0
-                self.prev_move = 0
-                self.master.walk(dir)
-                #Brick on way. Must jump over
-                if self.master.wall & (con.LEFT | con.RIGHT):
-                    self.master.jump()
-                #Parry if any danger
-                for hit_wd in self.visible_hits_wd:
-                    if self.is_in_touch(hit_wd[0]):
-                        if self.is_enemy(hit_wd[0]):
-                            #print "!!!"
-                            self.parry(hit_wd[0])
-            #Close enough for attack. Dance across
-            else:
-                if self.mt > 0:
-                    self.mt -= dt
-                    self.master.walk(self.prev_move)
-                else:
-                    self.dance_around(wd, dir)
-                #Parry if any danger
-                for hit_wd in self.visible_hits_wd:
-                    if self.is_in_touch(hit_wd[0]):
-                        if self.is_enemy(hit_wd[0]):
-                            #print "!!!"
-                            self.parry(hit_wd[0])
-                            break
-                #Die, my enemy!
-                else:
-                    self.random_attack(opp)
         else:
-            self.master.stay()
+            self.task_manager.clear_queue()
+            self.state = 'stay'
+            self.task_manager.push_task(Stay(self.master, 1))
+        for hit_wd in self.visible_hits_wd:
+            hit, dst = hit_wd
+            if self.is_enemy(hit):
+                if self.master.overlaps(hit):
+                    self.task_manager.push_task(Parry(self.master, 99, hit))
+                break
 
     def clear_vision(self):
         self.visible_actors_wd = []
         self.visible_hits_wd = []
-
-    def cross_hit_trace(self, hit):
-        v = hit.trace.v
-        nv = v.cross()
-        if v.x >= 0 and v.y < 0 or v.x < 0 and v.y < 0:
-            return nv
-        else:
-            return -nv
 
     def is_enemy(self, other):
         if other.fight_group < 100:
@@ -236,50 +348,6 @@ class Primitive_AI(Enemy_Brain):
 
     def is_in_touch(self, other):
         return self.master.cshape.overlaps(other.cshape)
-
-    def parry(self, hit):
-        hand = self.choose_free_hand()
-        if rnd.random() < self.mastery or self.recovery > 0.0 or hand is None:
-            #print 13
-            return
-        #print "parry"
-        h = hit.start.y
-        dire = hit.start.x - self.master.position[0]
-        dire = dire/abs(dire) if dire != 0 else 0
-        v = self.cross_hit_trace(hit)
-        x = self.master.position[0] + self.master.width*dire
-        start = eu.Vector2(x, h)
-        self.use_hand(hand, [start, con.CHOP], [start+v])
-        self.recovery = 0.05
-
-    def random_attack(self, other):
-        hand = self.choose_free_hand()
-        if rnd.random() < 0.05 or self.recovery > 0.0 or hand is None:
-            return
-        dire = other.position[0] - self.master.position[0]
-        dire = dire/abs(dire) if dire != 0 else 0
-        h = rnd.randint(-self.master.height/2, self.master.height/2)
-        h += self.master.position[1]
-        x = self.master.position[0] + self.master.width*dire
-        targ_x = other.position[0] + rnd.randint(-other.width/2, -other.width/2)
-        targ_y = other.position[1] + rnd.randint(-other.height/2, -other.height/2)
-        start = eu.Vector2(x, h)
-        end = (targ_x, targ_y)
-        self.use_hand(hand, [start, con.CHOP], [end])
-        self.recovery = 0.05
-
-    def dance_around(self, wd, dir):
-        mv = rnd.random()
-        if wd > self.closest and mv < 0.05:
-            self.prev_move = dir
-            self.mt = 0.1
-            self.master.walk(dir)
-        elif mv < 0.01:
-            self.prev_move = -dir
-            self.mt = 0.5
-            self.master.walk(-dir)
-        else:
-            self.master.stay()
 
 if __name__ == "__main__":
     print "Hello World"
