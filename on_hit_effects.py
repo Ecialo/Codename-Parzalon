@@ -27,10 +27,18 @@ def knock_back(value):
 
 def stun(value):
     def mast_stun(master):
-        def fab_stun(value):
+        def fab_stun(body_part):
             pass
         return fab_stun
     return mast_stun
+
+
+def tough_touch(hit_zone):
+    def mast_tough_touch(master):
+        def fab_tough_touch(target_actor):
+            pass
+        return fab_tough_touch
+    return mast_tough_touch
 
 
 def cleave(master):

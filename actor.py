@@ -1,8 +1,10 @@
 __author__ = 'Ecialo'
 
 #import cocos
+from pyglet.event import EventDispatcher
 from cocos import collision_model as cm
 from cocos import euclid as eu
+from cocos import layer
 
 import movable_object
 import consts as con
@@ -32,6 +34,17 @@ def activity(func):
     return decorate
 
 
+class Launcher(EventDispatcher):
+
+    def launch(self, missile):
+        self.dispatch_event('on_launch_missile', missile)
+
+    def destroy_missile(self, missile):
+        self.master.dispatch_event('on_remove_missile', missile)
+Launcher.register_event_type('on_launch_missile')
+Launcher.register_event_type('on_remove_missile')
+
+
 class Actor(movable_object.Movable_Object):
 
     is_event_handler = True
@@ -43,6 +56,7 @@ class Actor(movable_object.Movable_Object):
 
         self.hands = []
         self.body = body(self)
+        self.launcher = Launcher()
         self.state = 'stay'
         self.inventory = Inventory(None, None, None, self)
         cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
@@ -79,12 +93,14 @@ class Actor(movable_object.Movable_Object):
         """
         Remove Actor from level
         """
-        for item in self.hands:
-            item.drop()
-        for armor in filter(lambda x: (x.attached is not None), self.body.body_parts):
-            armor.attached.drop()
-        self.fight_group = -1
-        self.kill()
+        if self.fight_group > 0:
+            for item in self.hands:
+                item.drop()
+            for armor in filter(lambda x: (x.attached is not None), self.body.body_parts):
+                armor.attached.drop()
+            self.fight_group = -1
+            self.remove_action(self.actions[0])
+            self.kill()
 
     def _move(self, dx, dy):
         old = self.cshape.center.copy()
@@ -168,6 +184,10 @@ class Actor(movable_object.Movable_Object):
         hand.continue_use(*continue_args)
         hand.end_use(*end_args)
 
+    def push_task(self, task):
+        #print 123
+        self.actions[0].task_manager.push_task(task)
+
     def take_hit(self, hit):
         """
         Check with every Body_Part is Hit hit or not.
@@ -197,3 +217,9 @@ class Actor(movable_object.Movable_Object):
         Recalculate position from Level base to Actors base
         """
         return pos - self.position
+
+    #def on_enter(self):
+    #    self.launcher.push_handlers(self.get_ancestor(layer.scrolling.ScrollableLayer))
+
+    def on_exit(self):
+        self.launcher.pop_handlers()

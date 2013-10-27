@@ -8,6 +8,8 @@ consts = con.consts
 def collide_actor_actor(actor1, actor2):
     #print "push"
     if actor1.fight_group != actor2.fight_group:
+        map(lambda x: x(actor1), actor2.body.on_collide_effects)
+        map(lambda x: x(actor2), actor1.body.on_collide_effects)
         s_c = actor1.cshape.center
         o_c = actor2.cshape.center
         d = o_c - s_c

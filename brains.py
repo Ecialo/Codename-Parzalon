@@ -53,7 +53,16 @@ class Walk(Task):
 
     def __call__(self, dt):
         self.master.walk(self.master.direction)
+        if self.master.wall & (con.LEFT | con.RIGHT):
+                    self.master.push_task(Jump(self.master, 98))
         return Task.__call__(self, dt)
+
+
+class Jump(Task):
+
+    def __call__(self, dt):
+        self.master.jump()
+        return COMPLETE
 
 
 class Dance_Around(Task):
@@ -64,6 +73,7 @@ class Dance_Around(Task):
 
     def __call__(self, dt):
         mv = rnd.random()
+        print mv
         if mv < 0.05:
             self.prev_move = dir
             self.master.push_task(Walk(self.master, self.priority + 1, 0.1))
@@ -307,6 +317,7 @@ class Primitive_AI(Enemy_Brain):
                 self.visible_hits_wd.append(obj_wd)
             else:
                 pass
+        #print self.visible_actors_wd
         for unit_wd in self.visible_actors_wd:
             unit, dst = unit_wd
             if self.is_enemy(unit):
@@ -322,6 +333,7 @@ class Primitive_AI(Enemy_Brain):
                         self.state = 'eff'
                         self.task_manager.push_task(Dance_Around(self.master, unit, 2))
                 elif self.state is 'eff':
+                    #print self.task_manager.cur_task(), self.task_manager.tasks
                     self.task_manager.push_task(Random_Attack(self.master, 97, unit))
 
                 break
@@ -332,7 +344,7 @@ class Primitive_AI(Enemy_Brain):
         for hit_wd in self.visible_hits_wd:
             hit, dst = hit_wd
             if self.is_enemy(hit):
-                if self.master.overlaps(hit):
+                if self.master.cshape.overlaps(hit):
                     self.task_manager.push_task(Parry(self.master, 99, hit))
                 break
 

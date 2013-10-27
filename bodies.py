@@ -22,7 +22,8 @@ class Body_Part(object):
     max_health = 10
     max_armor = 10
     
-    def __init__(self, master, center, h_height, h_width, stab_priority, chop_priority,
+    def __init__(self, master, center, h_height, h_width,
+                 stab_priority, chop_priority,
                  on_destroy_effects=con.EMPTY_LIST):
         self.master = master
 
@@ -118,10 +119,11 @@ class Body(object):
     img = None
     base_speed = 0
     
-    def __init__(self, master, body_parts):
+    def __init__(self, master, body_parts, on_collide_effects=con.EMPTY_LIST):
         self.master = master
         self.speed = self.base_speed
         self.body_parts = map(lambda x: x(self), body_parts)
+        self.on_collide_effects = on_collide_effects
         self.health = sum(map(lambda x: x.max_health, body_parts))/2
 
     horizontal_speed = property(lambda self: self.master.horizontal_speed)
