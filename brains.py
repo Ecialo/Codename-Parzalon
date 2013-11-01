@@ -213,8 +213,15 @@ class Controlling(Task):
                 item.get_up()
 
         inv = self.key[self.bind['inventory']]
-        if inv:
+        pressed = False
+        if inv and not pressed:
             self.master.inventory.open()
+            pressed = True
+        elif inv and pressed:
+            self.master.inventory.close()
+            pressed = False
+        else:
+            pass
         #cx, cy = self.master.position
         #print cx, cy
         self.scroller.set_focus(*self.master.position)

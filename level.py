@@ -19,7 +19,7 @@ import brains as br
 import actor as ac
 import obj_db as db
 import consts as con
-from inventory import Inventory
+from inventory import InventoryLayer
 
 consts = con.consts
 
@@ -28,6 +28,7 @@ def _spawn_unit(level, name, pos):
     un_par = db.objs[name]
     unit = ac.Actor(un_par['body'])
     map(lambda x: unit.get_item(x()(level)), un_par['items'])
+    map(lambda x: unit.put_item(x()(level)), un_par['items'])
     unit.move_to(*pos)
     if un_par['brain'].fight_group is consts['group']['hero'] and level.hero is None:
         level.hero = unit
@@ -113,7 +114,7 @@ class Level_Layer(layer.ScrollableLayer):
                 #r = self.opponent.get_rect()
                 #r.midbottom = sc.midbottom
                 dx, dy = sc.center
-                self.spawn('enemy', (dx, dy))
+                self.spawn('dummy', (dx, dy))
 
         #Set up brains
         #self.opponent.do(br.Primitive_AI())
@@ -246,10 +247,14 @@ def create_level(filename):
 
     scroller = layer.ScrollingManager()
     player_layer = Level_Layer(scripts, force, scroller)
+    inventory = InventoryLayer()
 
     scroller.add(back, z=-1)
     scroller.add(force, z=0)
     scroller.add(player_layer, z=1)
 
+    scene.add(inventory, z=2)
     scene.add(scroller, z=1)
+    #inventory.open()
+    #inventory.close()
     return scene

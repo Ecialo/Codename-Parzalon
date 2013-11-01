@@ -220,8 +220,7 @@ class Body(object):
                     end -= frame_width
                 start -= frame_height
                 i += 1
-            image_sequence = map(lambda img: img, frames)
-            pyg_anim = pyglet.image.Animation.from_image_sequence(image_sequence, 0.2, True)
+            pyg_anim = pyglet.image.Animation.from_image_sequence(frames, 0.2, False)
             for i in range(len(duration_list)):
                 pyg_anim.frames[i].duration = float(duration_list[i])
             anim_dict[name[0:len(name)-4]] = pyg_anim
