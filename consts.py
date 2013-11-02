@@ -18,20 +18,18 @@ consts = {'window': {'width': 800,
                        'down': key.S,
                        'up': key.W,
                        'gain': key.G,
-                       'inventory': key.I,
                        'jump': key.SPACE,
                        'alt_mode': key.LSHIFT,
                        'first_hand': mouse.LEFT,
                        'second_hand': mouse.RIGHT},
           'color': {'white': (255, 255, 255, 255)},
-          'img': {'human': pyglet.resource.image('stay.png'),
-                  'human_sit': pyglet.resource.image('sit.png'),
+          'img': {'human': pyglet.resource.image('chelovek_v2.png'),
+                  'human_sit': pyglet.resource.image('chelovek_sidit.png'),
                   'weapon': pyglet.resource.image('sword.png'),
                   'knife': pyglet.resource.image('knife.png'),
                   'bullet': pyglet.resource.image('bullet.png'),
                   'rifle': pyglet.resource.image('fuzeja.png'),
-                  'helmet': pyglet.resource.image('helm.png'),
-                  'inventory': pyglet.resource.image('inventory.png')},
+                  'helmet': pyglet.resource.image('helm.png')},
           'params': {'human': {'speed': 200,
                                'jump_speed': 1000},
                      'primitive': {'range_of_vision': 400,
@@ -58,4 +56,3 @@ ARMOR = 100
 CLEAVE, PENETRATE = xrange(2)
 LINE, RECTANGLE = xrange(2)
 UNIT, ITEM = xrange(2)
-EMPTY_LIST = []
