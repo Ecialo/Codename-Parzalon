@@ -30,11 +30,10 @@ def _spawn_unit(level, name, pos):
     unit.move_to(*pos)
     if un_par['brain'].fight_group is consts['group']['hero'] and level.hero is None:
         level.hero = unit
-    elif un_par['brain'].fight_group is not consts['group']['hero']:
-        level.actors.append(unit)
-    else:
+    elif un_par['brain'].fight_group is consts['group']['hero'] and level.hero is not None:
         level.hero.destroy()
         level.hero = unit
+    level.actors.append(unit)
     level.add(unit, z=2)
     unit.do(un_par['brain']())
 
@@ -110,7 +109,7 @@ class Level_Layer(layer.ScrollableLayer):
                 #r = self.opponent.get_rect()
                 #r.midbottom = sc.midbottom
                 dx, dy = sc.center
-                self.spawn('dummy', (dx, dy))
+                self.spawn('enemy', (dx, dy))
 
         #Set up brains
         #self.opponent.do(br.Primitive_AI())
@@ -159,7 +158,6 @@ class Level_Layer(layer.ScrollableLayer):
         for hit_1, hit_2 in self.collman.iter_all_collisions():
             hit_1.collide(hit_2)
 
-        self.collman.add(self.hero)
         map(self._actor_kick_or_add, self.actors)
 
         for obj1, obj2 in self.collman.iter_all_collisions():

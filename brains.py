@@ -49,6 +49,69 @@ class Task(object):
             return COMPLETE if self.time <= 0.0 else None
 
 
+class Waiting(Task):
+
+    def __init__(self, master, brain):
+        Task.__init__(self, master, 0)
+        self.brain = brain
+
+    def __call__(self, dt):
+        #print self.brain.visible_actors_wd
+        for unit_wd in self.brain.visible_actors_wd:
+            unit, dst = unit_wd
+            if self.brain.is_enemy(unit):
+                self.master.push_task(Approaches(self.master, self.brain, unit))
+
+
+class Approaches(Task):
+
+    def __init__(self, master, brain, target):
+        Task.__init__(self, master, 1)
+        self.brain = brain
+        self.target = target
+
+    def __call__(self, dt):
+        #print "Approach", self.target
+        if self.target.fight_group > 0:
+            dst = self.target.cshape.center.x - self.master.cshape.center.x
+            d = dst/abs(dst) if abs(dst) != 0 else 0
+            dst = abs(dst)
+            print dst
+            if d != self.master.direction:
+                self.master.push_task(Turn(self.master, 11))
+            if dst <= self.brain.eff_dst:
+                self.master.push_task(Close_Combat(self.master, self.brain, self.target))
+            else:
+                self.master.push_task(Walk(self.master, 10, 0.3))
+        else:
+            self.master.push_task(Stay(self.master, 1))
+            return COMPLETE
+
+
+class Close_Combat(Task):
+
+    def __init__(self, master, brain, target):
+        Task.__init__(self, master, 2)
+        self.brain = brain
+        self.target = target
+
+    def __call__(self, dt):
+        #print "ololo"
+        dst = abs(self.target.cshape.center.x - self.master.cshape.center.x)
+        if dst <= self.brain.eff_dst and self.target.fight_group > 0:
+            d = dst/abs(dst) if abs(dst) != 0 else 0
+            if d != self.master.direction:
+                self.master.push_task(Turn(self.master, 11))
+            self.master.push_task(Random_Attack(self.master, 98, self.target))
+            mv = rnd.random()
+            if mv < 0.05:
+                self.master.push_task(Walk(self.master, 10, 0.1))
+            elif mv < 0.01:
+                self.master.push_task(MoveBack(self.master, 10, 0.1))
+        else:
+            return COMPLETE
+
+
 class Walk(Task):
 
     def __call__(self, dt):
@@ -63,27 +126,6 @@ class Jump(Task):
     def __call__(self, dt):
         self.master.jump()
         return COMPLETE
-
-
-class Dance_Around(Task):
-
-    def __init__(self, master, target, priority):
-        Task.__init__(self, master, priority)
-        self.target = target
-
-    def __call__(self, dt):
-        mv = rnd.random()
-        print mv
-        if mv < 0.05:
-            self.prev_move = dir
-            self.master.push_task(Walk(self.master, self.priority + 1, 0.1))
-        elif mv < 0.01:
-            self.prev_move = -dir
-            self.mt = 0.5
-            self.master.push_task(MoveBack(self.master, self.priority + 1, 0.1))
-        else:
-            pass
-        return Task.__call__(self, dt)
 
 
 class MoveBack(Task):
@@ -102,7 +144,7 @@ class Parry(Task):
     def __call__(self, dt):
         hit = self.target
         hand = self.master.choose_free_hand()
-        if rnd.random() < self.mastery or hand is None:
+        if rnd.random() < ['params']['primitive']['mastery'] or hand is None:
             #print 13
             return COMPLETE
         #print "parry"
@@ -314,6 +356,8 @@ class Primitive_AI(Enemy_Brain):
         self.prev_move = 0
         self.state = 'stay'
         self.eff_dst = self.master.hands[0].length * consts['effective_dst']
+
+        self.task_manager.push_task(Waiting(self.master, self))
         
     def sensing(self):
         self.clear_vision()
@@ -325,33 +369,10 @@ class Primitive_AI(Enemy_Brain):
             else:
                 pass
         #print self.visible_actors_wd
-        for unit_wd in self.visible_actors_wd:
-            unit, dst = unit_wd
-            if self.is_enemy(unit):
-                d = unit.cshape.center.x - self.master.cshape.center.x
-                d = d/abs(d) if d != 0 else 0
-                if d != self.master.direction:
-                    self.task_manager.push_task(Turn(self.master, 98))
-                if self.state is 'stay':
-                    self.state = 'approach'
-                    self.task_manager.push_task(Walk(self.master, 1))
-                elif self.state is 'approach':
-                    if dst <= self.eff_dst:
-                        self.state = 'eff'
-                        self.task_manager.push_task(Dance_Around(self.master, unit, 2))
-                elif self.state is 'eff':
-                    #print self.task_manager.cur_task(), self.task_manager.tasks
-                    self.task_manager.push_task(Random_Attack(self.master, 97, unit))
-
-                break
-        else:
-            self.task_manager.clear_queue()
-            self.state = 'stay'
-            self.task_manager.push_task(Stay(self.master, 1))
         for hit_wd in self.visible_hits_wd:
             hit, dst = hit_wd
             if self.is_enemy(hit):
-                if self.master.cshape.overlaps(hit):
+                if self.master.cshape.overlaps(hit.cshape):
                     self.task_manager.push_task(Parry(self.master, 99, hit))
                 break
 

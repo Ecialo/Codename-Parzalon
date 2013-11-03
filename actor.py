@@ -221,5 +221,5 @@ class Actor(movable_object.Movable_Object):
     #def on_enter(self):
     #    self.launcher.push_handlers(self.get_ancestor(layer.scrolling.ScrollableLayer))
 
-    def on_exit(self):
-        self.launcher.pop_handlers()
+    #def on_exit(self):
+    #    self.launcher.pop_handlers()

@@ -7,15 +7,28 @@ import items
 import usages
 import on_hit_effects as on_h
 import consts as con
+import hits
 
 consts = con.consts
+
+
+def on_collide_damage(value):
+    def mast_on_collide_damage(master):
+        def targ_on_collide_damage(target):
+            hit_z = hits.Invisible_Hit_Zone(master, master.cshape.half_width*2, master.cshape.half_height*2,
+                                            eu.Vector2(0, 0), 0, master.position,
+                                            [on_h.damage(value)])
+            master.launcher.launch(hit_z)
+        return targ_on_collide_damage
+    return mast_on_collide_damage
 
 
 class Skull(bodies.Body_Part):
 
     def __init__(self, master):
         bodies.Body_Part.__init__(self, master, eu.Vector2(0, 0), 15, 15, 1, 1,
-                                  [bodies.death])
+                                  [bodies.death],
+                                  [on_collide_damage(3)])
 
 
 class Twister_Body(bodies.Body):

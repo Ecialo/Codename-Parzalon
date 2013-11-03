@@ -1,5 +1,5 @@
 __author__ = 'Ecialo'
-#import pyglet
+from pyglet import image
 
 import cocos
 from cocos import collision_model as cm
@@ -138,9 +138,9 @@ def non_gravity_update(self, dt):
     #print self.wall
 
 
-class _Hit_Zone(mova.Movable_Object):
+class Hit_Zone(mova.Movable_Object):
 
-    def __init__(self, master, img, vector, speed, position, hit_shape):
+    def __init__(self, master, img, vector, speed, position, hit_shape, effects=con.EMPTY_LIST):
         #cshape = cm.AARectShape(eu.Vector2(*position), img.width/2, img.height/2)
         if hit_shape is con.RECTANGLE:
             trace = gm.Rectangle(gm.Point2(0, 0), eu.Vector2(img.width, img.height))
@@ -162,6 +162,9 @@ class _Hit_Zone(mova.Movable_Object):
         self.hit_pattern = con.STAB
 
         self.completed = False
+
+        if effects is not con.EMPTY_LIST:
+            self.effects = filter(None, map(lambda eff: eff(self), effects))
 
         self.schedule(self.update)
         #print self.update
@@ -196,16 +199,8 @@ class _Hit_Zone(mova.Movable_Object):
         self.add(box.Box(shape, (255, 0, 0, 255)), z=5)
 
 
-class _Visible_Hit_Zone(_Hit_Zone):
-    pass
+class Invisible_Hit_Zone(Hit_Zone):
 
-
-class _Invisible_Hit_Zone(_Hit_Zone):
-    pass
-
-
-def Hit_Zone(master, img, v, speed, position=(0, 0), hit_shape = con.RECTANGLE):
-        if img is None:
-            return _Invisible_Hit_Zone()
-        else:
-            return _Visible_Hit_Zone(master, img, v, speed, position, hit_shape)
+    def __init__(self, master, width, height, v, speed, position, effects=con.EMPTY_LIST):
+        img = image.SolidColorImagePattern().create_image(width, height)
+        Hit_Zone.__init__(self, master, img, v, speed, position, con.RECTANGLE, effects)
