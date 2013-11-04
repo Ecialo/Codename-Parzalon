@@ -82,7 +82,9 @@ class Approaches(Task):
             if dst <= self.brain.eff_dst:
                 self.master.push_task(Close_Combat(self.master, self.brain, self.target))
             else:
-                self.master.push_task(Walk(self.master, 10, 0.3))
+                self.master.walk(self.master.direction)
+                if self.master.wall & (con.LEFT | con.RIGHT):
+                    self.master.push_task(Jump(self.master, 98))
         else:
             self.master.push_task(Stay(self.master, 1))
             return COMPLETE
@@ -353,11 +355,7 @@ class Primitive_AI(Enemy_Brain):
         self.visible_actors_wd = []
         self.visible_hits_wd = []
 
-        self.prev_move = 0
         self.state = 'stay'
-        self.eff_dst = self.master.hands[0].length * consts['effective_dst']
-
-        self.task_manager.push_task(Waiting(self.master, self))
         
     def sensing(self):
         self.clear_vision()
@@ -388,6 +386,15 @@ class Primitive_AI(Enemy_Brain):
 
     def is_in_touch(self, other):
         return self.master.cshape.overlaps(other.cshape)
+
+
+class Base_Enemy_Mind(Primitive_AI):
+
+    def start(self):
+        Primitive_AI.start(self)
+        self.eff_dst = self.master.hands[0].length * consts['effective_dst']
+        self.task_manager.push_task(Waiting(self.master, self))
+
 
 if __name__ == "__main__":
     print "Hello World"

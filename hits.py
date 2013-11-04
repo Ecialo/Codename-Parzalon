@@ -153,7 +153,8 @@ class Hit_Zone(mova.Movable_Object):
         self.hit_shape = hit_shape
         self.trace = trace
         cshape = shape_to_cshape(self.trace)
-        v = vector/abs(vector) * speed
+        v = vector/abs(vector) if abs(vector) != 0 else eu.Vector2(0,0)
+        v *= speed
         mova.Movable_Object.__init__(self, img, cshape, position, v.y, v.x)
         self.master = master
         self.fight_group = master.owner.fight_group + consts['missile_fight_group']
@@ -165,12 +166,13 @@ class Hit_Zone(mova.Movable_Object):
 
         if effects is not con.EMPTY_LIST:
             self.effects = filter(None, map(lambda eff: eff(self), effects))
+        else:
+            self.effects = property(lambda self: filter(None, map(lambda eff: eff(self), self.master.effects)))
 
         self.schedule(self.update)
         #print self.update
 
     update = on_level_collide_destroy(non_gravity_update)
-    effects = property(lambda self: filter(None, map(lambda eff: eff(self), self.master.effects)))
 
     def uncompleteness(self):
         return 0.0

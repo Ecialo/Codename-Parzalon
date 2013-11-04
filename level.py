@@ -33,6 +33,7 @@ def _spawn_unit(level, name, pos):
     elif un_par['brain'].fight_group is consts['group']['hero'] and level.hero is not None:
         level.hero.destroy()
         level.hero = unit
+    unit.launcher.push_handlers(level)
     level.actors.append(unit)
     level.add(unit, z=2)
     unit.do(un_par['brain']())
@@ -109,7 +110,7 @@ class Level_Layer(layer.ScrollableLayer):
                 #r = self.opponent.get_rect()
                 #r.midbottom = sc.midbottom
                 dx, dy = sc.center
-                self.spawn('enemy', (dx, dy))
+                self.spawn('twister', (dx, dy))
 
         #Set up brains
         #self.opponent.do(br.Primitive_AI())

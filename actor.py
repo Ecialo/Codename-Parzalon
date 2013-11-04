@@ -36,6 +36,11 @@ def activity(func):
 
 class Launcher(EventDispatcher):
 
+    def __init__(self, master):
+        EventDispatcher.__init__(self)
+        self.master = master
+        self.owner = master
+
     def launch(self, missile):
         self.dispatch_event('on_launch_missile', missile)
 
@@ -55,8 +60,9 @@ class Actor(movable_object.Movable_Object):
         self.direction = 1
 
         self.hands = []
+        self.owner = self
         self.body = body(self)
-        self.launcher = Launcher()
+        self.launcher = Launcher(self)
         self.state = 'stay'
         self.inventory = Inventory(None, None, None, self)
         cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
@@ -221,5 +227,5 @@ class Actor(movable_object.Movable_Object):
     #def on_enter(self):
     #    self.launcher.push_handlers(self.get_ancestor(layer.scrolling.ScrollableLayer))
 
-    #def on_exit(self):
-    #    self.launcher.pop_handlers()
+    def on_exit(self):
+        self.launcher.pop_handlers()
