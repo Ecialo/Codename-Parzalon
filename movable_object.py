@@ -73,5 +73,6 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
             self.vertical_speed = 0
         speed = abs(self.horizontal_speed)
         d = self.horizontal_speed/speed if self.horizontal_speed != 0 else 0
-        speed -= consts['rubbing'] * dt
+        if self.on_ground:
+            speed -= consts['rubbing'] * dt
         self.horizontal_speed = speed * d if speed >= 0 else 0
