@@ -19,7 +19,7 @@ import brains as br
 import actor as ac
 import obj_db as db
 import consts as con
-from inventory import InventoryLayer
+from inventory import Inventory
 
 consts = con.consts
 
@@ -120,9 +120,12 @@ class Level_Layer(layer.ScrollableLayer):
         #self.opponent.do(br.Primitive_AI())
         #self.opponent.do(br.Dummy())
         #self.hero.do(br.Controller())
-
+       # print self.hero.inventory.first_weapon
         self.hero.show_hitboxes()
+
         self.actors[0].show_hitboxes()
+        #self.hero.inventory.open()
+        #self.add(self.hero.inventory.image, z=2)
 
         #Run
         self.schedule(self.update)
@@ -247,14 +250,11 @@ def create_level(filename):
 
     scroller = layer.ScrollingManager()
     player_layer = Level_Layer(scripts, force, scroller)
-    inventory = InventoryLayer()
 
     scroller.add(back, z=-1)
     scroller.add(force, z=0)
     scroller.add(player_layer, z=1)
 
-    scene.add(inventory, z=2)
     scene.add(scroller, z=1)
-    #inventory.open()
-    #inventory.close()
+    scene.add(player_layer.hero.inventory, z=2)
     return scene

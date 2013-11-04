@@ -140,10 +140,10 @@ class Random_Attack(Task):
         return COMPLETE
 
 
-class Stay(Task):
+class Stand(Task):
 
     def __call__(self, dt):
-        self.master.stay()
+        self.master.stand()
         return COMPLETE
 
 
@@ -157,6 +157,7 @@ class Turn(Task):
 class Controlling(Task):
 
     bind = consts['bindings']
+    pressed = False
 
     def __init__(self, master, priority):
         Task.__init__(self, master, priority)
@@ -173,7 +174,7 @@ class Controlling(Task):
             if self.key[self.bind['jump']] and self.master.on_ground:
                 self.master.jump()
             if hor_dir == 0:
-                self.master.stay()
+                self.master.stand()
             else:
                 self.master.walk(hor_dir)
 
@@ -213,13 +214,12 @@ class Controlling(Task):
                 item.get_up()
 
         inv = self.key[self.bind['inventory']]
-        pressed = False
-        if inv and not pressed:
-            self.master.inventory.open()
-            pressed = True
-        elif inv and pressed:
-            self.master.inventory.close()
-            pressed = False
+        if inv and not self.pressed:
+            self.master.open()
+            self.pressed = True
+        elif inv and self.pressed:
+            self.master.close()
+            self.pressed = False
         else:
             pass
         #cx, cy = self.master.position
@@ -312,7 +312,7 @@ class Primitive_AI(Enemy_Brain):
         self.visible_hits_wd = []
 
         self.prev_move = 0
-        self.state = 'stay'
+        self.state = 'stand'
         self.eff_dst = self.master.hands[0].length * consts['effective_dst']
         
     def sensing(self):
@@ -332,7 +332,7 @@ class Primitive_AI(Enemy_Brain):
                 d = d/abs(d) if d != 0 else 0
                 if d != self.master.direction:
                     self.task_manager.push_task(Turn(self.master, 98))
-                if self.state is 'stay':
+                if self.state is 'stand':
                     self.state = 'approach'
                     self.task_manager.push_task(Walk(self.master, 1))
                 elif self.state is 'approach':
@@ -346,8 +346,8 @@ class Primitive_AI(Enemy_Brain):
                 break
         else:
             self.task_manager.clear_queue()
-            self.state = 'stay'
-            self.task_manager.push_task(Stay(self.master, 1))
+            self.state = 'stand'
+            self.task_manager.push_task(Stand(self.master, 1))
         for hit_wd in self.visible_hits_wd:
             hit, dst = hit_wd
             if self.is_enemy(hit):

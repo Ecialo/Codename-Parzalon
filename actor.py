@@ -57,7 +57,7 @@ class Actor(movable_object.Movable_Object):
         self.hands = []
         self.body = body(self)
         self.launcher = Launcher()
-        self.state = 'stay'
+        self.state = 'stand'
         self.inventory = Inventory(None, None, None, self)
         cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
         super(Actor, self).__init__(self.body.img, cshape)
@@ -88,6 +88,12 @@ class Actor(movable_object.Movable_Object):
 
     def put_item(self, item):
         self.inventory.put_item(item)
+
+    def open(self):
+        self.inventory.open()
+
+    def close(self):
+        self.inventory.close()
 
     def destroy(self):
         """
@@ -123,7 +129,7 @@ class Actor(movable_object.Movable_Object):
 
     @activity
     @animate
-    def stay(self):
+    def stand(self):
         """
         Do not move Actor
         """
