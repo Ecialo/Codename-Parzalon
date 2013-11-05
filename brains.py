@@ -184,10 +184,10 @@ class Random_Attack(Task):
         return COMPLETE
 
 
-class Stay(Task):
+class Stand(Task):
 
     def __call__(self, dt):
-        self.master.stay()
+        self.master.stand()
         return COMPLETE
 
 
@@ -217,7 +217,7 @@ class Controlling(Task):
             if self.key[self.bind['jump']] and self.master.on_ground:
                 self.master.jump()
             if hor_dir == 0:
-                self.master.stay()
+                self.master.stand()
             else:
                 self.master.walk(hor_dir)
 
@@ -257,13 +257,12 @@ class Controlling(Task):
                 item.get_up()
 
         inv = self.key[self.bind['inventory']]
-        pressed = False
-        if inv and not pressed:
-            self.master.inventory.open()
-            pressed = True
-        elif inv and pressed:
-            self.master.inventory.close()
-            pressed = False
+        if inv and not self.pressed:
+            self.master.open()
+            self.pressed = True
+        elif inv and self.pressed:
+            self.master.close()
+            self.pressed = False
         else:
             pass
         #cx, cy = self.master.position
@@ -355,7 +354,7 @@ class Primitive_AI(Enemy_Brain):
         self.visible_actors_wd = []
         self.visible_hits_wd = []
 
-        self.state = 'stay'
+        self.state = 'stand'
         
     def sensing(self):
         self.clear_vision()

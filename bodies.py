@@ -138,8 +138,12 @@ class Body(object):
         self.master.destroy()
 
     def turn(self):
+        for animations in self.anim:
+            for i in range(len(self.anim[animations].frames)):
+                self.anim[animations].frames[i].image = \
+                    self.anim[animations].frames[i].image.get_texture().get_transform(flip_x=True)
         map(lambda x: x.turn(), self.body_parts)
-    
+
     def take_hit(self, hit):
 
         """
@@ -238,14 +242,14 @@ class Body(object):
 class Human(Body):
     
     anim = {'walk': consts['img']['human'],
-            'stay': consts['img']['human'],
+            'stand': consts['img']['human'],
             'jump': consts['img']['human'],
             'sit': consts['img']['human_sit']}
     parts_pos = {'walk': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
-                 'stay': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
+                 'stand': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'jump': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'sit': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 17))]}
-    img = anim['stay']
+    img = anim['stand']
     base_speed = consts['params']['human']['speed']
 
     def __init__(self, master):
