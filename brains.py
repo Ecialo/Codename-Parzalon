@@ -6,6 +6,7 @@ __author__ = "Ecialo"
 
 import random as rnd
 
+import pyglet
 from cocos import actions as ac
 from cocos import euclid as eu
 from cocos import layer
@@ -175,7 +176,7 @@ class Controlling(Task):
                 self.master.jump()
             if hor_dir == 0:
                 self.master.stand()
-            else:
+            elif hor_dir != 0 and self.master.on_ground:
                 self.master.walk(hor_dir)
 
         #Action
@@ -214,17 +215,62 @@ class Controlling(Task):
                 item.get_up()
 
         inv = self.key[self.bind['inventory']]
-        if inv and not self.pressed:
-            self.master.open()
-            self.pressed = True
-        elif inv and self.pressed:
-            self.master.close()
-            self.pressed = False
+        if inv:
+            if not self.pressed:
+                self.master.open()
+                self.pressed = True
+            else:
+                self.master.close()
+                self.pressed = False
         else:
             pass
         #cx, cy = self.master.position
         #print cx, cy
         self.scroller.set_focus(*self.master.position)
+
+
+class Animate(Task):
+    def __init__(self, master, priority, filename):
+        Task.__init__(self, master, priority)
+        self.filename = filename
+
+    def __call__(self, dt):
+        f = open(self.filename)
+        while 1:
+            name = f.readline()
+            if not name:
+                break
+            name = name[0:len(name)-1]
+            frame_height = int(f.readline())
+            frame_width = int(f.readline())
+            duration_list = []
+            l = f.readline()
+            s = l.split(' ')
+            s[len(s)-1] = s[len(s)-1][0:len(s[len(s)-1])-1]
+            for i in range(len(s)):
+                duration_list.append(float(s[i]))
+            image = pyglet.image.load(name)
+            frames = []
+            start = image.height
+            i = 1
+            while start >= frame_height:
+                left_border = 0
+                bottom_border = image.height - frame_height*i
+                end = image.width
+                while end >= frame_width:
+                    cut = image.get_region(left_border, bottom_border, frame_width, frame_height)
+                    frames.append(cut)
+                    left_border += frame_width
+                    end -= frame_width
+                start -= frame_height
+                i += 1
+            pyg_anim = pyglet.image.Animation.from_image_sequence(frames, 0.2, False)
+            for i in range(len(duration_list)):
+                pyg_anim.frames[i].duration = float(duration_list[i])
+            self.master.body.anim[name[0:len(name)-4]] = pyg_anim
+            f.readline()
+        f.close()
+        return COMPLETE
 
 
 class Task_Manager(object):
@@ -258,7 +304,8 @@ class Brain(ac.Action):
         self.master.fight_group = self.fight_group
         self.task_manager = Task_Manager()
         #self.tilemap = self.master.get_ancestor(cocos.layer.ScrollableLayer).force_ground
-    
+        self.task_manager.push_task(Animate(self.master, 2, self.master.body.body_name))
+
     def step(self, dt):
         self.master.update(dt)
         self.sensing()
