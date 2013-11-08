@@ -207,13 +207,13 @@ class Hero(Body):
     anim = {'walk': consts['img']['hero'],
             'stand': consts['img']['hero'],
             'jump': consts['img']['hero'],
-            'sit': consts['img']['hero_sit'],
-            'swing': consts['img']['hero']}
+            'sit': consts['img']['hero_sit']}
+
     parts_pos = {'walk': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'stand': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'jump': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
-                 'sit': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 17))],
-                 'swing': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))]}
+                 'sit': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 17))]}
+
     img = anim['stand']
     base_speed = consts['params']['human']['speed']
 
@@ -226,13 +226,12 @@ class Human(Body):
     anim = {'walk': consts['img']['human'],
             'stand': consts['img']['human'],
             'jump': consts['img']['human'],
-            'sit': consts['img']['human_sit'],
-            'swing': consts['img']['human']}
+            'sit': consts['img']['human_sit']}
+
     parts_pos = {'walk': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'stand': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'jump': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
-                 'sit': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 17))],
-                 'swing': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))]}
+                 'sit': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 17))]}
     img = anim['stand']
     base_speed = consts['params']['human']['speed']
 
