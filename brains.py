@@ -87,7 +87,7 @@ class Approaches(Task):
                 if self.master.wall & (con.LEFT | con.RIGHT):
                     self.master.push_task(Jump(self.master, 98))
         else:
-            self.master.push_task(Stay(self.master, 1))
+            self.master.push_task(Stand(self.master, 1))
             return COMPLETE
 
 
@@ -105,7 +105,8 @@ class Close_Combat(Task):
             d = dst/abs(dst) if abs(dst) != 0 else 0
             if d != self.master.direction:
                 self.master.push_task(Turn(self.master, 11))
-            self.master.push_task(Random_Attack(self.master, 98, self.target))
+            hand = self.master.choose_free_hand()
+            self.master.push_task(Random_Attack(self.master, 98, hand, self.target))
             mv = rnd.random()
             if mv < 0.05:
                 self.master.push_task(Walk(self.master, 10, 0.1))
@@ -140,13 +141,14 @@ class MoveBack(Task):
 
 class Parry(Task):
 
-    def __init__(self, master, priority, target):
+    def __init__(self, master, priority, weapon, target):
         Task.__init__(self, master, priority)
         self.target = target
+        self.weapon = weapon
 
     def __call__(self, dt):
         hit = self.target
-        hand = self.master.choose_free_hand()
+        hand = self.weapon
         if rnd.random() < ['params']['primitive']['mastery'] or hand is None:
             #print 13
             return COMPLETE
@@ -163,12 +165,13 @@ class Parry(Task):
 
 class Random_Attack(Task):
 
-    def __init__(self, master, priority, target):
+    def __init__(self, master, priority, weapon, target):
         Task.__init__(self, master, priority)
         self.target = target
+        self.weapon = weapon
 
     def __call__(self, dt):
-        hand = self.master.choose_free_hand()
+        hand = self.weapon
         target = self.target
         if rnd.random() < 0.05 or hand is None:
             return COMPLETE
@@ -183,6 +186,75 @@ class Random_Attack(Task):
         end = (targ_x, targ_y)
         self.master.use_hand(hand, [start, con.CHOP], [end])
         return COMPLETE
+
+
+class Aim(Task):
+
+    def __init__(self, master, priority, weapon, target, environment):
+        Task.__init__(self, master, priority)
+        self.weapon = weapon
+        self.target = target
+        self.environment = environment
+
+    def __call__(self, dt):
+        vx = self.target.position[0] - self.master.position[0]
+        vy = self.target.position[1] - self.master.position[1]
+        dx = con.LEFT if vx < 0 else con.RIGHT
+        dy = con.DOWN if vy < 0 else con.UP
+        v = eu.Vector2(vx, vy)
+        v = (v/abs(v))*consts['tile_size']
+        pos = self.master.position
+        while not self.target.cshape.touches_point(pos[0], pos[1]):
+            cell = self.environment.get_at_pixel(pos[0], pos[1])
+            if cell.get('right') and dx is con.LEFT or cell.get('left') and dx is con.RIGHT or\
+                            cell.get('top') and dy is con.DOWN or cell.get('bottom') and dy is con.UP:
+                return COMPLETE
+            pos += v
+        self.master.push_task(Shoot(self.master, self.priority, self.weapon, v))
+        return COMPLETE
+
+
+class Shoot(Task):
+
+    def __init__(self, master, priority, weapon, target):
+        Task.__init__(self, master, priority)
+        self.weapon = weapon
+        self.target = target
+
+    def __call__(self, dt):
+        hand = self.weapon
+        start = self.master.position
+        end = self.target.position
+        self.master.use_hand(hand, [start, con.CHOP], [end])
+        return COMPLETE
+
+
+class Body_Part_Move_To(Task):
+
+    def __init__(self, master, pos, slot, priority):
+        Task.__init__(self, master, priority)
+        self.pos = pos
+        self.slot = slot
+
+    def __call__(self, dt):
+        for body_part in self.master.body_parts:
+            if body_part.slot is self.slot:
+                body_part.set_pos(self.pos)
+                return COMPLETE
+
+
+class Body_Part_Move_On(Task):
+
+    def __init__(self, master, v, slot, priority):
+        Task.__init__(self, master, priority)
+        self.v = v
+        self.slot = slot
+
+    def __call__(self, dt):
+        for body_part in self.master.body_parts:
+            if body_part.slot is self.slot:
+                body_part.set_pos(body_part.shape.pc + self.v)
+                return COMPLETE
 
 
 class Stand(Task):
@@ -258,13 +330,12 @@ class Controlling(Task):
                 item.get_up()
 
         inv = self.key[self.bind['inventory']]
-        if inv:
-            if not self.pressed:
-                self.master.open()
-                self.pressed = True
-            else:
-                self.master.close()
-                self.pressed = False
+        if inv and not self.pressed:
+            self.master.open()
+            self.pressed = True
+        elif inv and self.pressed:
+            self.master.close()
+            self.pressed = False
         else:
             pass
         #cx, cy = self.master.position
@@ -345,9 +416,11 @@ class Brain(ac.Action):
     
     def start(self):
         self.master.fight_group = self.fight_group
+        self.environment = self.master.tilemap
         self.task_manager = Task_Manager()
         #self.tilemap = self.master.get_ancestor(cocos.layer.ScrollableLayer).force_ground
         self.task_manager.push_task(Animate(self.master, 2, self.master.body.body_name))
+
 
     def step(self, dt):
         self.master.update(dt)
@@ -417,7 +490,8 @@ class Primitive_AI(Enemy_Brain):
             hit, dst = hit_wd
             if self.is_enemy(hit):
                 if self.master.cshape.overlaps(hit.cshape):
-                    self.task_manager.push_task(Parry(self.master, 99, hit))
+                    hand = self.master.choose_free_hand()
+                    self.task_manager.push_task(Parry(self.master, 99, hand, hit))
                 break
 
     def clear_vision(self):

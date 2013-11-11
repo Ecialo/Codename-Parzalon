@@ -1,6 +1,7 @@
 __author__ = 'Ecialo'
 
 from cocos import euclid as eu
+from cocos import sprite
 import bodies
 import brains
 import items
@@ -35,12 +36,12 @@ class Skull(bodies.Body_Part):
 class Twister_Body(bodies.Body):
 
     anim = {'walk': consts['img']['twister'],
-            'stay': consts['img']['twister'],
+            'stand': consts['img']['twister'],
             'jump': consts['img']['twister']}
 
-    parts_pos = {'walk': [(con.HEAD, (0, 57))],
-                 'stay': [(con.HEAD, (0, 57))],
-                 'jump': [(con.HEAD, (0, 57))]}
+    parts_pos = {'walk': [(con.HEAD, (0, 0))],
+                 'stand': [(con.HEAD, (0, 0))],
+                 'jump': [(con.HEAD, (0, 0))]}
     img = consts['img']['twister']
     base_speed = consts['params']['human']['speed']
 
@@ -48,6 +49,8 @@ class Twister_Body(bodies.Body):
         bodies.Body.__init__(self, master,
                              [Skull],
                              [on_collide_damage(3)])
+        self.skull = sprite.Sprite(consts['img']['skull'])
+        self.add(self.skull)
 
 
 class Wait_And_Stalk(brains.Task):
@@ -82,8 +85,20 @@ class Stalk(brains.Task):
                 self.master.push_task(brains.Jump(self.master, 98))
         else:
             #print 1234
-            self.master.push_task(brains.Stay(self.master, 1))
+            self.master.push_task(brains.Stand(self.master, 1))
             return brains.COMPLETE
+
+
+class Skull_Move(brains.Task):
+
+    def __init__(self, master, v, priority):
+        brains.Task.__init__(self, master, priority)
+        self.v = v
+
+    def __call__(self, dt):
+        self.master.push_task(brains.Body_Part_Move_On(self.master, self.v, con.HEAD, self.priority))
+        self.body.skull.position += self.v
+        return brains.COMPLETE
 
 
 class Twister_Mind(brains.Primitive_AI):

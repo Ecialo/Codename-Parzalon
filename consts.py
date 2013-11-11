@@ -47,6 +47,7 @@ consts = {'window': {'width': 800,
           'test_slash_time': 0.8,
           'gravity': 1500,
           'rubbing': 100,
+          'tile_size': 32,
           'slash_fight_group': 100,
           'missile_fight_group': 1000,
           'animation_frames': {'walk': ('2.png', '3.png')}
