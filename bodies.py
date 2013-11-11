@@ -119,12 +119,13 @@ class Body(object):
     img = None
     base_speed = 0
     
-    def __init__(self, master, body_parts, on_collide_effects=con.EMPTY_LIST):
+    def __init__(self, master, body_parts, body_name, on_collide_effects=con.EMPTY_LIST):
         self.master = master
         self.speed = self.base_speed
         self.body_parts = map(lambda x: x(self), body_parts)
         self.on_collide_effects = map(lambda x: x(self.master), on_collide_effects)
         self.health = sum(map(lambda x: x.max_health, body_parts))/2
+        self.body_name = body_name
 
     horizontal_speed = property(lambda self: self.master.horizontal_speed)
     vertical_speed = property(lambda self: self.master.vertical_speed)
@@ -194,43 +195,6 @@ class Body(object):
             color = (255, 0, 0, 255) if bp.slot - 100 < 0 else (0, 0, 255, 255)
             self.master.add(box.Box(bp.shape, color))
 
-    def make_animation(self, anim_dict, filename):
-        f = open(filename)
-        while 1:
-            name = f.readline()
-            if not name:
-                break
-            name = name[0:len(name)-1]
-            frame_height = int(f.readline())
-            frame_width = int(f.readline())
-            duration_list = []
-            l = f.readline()
-            s = l.split(' ')
-            s[len(s)-1] = s[len(s)-1][0:len(s[len(s)-1])-1]
-            for i in range(len(s)):
-                duration_list.append(float(s[i]))
-            image = pyglet.image.load(name)
-            frames = []
-            start = image.height
-            i = 1
-            while start >= frame_height:
-                left_border = 0
-                bottom_border = image.height - frame_height*i
-                end = image.width
-                while end >= frame_width:
-                    cut = image.get_region(left_border, bottom_border, frame_width, frame_height)
-                    frames.append(cut)
-                    left_border += frame_width
-                    end -= frame_width
-                start -= frame_height
-                i += 1
-            pyg_anim = pyglet.image.Animation.from_image_sequence(frames, 0.2, False)
-            for i in range(len(duration_list)):
-                pyg_anim.frames[i].duration = float(duration_list[i])
-            anim_dict[name[0:len(name)-4]] = pyg_anim
-            f.readline()
-        f.close()
-
     def recalculate_body_part_position(self, arg):
         slot, pos = arg
         for body_part in self.body_parts:
@@ -239,12 +203,31 @@ class Body(object):
                 break
 
 
+class Hero(Body):
+    anim = {'walk': consts['img']['hero'],
+            'stand': consts['img']['hero'],
+            'jump': consts['img']['hero'],
+            'sit': consts['img']['hero_sit']}
+
+    parts_pos = {'walk': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
+                 'stand': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
+                 'jump': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
+                 'sit': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 17))]}
+
+    img = anim['stand']
+    base_speed = consts['params']['human']['speed']
+
+    def __init__(self, master):
+        Body.__init__(self, master, [Chest, Head, Legs], 'Hero')
+
+
 class Human(Body):
     
     anim = {'walk': consts['img']['human'],
             'stand': consts['img']['human'],
             'jump': consts['img']['human'],
             'sit': consts['img']['human_sit']}
+
     parts_pos = {'walk': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'stand': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'jump': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
@@ -253,5 +236,4 @@ class Human(Body):
     base_speed = consts['params']['human']['speed']
 
     def __init__(self, master):
-        Body.__init__(self, master, [Chest, Head, Legs])
-        self.make_animation(self.anim, 'human')
+        Body.__init__(self, master, [Chest, Head, Legs], 'Human')
