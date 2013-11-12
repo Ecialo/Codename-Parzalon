@@ -199,8 +199,11 @@ class Level_Layer(layer.ScrollableLayer):
         """
         Remove overdue Hit from game.
         """
-        self.hits.remove(hit)
-        hit.kill()
+        try:
+            self.hits.remove(hit)
+            hit.kill()
+        except ValueError:
+            pass
 
     def on_drop_item(self, item):
         #print item

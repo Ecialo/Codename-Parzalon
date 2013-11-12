@@ -19,7 +19,7 @@ consts = con.consts
 COMPLETE = True
 
 
-def cross_hit_trace(self, hit):
+def cross_hit_trace(hit):
     v = hit.trace.v
     nv = v.cross()
     if v.x >= 0 and v.y < 0 or v.x < 0 and v.y < 0:
@@ -77,7 +77,7 @@ class Approaches(Task):
             dst = self.target.cshape.center.x - self.master.cshape.center.x
             d = dst/abs(dst) if abs(dst) != 0 else 0
             dst = abs(dst)
-            print dst
+            #print dst
             if d != self.master.direction:
                 self.master.push_task(Turn(self.master, 11))
             if dst <= self.brain.eff_dst:
@@ -149,7 +149,7 @@ class Parry(Task):
     def __call__(self, dt):
         hit = self.target
         hand = self.weapon
-        if rnd.random() < ['params']['primitive']['mastery'] or hand is None:
+        if rnd.random() < consts['params']['primitive']['mastery'] or hand is None:
             #print 13
             return COMPLETE
         #print "parry"
