@@ -99,7 +99,7 @@ class Swing(Usage):
         vec = start_point - stp
         end = stp + vec.normalize()*self.length
         #Send line to holder in weapon for update end point and to screen for draw
-        self.actual_hit = hit.Slash(stp, end, self, self.hit_pattern)
+        self.actual_hit = hit.Swing(stp, end, self, self.hit_pattern)
         self.master.dispatch_event('on_do_hit', self.actual_hit)
 
     def continue_use(self, *args):
@@ -110,7 +110,7 @@ class Swing(Usage):
         start_point = self.actual_hit.start
         vec = end_point - start_point
         end = start_point + vec.normalize()*self.length
-        self.actual_hit.end = end
+        self.actual_hit.aim(vec)
 
     def end_use(self, *args):
         """
@@ -122,7 +122,9 @@ class Swing(Usage):
 
     def complete(self):
         if self.actual_hit is not None:
+            print "send to remove", self.actual_hit
             self.master.dispatch_event('on_remove_hit', self.actual_hit)
+            print "removed"
             self.actual_hit = None
             self.master.available = True
             self.master.on_use = False

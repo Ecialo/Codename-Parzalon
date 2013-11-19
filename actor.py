@@ -89,6 +89,12 @@ class Actor(movable_object.Movable_Object):
     def _collide_slash(self, other):
         coll.collide_actor_slash(self, other)
 
+    def activate_trigger(self, trigger):
+        self.dispatch_event('on_activate_trigger', trigger, self)
+
+    def refresh_environment(self, environment):
+        map(lambda item: item(environment), self.hands)
+
     def get_item(self, item):
         self.inventory.get_item(item)
 
@@ -232,6 +238,4 @@ class Actor(movable_object.Movable_Object):
 
     #def on_enter(self):
     #    self.launcher.push_handlers(self.get_ancestor(layer.scrolling.ScrollableLayer))
-
-    def on_exit(self):
-        self.launcher.pop_handlers()
+Actor.register_event_type('on_activate_trigger')

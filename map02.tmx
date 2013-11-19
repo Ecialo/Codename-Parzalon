@@ -42,26 +42,17 @@
    <property name="obstackle" value="yes"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJzt2k1O60AQRWGbDTCBhTJifZiNoRpERMgB29TP7a7zSXeIeXDo8GyyLAAAAAAAAADQx4fDMj5PF/a1vqzXd6ZH9OeYAecDAOa0LbzmqtiW7x78n6TWrYXhfNS6b4FatNBBCx200EELHbTQQYtc3Ddo4b5aC+cDAABAE+/L0HLlPoZ7mTicj14iOx+93ufBdXD29fBsD4/rdXr2qnA+ftOphTpa6KCFDlrooIUOWuighQ5a6KCFDlrooIUOWuighQ5a6KCFDlqcs/3Yf/5G7LWu9n527fvxttata49HryOV56Lre2MUX9O79lBsYTr2UG1huvVQbmE69VBvYbr0GKGF6dBjlBZm9vvBkVrMjhY6OrZQe3721/WPvqd/b5XPT47u/clvHk3s41/X/V299u2cPbquyrx7eDTxPn9Kz96zz4fnOfEw4u+fiB4KTUZsYaJ6VDYZtYWJ7FHRZOQWJrpHZpPRW5iMHhlNZmhhsnpENpmlhcnsEdFkphYmu4dnk9lamIoeHk0iWjw7X++Kqh73TVjs85KK2fO46n8DY4wxxhhjjDHGGGOMsb77Aqg9Wjk=
+   eJztmltuwjAQRUM30J92of1ifU03Vs0HKkIJOOnYcz1zjnTFI8ImHMbGJssCAAAAAAAAAAAAUIdvh4zopwp2rh+X8znio3cfGaA+AABysi6MuSqsy58PfpPEcnNhUB+x3LuAWHChAy50wIUOuNABFzrgYiysG7RgXa0F9QEAAACgCddlaHFmHcNaph/URy16em5t76cxFTg6Hh714dFepb1Xhfp4RiUX6uBCB1zogAsdcKEDLnTAhQ640AEXOoxwsT7cHj1+O3afjIw6t3Xn/qtjLe1lYeT3zNMHLnz623r8zE1LOxmIGH+3+mt9ruXYrETNhVtz8Z6PvTk723ye5TxG8ej/P/8Re6UqW99d+zy+LnGp6mNvHImsi6rXxiiO6VV9KLowKvpQdWFU86HswqjkQ92FUcXHDC6MCj5mcWFkXw/O5CI7uNChogu1/bNX7bde07+VyP2T1lzf/OLhxF7/ednO2bZvdbbXrkq8fXg48a4/pb330fXhWScezDj/9PCh4GRGF0YvH5FOZnVh9PQR4WRmF0ZvHyOdzO7CGOFjhJMMLoxRPno6yeLCGOmjh5NMLozRPjydZHNhRPjwcNLDxbtze2eI8nHvhPTdL4mI7cdFvwdCCCGEEEIIIYQQQgghdfML4UZ4iQ==
   </data>
  </layer>
  <objectgroup name="Scripts" width="100" height="100">
-  <object name="player_start" type="Position" x="16" y="2159" width="181" height="108">
+  <object name="left_entry" type="Position" x="5" y="2168" width="171" height="100">
    <properties>
-    <property name="start_entry" value="yes"/>
-   </properties>
-  </object>
-  <object name="opponent" type="Position" x="1283" y="2572" width="138" height="84">
-   <properties>
-    <property name="opponent" value="yes"/>
-   </properties>
-  </object>
-  <object name="right_entry" type="Position" x="2987" y="2544" width="208" height="140">
-   <properties>
-    <property name="change_location" value="right"/>
-    <property name="right_entry" value="yes"/>
+    <property name="change_location" value="left"/>
+    <property name="left_entry" value="yes"/>
     <property name="trigger" value="change_location"/>
    </properties>
   </object>
+  <object name="opponent" type="Position" x="480" y="2192" width="151" height="76"/>
  </objectgroup>
 </map>

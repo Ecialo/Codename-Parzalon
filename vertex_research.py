@@ -69,19 +69,20 @@ def slash_rotation(sprite, v):
 
     # bottom-left
     xx, yy, zz = sprite.grid.get_original_vertex(*a)
-    sprite.grid.set_vertex(a[0], a[1], (xx, diff_y, z+diff_z))
+    sprite.grid.set_vertex(a[0], a[1], (xx, diff_y, z))
 
     # upper-left
     xx, yy, zz = sprite.grid.get_original_vertex(*b)
-    sprite.grid.set_vertex(b[0], b[1], (xx, y-diff_y, z-diff_z))
+    sprite.grid.set_vertex(b[0], b[1], (xx, y-diff_y, z))
 
     # bottom-right
     xx, yy, zz = sprite.grid.get_original_vertex(*c)
-    sprite.grid.set_vertex(c[0], c[1], (xx, diff_y, z+diff_z))
+    sprite.grid.set_vertex(c[0], c[1], (xx, diff_y, z))
 
     # upper-right
     xx, yy, zz = sprite.grid.get_original_vertex(*d)
-    sprite.grid.set_vertex(d[0], d[1], (xx, y-diff_y, z-diff_z))
+    sprite.grid.set_vertex(d[0], d[1], (xx, y-diff_y, z))
+
 
     #sprite.rotation = -math.degrees(angle)
 
@@ -105,24 +106,24 @@ class TestLayer(cocos.layer.Layer):
         grid = Grid3D()
         self.sprite.grid = grid
         self.sprite.grid.init(euclid.Point2(1, 1))
-        self.sprite.grid.active = True
+    #    self.sprite.grid.active = True
         self.line = Line(self.p, self.p + self.v, (255, 0, 0, 255))
         self.add(self.sprite)
         self.add(self.line, z=3)
         #self.sprite.do(FlipY3D())
         print self.sprite.grid
 
-    def on_mouse_motion(self, x, y, dx, dy):
-        self.v = euclid.Vector2(x, y) - self.p
-        self.line.end = self.p + self.v
-        slash_rotation(self.sprite, self.v)
-        #self.sprite.set_
+    #def on_mouse_motion(self, x, y, dx, dy):
+    #    self.v = euclid.Vector2(x, y) - self.p
+    #    self.line.end = self.p + self.v
+    #    slash_rotation(self.sprite, self.v)
+    #    #self.sprite.set_
 
 
 def main():
-    director.init()
+    director.init(do_not_scale=True)
     test_layer = TestLayer ()
-    main_scene = cocos.scene.Scene (test_layer)
+    main_scene = cocos.scene.Scene(test_layer)
     director.run (main_scene)
 
 if __name__ == '__main__':

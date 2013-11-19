@@ -6,6 +6,7 @@ from cocos import collision_model as cm
 from cocos import euclid as eu
 #from cocos import layer
 
+import math
 import geometry as gm
 import consts as con
 #import effects as eff
@@ -15,6 +16,55 @@ import box
 from collides import cross_angle
 
 consts = con.consts
+
+
+def slash_rotation(sprite, v):
+    cos = cross_angle(v, eu.Vector2(1, 0))
+    spin = (-1 if v.y < 0 else 1)*(1 if v.x >= 0 else -1)
+    #zspin = (-1 if v.x < 0 else 1)*(-1 if v.y > 0 else 1)
+
+    angle = math.acos(cos)*spin + (math.pi if v.x < 0 else 0)
+    si = abs(math.sin(angle - math.pi/2))
+    co = math.cos(angle)
+
+    print math.degrees(angle), si, co
+
+    x, y0, z = sprite.grid.get_original_vertex(1, 1)
+    x, y1, z = sprite.grid.get_original_vertex(0, 0)
+
+    if y0 > y1:
+        # Normal Grid
+        a = (0, 0)
+        b = (0, 1)
+        c = (1, 0)
+        d = (1, 1)
+        y = y0
+    else:
+        # Reversed Grid
+        b = (0, 0)
+        a = (0, 1)
+        d = (1, 0)
+        c = (1, 1)
+        y = y1
+
+    diff_y = y*si/2
+    diff_z = (y*co)*si/2
+
+    # bottom-left
+    xx, yy, zz = sprite.grid.get_original_vertex(*a)
+    sprite.grid.set_vertex(a[0], a[1], (xx, diff_y, z+diff_z))
+
+    # upper-left
+    xx, yy, zz = sprite.grid.get_original_vertex(*b)
+    sprite.grid.set_vertex(b[0], b[1], (xx, y-diff_y, z-diff_z))
+
+    # bottom-right
+    xx, yy, zz = sprite.grid.get_original_vertex(*c)
+    sprite.grid.set_vertex(c[0], c[1], (xx, diff_y, z+diff_z))
+
+    # upper-right
+    xx, yy, zz = sprite.grid.get_original_vertex(*d)
+    sprite.grid.set_vertex(d[0], d[1], (xx, y-diff_y, z-diff_z))
 
 
 def shape_to_cshape(shape):
@@ -28,13 +78,13 @@ def shape_to_cshape(shape):
         return cm.AARectShape(c, abs(shape.v.x/2), abs(shape.v.y/2))
 
 
-class Slash(cocos.draw.Line):
+class Swing(cocos.draw.Line):
 
     def __init__(self, stp, endp, master, hit_pattern=con.CHOP):
         self.master = master
         self.fight_group = master.owner.fight_group + consts['slash_fight_group']
         self.base_fight_group = master.owner.fight_group
-        super(Slash, self).__init__(stp, endp, (0, 255, 0, 255))
+        super(Swing, self).__init__(stp, endp, (0, 255, 0, 255))
 
         self.completed = False
         self._time_to_complete = 0.0
@@ -82,6 +132,10 @@ class Slash(cocos.draw.Line):
     def _collide_hit_zone(self, other):
         coll.collide_slash_hit_zone(self, other)
 
+    def aim(self, vec):
+        end = self.start + vec.normalize()*self.master.length
+        self.end = end
+
     def perform(self, time):
         """
         Morph line into real collideable figure.
@@ -101,13 +155,13 @@ class Slash(cocos.draw.Line):
             return
         self.completed = True
         self.master.complete()
+        self.kill()
 
     def _move(self, vec):
         """
         Move end and start points of line
         """
-        self.start += vec
-        self.end += vec
+        self.position += vec
         if self.trace is not None:
             self.trace.p += vec
             self.cshape.center += vec
@@ -167,7 +221,7 @@ class Hit_Zone(mova.Movable_Object):
         if effects is not con.EMPTY_LIST:
             self.effects = filter(None, map(lambda eff: eff(self), effects))
         else:
-            self.effects = property(lambda self: filter(None, map(lambda eff: eff(self), self.master.effects)))
+            self.effects = filter(None, map(lambda eff: eff(self), self.master.effects))
 
         self.schedule(self.update)
         #print self.update

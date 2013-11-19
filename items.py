@@ -30,6 +30,10 @@ class Item(mova.Movable_Object):
         self.master = None
 
     def __call__(self, environment):
+        try:
+            self.pop_handlers()
+        except AssertionError:
+            pass
         self.push_handlers(environment)
         return self
 

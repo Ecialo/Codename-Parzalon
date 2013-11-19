@@ -60,7 +60,12 @@ class Waiting(Task):
         #print self.brain.visible_actors_wd
         for unit_wd in self.brain.visible_actors_wd:
             unit, dst = unit_wd
+            #print dst
             if self.brain.is_enemy(unit):
+                #dst = unit.cshape.center.x - self.master.cshape.center.x
+                #d = dst/abs(dst) if abs(dst) != 0 else 0
+                #if d != self.master.direction:
+                #    self.master.push_task(Turn(self.master, 11))
                 self.master.push_task(Approaches(self.master, self.brain, unit))
 
 
@@ -152,7 +157,7 @@ class Parry(Task):
         if rnd.random() < consts['params']['primitive']['mastery'] or hand is None:
             #print 13
             return COMPLETE
-        #print "parry"
+        print "\nparry", hit, "\n"
         h = hit.start.y
         dire = hit.start.x - self.master.position[0]
         dire = dire/abs(dire) if dire != 0 else 0
@@ -267,7 +272,8 @@ class Stand(Task):
 class Turn(Task):
 
     def __call__(self, dt):
-        self.master.direction = -self.master.direction
+        self.master.turn()
+        #self.master.direction = -self.master.direction
         return COMPLETE
 
 
@@ -277,14 +283,19 @@ class Controlling(Task):
 
     def __init__(self, master, priority):
         Task.__init__(self, master, priority)
-        self.key = self.master.get_ancestor(layer.ScrollableLayer).loc_key_handler
-        self.mouse = self.master.get_ancestor(layer.ScrollableLayer).loc_mouse_handler
-        self.scroller = self.master.get_ancestor(layer.ScrollableLayer).scroller
-        self.static_objs = self.master.get_ancestor(layer.ScrollableLayer).static_collman
+        loc = self.master.get_ancestor(layer.ScrollableLayer)
+        self.key = loc.loc_key_handler
+        self.mouse = loc.loc_mouse_handler
+        self.scroller = loc.scroller
+        self.static_objs = loc.static_collman
+        self.triggers = loc.scripts
+        #print self.scroller
 
     def __call__(self, dt):
+        #print "intsak", id(self.scroller)
         if self.key[self.bind['down']]:
             self.master.sit()
+            #print "intsak", id(self.scroller)
         else:
             hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
             if self.key[self.bind['jump']] and self.master.on_ground:
@@ -304,8 +315,10 @@ class Controlling(Task):
         if first_hand_ac and not first_item.on_use:
             first_item.start_use(pos, con.STAB if alt else con.CHOP)
         elif first_hand_ac and first_item.on_use and first_item.available:
+            #print "cont use"
             first_item.continue_use(pos)
         elif not first_hand_ac and first_item.on_use and first_item.available:
+            #print "end use"
             first_item.end_use(pos)
         else:
             pass
@@ -322,8 +335,19 @@ class Controlling(Task):
             else:
                 pass
 
+        action = self.key[self.bind['action']]
+        if action:
+            print "CONTROLLER", self.key
+            self.key[self.bind['action']] = False
+            triggers = filter(lambda sc: 'trigger' in sc.properties,
+                              self.triggers.iter_colliding(self.master))
+            #print list(triggers)
+            for tr in triggers:
+                self.master.activate_trigger(tr)
+
         gain = self.key[self.bind['gain']]
         if gain:
+            self.key[self.bind['gain']] = False
             items = self.static_objs.objs_touching_point(*pos)
             for item in items:
                 self.master.put_item(item)
@@ -331,9 +355,11 @@ class Controlling(Task):
 
         inv = self.key[self.bind['inventory']]
         if inv and not self.pressed:
+            self.key[self.bind['inventory']] = False
             self.master.open()
             self.pressed = True
         elif inv and self.pressed:
+            self.key[self.bind['inventory']] = False
             self.master.close()
             self.pressed = False
         else:
@@ -393,7 +419,10 @@ class Task_Manager(object):
         self.tasks = []
 
     def cur_task(self):
-        return self.tasks[0]
+        if self.tasks:
+            return self.tasks[0]
+        else:
+            None
 
     def push_task(self, task):
         q.heappush(self.tasks, task)
@@ -420,7 +449,6 @@ class Brain(ac.Action):
         self.task_manager = Task_Manager()
         #self.tilemap = self.master.get_ancestor(cocos.layer.ScrollableLayer).force_ground
         self.task_manager.push_task(Animate(self.master, 2, self.master.body.body_name))
-
 
     def step(self, dt):
         self.master.update(dt)
@@ -451,15 +479,54 @@ class Enemy_Brain(Brain):
 
 
 class Dummy(Enemy_Brain):
+
+    range_of_vision = consts['params']['primitive']['range_of_vision']
+
+    def start(self):
+        Brain.start(self)
+        self.vision = self.master.get_ancestor(layer.ScrollableLayer).collman
+        self.visible_actors_wd = []
+        self.visible_hits_wd = []
+        self.task_manager.push_task(Task(self, 1))
+
+        self.state = 'stand'
     
-    def activity(self, dt):
-        self.master.sit()
-        pass
-        #hand = self.choose_free_hand()
+    #def activity(self, dt):
+    #    self.master.sit()
+    #    pass
+    #    hand = self.master.choose_free_hand()
         #if hand is not None:
         #    start = self.master.position - eu.Vector2(self.master.width, 0.0)
         #    target = self.master.position + eu.Vector2(-50.0, 50.0)
-        #    self.use_hand(hand, [start, con.CHOP], [target])
+        #    self.master.use_hand(hand, [start, con.CHOP], [target])
+
+    def sensing(self):
+        self.clear_vision()
+        for obj_wd in self.vision.objs_near_wdistance(self.master, self.range_of_vision):
+            if obj_wd[0].fight_group < consts['slash_fight_group']:
+                self.visible_actors_wd.append(obj_wd)
+            elif obj_wd[0].fight_group < consts['missile_fight_group']:
+                self.visible_hits_wd.append(obj_wd)
+            else:
+                pass
+        for hit_wd in self.visible_hits_wd:
+            hit, dst = hit_wd
+            if self.is_enemy(hit):
+                if self.master.cshape.overlaps(hit.cshape):
+                    hand = self.master.choose_free_hand()
+                    self.task_manager.push_task(Parry(self.master, 99, hand, hit))
+                    #print self.task_manager.tasks
+                break
+
+    def is_enemy(self, other):
+        if other.fight_group < 100:
+            return self.master.fight_group is not other.fight_group
+        else:
+            return self.master.fight_group is not other.base_fight_group
+
+    def clear_vision(self):
+        self.visible_actors_wd = []
+        self.visible_hits_wd = []
 
 
 class Primitive_AI(Enemy_Brain):
