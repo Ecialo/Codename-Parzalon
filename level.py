@@ -8,6 +8,7 @@ from pyglet.window import key
 from pyglet.window import mouse
 from cocos import tiles
 from cocos.director import director
+import hud
 
 from location import Location_Layer
 
@@ -99,7 +100,8 @@ class Level(object):
         scroller.add(force, z=0, name="foreground")
         scroller.add(player_layer, z=1, name="level")
 
-        scene.add(scroller, z=1)
+        scene.add(scroller, z=0)
+        scene.add(hud.HUD(player_layer), z=2)
         return scene
 
     def change_location(self, direction, actor, location):

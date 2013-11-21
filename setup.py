@@ -20,8 +20,11 @@ setup(
         name = "simple_PyQt4",
         version = "0.1",
         description = "Sample cx_Freeze PyQt4 script",
-        options = {"build_exe" : {"include_files" : ['5z1KX.png', 'chelovek_v2.png', 'knife.png',
-                                                     'map01.tmx', 'mytileset_01.png', 'sword.png',
+        options = {"build_exe" : {"include_files" : ['5z1KX.png', 'stand.png', 'knife.png',
+                                                     'map01.tmx', 'map02.tmx', 'mytileset_01.png',
+                                                     'sword.png', 'sit.png', 'swing.png', 'twister.png',
+                                                     'bullet.png', 'fuzeja.png', 'helm.png', 'inventory.png',
+                                                     'walk.png', 'jump.png', 'human', 'hero',
                                                      'draw_texture.png', 'fire.png']}},
         executables = [Executable("codename-Parzalon.py")])
 
