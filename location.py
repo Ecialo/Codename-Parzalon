@@ -113,7 +113,7 @@ class Location_Layer(layer.ScrollableLayer):
                 #r = self.opponent.get_rect()
                 #r.midbottom = sc.midbottom
                 dx, dy = sc.center
-                self.spawn('dummy', (dx, dy))
+                self.spawn('enemy', (dx, dy))
 
     def connect(self, level):
         #self.script_manager.push_handlers(level)

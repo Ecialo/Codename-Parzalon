@@ -154,6 +154,8 @@ class Swing(cocos.draw.Line):
         if self.completed:
             return
         self.completed = True
+        self.fight_group = -1
+        self.base_fight_group = -1
         self.master.complete()
         self.kill()
 

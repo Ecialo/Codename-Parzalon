@@ -10,13 +10,14 @@ import pyglet
 from cocos import actions as ac
 from cocos import euclid as eu
 from cocos import layer
-import heapq as q
+from collections import deque
 
 import consts as con
 
 consts = con.consts
 
 COMPLETE = True
+TASK_CHANGE_TIME = 0.1
 
 
 def cross_hit_trace(hit):
@@ -36,13 +37,9 @@ class Task(object):
 
     hands = property(lambda self: self.master.hands)
 
-    def __init__(self, master, priority, time=None):
-        self.priority = priority
+    def __init__(self, master, time=None):
         self.master = master
         self.time = time
-
-    def __cmp__(self, other):
-        return other.priority - self.priority
 
     def __call__(self, dt):
         if self.time is not None:
@@ -50,56 +47,44 @@ class Task(object):
             return COMPLETE if self.time <= 0.0 else None
 
 
-class Waiting(Task):
-
-    def __init__(self, master, brain):
-        Task.__init__(self, master, 0)
-        self.brain = brain
-
-    def __call__(self, dt):
-        #print self.brain.visible_actors_wd
-        for unit_wd in self.brain.visible_actors_wd:
-            unit, dst = unit_wd
-            #print dst
-            if self.brain.is_enemy(unit):
-                #dst = unit.cshape.center.x - self.master.cshape.center.x
-                #d = dst/abs(dst) if abs(dst) != 0 else 0
-                #if d != self.master.direction:
-                #    self.master.push_task(Turn(self.master, 11))
-                self.master.push_task(Approaches(self.master, self.brain, unit))
+class Pause(Task):
+    pass
 
 
 class Approaches(Task):
 
     def __init__(self, master, brain, target):
-        Task.__init__(self, master, 1)
+        Task.__init__(self, master)
         self.brain = brain
         self.target = target
 
     def __call__(self, dt):
         #print "Approach", self.target
+        #print self.brain.task_manager.tasks
         if self.target.fight_group > 0:
             dst = self.target.cshape.center.x - self.master.cshape.center.x
             d = dst/abs(dst) if abs(dst) != 0 else 0
             dst = abs(dst)
             #print dst
             if d != self.master.direction:
-                self.master.push_task(Turn(self.master, 11))
+                self.master.push_inst_task(Turn(self.master))
             if dst <= self.brain.eff_dst:
-                self.master.push_task(Close_Combat(self.master, self.brain, self.target))
+                self.master.push_inst_task(Close_Combat(self.master, self.brain, self.target))
             else:
                 self.master.walk(self.master.direction)
                 if self.master.wall & (con.LEFT | con.RIGHT):
-                    self.master.push_task(Jump(self.master, 98))
+                    self.master.push_inst_task(Jump(self.master))
         else:
             self.master.push_task(Stand(self.master, 1))
+            self.brain.observed_units.remove(self.target)
+            #print "OLOLO"
             return COMPLETE
 
 
 class Close_Combat(Task):
 
     def __init__(self, master, brain, target):
-        Task.__init__(self, master, 2)
+        Task.__init__(self, master)
         self.brain = brain
         self.target = target
 
@@ -109,14 +94,14 @@ class Close_Combat(Task):
         if dst <= self.brain.eff_dst and self.target.fight_group > 0:
             d = dst/abs(dst) if abs(dst) != 0 else 0
             if d != self.master.direction:
-                self.master.push_task(Turn(self.master, 11))
+                self.master.push_inst_task(Turn(self.master, 11))
             hand = self.master.choose_free_hand()
-            self.master.push_task(Random_Attack(self.master, 98, hand, self.target))
+            self.master.push_inst_task(Random_Attack(self.master, hand, self.target))
             mv = rnd.random()
             if mv < 0.05:
-                self.master.push_task(Walk(self.master, 10, 0.1))
+                self.master.push_inst_task(Walk(self.master, 0.1))
             elif mv < 0.01:
-                self.master.push_task(MoveBack(self.master, 10, 0.1))
+                self.master.push_inst_task(MoveBack(self.master, 0.1))
         else:
             return COMPLETE
 
@@ -126,7 +111,7 @@ class Walk(Task):
     def __call__(self, dt):
         self.master.walk(self.master.direction)
         if self.master.wall & (con.LEFT | con.RIGHT):
-                    self.master.push_task(Jump(self.master, 98))
+                    self.master.push_inst_task(Jump(self.master, 98))
         return Task.__call__(self, dt)
 
 
@@ -146,15 +131,16 @@ class MoveBack(Task):
 
 class Parry(Task):
 
-    def __init__(self, master, priority, weapon, target):
-        Task.__init__(self, master, priority)
+    def __init__(self, master,  weapon, target):
+        Task.__init__(self, master)
         self.target = target
         self.weapon = weapon
 
     def __call__(self, dt):
         hit = self.target
         hand = self.weapon
-        if rnd.random() < consts['params']['primitive']['mastery'] or hand is None:
+        if self.target.fight_group < 0 or rnd.random() < consts['params']['primitive']['mastery'] or hand is None or \
+                not hand.available:
             #print 13
             return COMPLETE
         print "\nparry", hit, "\n"
@@ -170,15 +156,15 @@ class Parry(Task):
 
 class Random_Attack(Task):
 
-    def __init__(self, master, priority, weapon, target):
-        Task.__init__(self, master, priority)
+    def __init__(self, master, weapon, target):
+        Task.__init__(self, master)
         self.target = target
         self.weapon = weapon
 
     def __call__(self, dt):
         hand = self.weapon
         target = self.target
-        if rnd.random() < 0.05 or hand is None:
+        if rnd.random() < 0.05 or hand is None or not hand.available:
             return COMPLETE
         dire = target.position[0] - self.master.position[0]
         dire = dire/abs(dire) if dire != 0 else 0
@@ -195,8 +181,8 @@ class Random_Attack(Task):
 
 class Aim(Task):
 
-    def __init__(self, master, priority, weapon, target, environment):
-        Task.__init__(self, master, priority)
+    def __init__(self, master,  weapon, target, environment):
+        Task.__init__(self, master)
         self.weapon = weapon
         self.target = target
         self.environment = environment
@@ -215,14 +201,14 @@ class Aim(Task):
                             cell.get('top') and dy is con.DOWN or cell.get('bottom') and dy is con.UP:
                 return COMPLETE
             pos += v
-        self.master.push_task(Shoot(self.master, self.priority, self.weapon, v))
+        self.master.push_task(Shoot(self.master, self.weapon, v))
         return COMPLETE
 
 
 class Shoot(Task):
 
-    def __init__(self, master, priority, weapon, target):
-        Task.__init__(self, master, priority)
+    def __init__(self, master, weapon, target):
+        Task.__init__(self, master)
         self.weapon = weapon
         self.target = target
 
@@ -236,8 +222,8 @@ class Shoot(Task):
 
 class Body_Part_Move_To(Task):
 
-    def __init__(self, master, pos, slot, priority):
-        Task.__init__(self, master, priority)
+    def __init__(self, master, pos, slot):
+        Task.__init__(self, master)
         self.pos = pos
         self.slot = slot
 
@@ -250,8 +236,8 @@ class Body_Part_Move_To(Task):
 
 class Body_Part_Move_On(Task):
 
-    def __init__(self, master, v, slot, priority):
-        Task.__init__(self, master, priority)
+    def __init__(self, master, v, slot):
+        Task.__init__(self, master)
         self.v = v
         self.slot = slot
 
@@ -281,8 +267,8 @@ class Controlling(Task):
 
     bind = consts['bindings']
 
-    def __init__(self, master, priority):
-        Task.__init__(self, master, priority)
+    def __init__(self, master):
+        Task.__init__(self, master)
         loc = self.master.get_ancestor(layer.ScrollableLayer)
         self.key = loc.loc_key_handler
         self.mouse = loc.loc_mouse_handler
@@ -370,8 +356,8 @@ class Controlling(Task):
 
 
 class Animate(Task):
-    def __init__(self, master, priority, filename):
-        Task.__init__(self, master, priority)
+    def __init__(self, master, filename):
+        Task.__init__(self, master)
         self.filename = filename
 
     def __call__(self, dt):
@@ -416,25 +402,33 @@ class Animate(Task):
 class Task_Manager(object):
 
     def __init__(self):
-        self.tasks = []
+        self.tasks = deque()
 
     def cur_task(self):
         if self.tasks:
             return self.tasks[0]
         else:
-            None
+            return None
 
     def push_task(self, task):
-        q.heappush(self.tasks, task)
+        self.tasks.append(task)
+        #self.tasks.append(Pause(None, TASK_CHANGE_TIME))
+
+    def push_instant_task(self, task):
+        #self.tasks.appendleft(Pause(None, TASK_CHANGE_TIME))
+        self.tasks.appendleft(task)
 
     def pop_task(self):
-        return q.heappop(self.tasks)
+        return self.tasks.popleft()
 
     def clear_queue(self):
-        self.tasks = []
+        self.tasks = deque()
 
     def num_of_tasks(self):
         return len(self.tasks)
+
+    def is_empty(self):
+        return self.num_of_tasks() <= 0
 
 
 class Brain(ac.Action):
@@ -448,7 +442,7 @@ class Brain(ac.Action):
         self.environment = self.master.tilemap
         self.task_manager = Task_Manager()
         #self.tilemap = self.master.get_ancestor(cocos.layer.ScrollableLayer).force_ground
-        self.task_manager.push_task(Animate(self.master, 2, self.master.body.body_name))
+        self.task_manager.push_instant_task(Animate(self.master, self.master.body.body_name))
 
     def step(self, dt):
         self.master.update(dt)
@@ -459,7 +453,8 @@ class Brain(ac.Action):
         pass
     
     def activity(self, dt):
-        if self.task_manager.cur_task()(dt) is COMPLETE:
+        #print self.task_manager.tasks
+        if not self.task_manager.is_empty() and self.task_manager.cur_task()(dt) is COMPLETE:
             self.task_manager.pop_task()
 
 
@@ -470,7 +465,7 @@ class Controller(Brain):
     
     def start(self):
         Brain.start(self)
-        self.task_manager.push_task(Controlling(self.master, 1))
+        self.task_manager.push_task(Controlling(self.master))
 
 
 class Enemy_Brain(Brain):
@@ -514,7 +509,7 @@ class Dummy(Enemy_Brain):
             if self.is_enemy(hit):
                 if self.master.cshape.overlaps(hit.cshape):
                     hand = self.master.choose_free_hand()
-                    self.task_manager.push_task(Parry(self.master, 99, hand, hit))
+                    self.task_manager.push_instant_task(Parry(self.master, hand, hit))
                     #print self.task_manager.tasks
                 break
 
@@ -538,38 +533,44 @@ class Primitive_AI(Enemy_Brain):
     def start(self):
         Brain.start(self)
         self.vision = self.master.get_ancestor(layer.ScrollableLayer).collman
-        self.visible_actors_wd = []
-        self.visible_hits_wd = []
+        self.visible_actors = []
+        self.visible_hits = []
+        self.observed_units = set()
 
         self.state = 'stand'
         
     def sensing(self):
         self.clear_vision()
-        for obj_wd in self.vision.objs_near_wdistance(self.master, self.range_of_vision):
-            if obj_wd[0].fight_group < consts['slash_fight_group']:
-                self.visible_actors_wd.append(obj_wd)
-            elif obj_wd[0].fight_group < consts['missile_fight_group']:
-                self.visible_hits_wd.append(obj_wd)
+        for obj in self.vision.objs_near(self.master, self.range_of_vision):
+            if obj.fight_group < consts['slash_fight_group']:
+                self.visible_actors.append(obj)
+            elif obj.fight_group < consts['missile_fight_group']:
+                self.visible_hits.append(obj)
             else:
                 pass
         #print self.visible_actors_wd
-        for hit_wd in self.visible_hits_wd:
-            hit, dst = hit_wd
+        for enemy in filter(lambda x: self.is_enemy(x), self.visible_actors):
+            if enemy not in self.observed_units:
+                print 123, enemy
+                self.task_manager.push_task(Approaches(self.master, self, enemy))
+                self.observed_units.add(enemy)
+        for hit in self.visible_hits:
             if self.is_enemy(hit):
                 if self.master.cshape.overlaps(hit.cshape):
                     hand = self.master.choose_free_hand()
-                    self.task_manager.push_task(Parry(self.master, 99, hand, hit))
+                    self.task_manager.push_instant_task(Parry(self.master, hand, hit))
                 break
 
     def clear_vision(self):
-        self.visible_actors_wd = []
-        self.visible_hits_wd = []
+        self.visible_actors = []
+        self.visible_hits = []
 
     def is_enemy(self, other):
-        if other.fight_group < 100:
-            return self.master.fight_group is not other.fight_group
-        else:
-            return self.master.fight_group is not other.base_fight_group
+        if other.fight_group >= 0:
+            if other.fight_group < 100:
+                return self.master.fight_group is not other.fight_group
+            else:
+                return self.master.fight_group is not other.base_fight_group
 
     def is_in_touch(self, other):
         return self.master.cshape.overlaps(other.cshape)
@@ -580,7 +581,7 @@ class Base_Enemy_Mind(Primitive_AI):
     def start(self):
         Primitive_AI.start(self)
         self.eff_dst = self.master.hands[0].length * consts['effective_dst']
-        self.task_manager.push_task(Waiting(self.master, self))
+        #self.task_manager.push_task()
 
 
 if __name__ == "__main__":

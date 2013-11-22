@@ -191,7 +191,7 @@ class Actor(movable_object.Movable_Object):
 
     def choose_free_hand(self):
         for hand in self.hands:
-            if not hand.on_use:
+            if not hand.on_use and hand.available:
                 return hand
         return None
 
@@ -205,6 +205,9 @@ class Actor(movable_object.Movable_Object):
     def push_task(self, task):
         #print 123
         self.actions[0].task_manager.push_task(task)
+
+    def push_inst_task(self, task):
+        self.actions[0].task_manager.push_instant_task(task)
 
     def take_hit(self, hit):
         """
