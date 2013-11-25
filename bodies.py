@@ -202,6 +202,43 @@ class Body(object):
                 body_part.set_pos(pos)
                 break
 
+    def make_animation(self, anim, filename):
+        f = open(filename)
+        while 1:
+            name = f.readline()
+            if not name:
+                break
+            name = name[0:len(name)-1]
+            frame_height = int(f.readline())
+            frame_width = int(f.readline())
+            duration_list = []
+            l = f.readline()
+            s = l.split(' ')
+            s[len(s)-1] = s[len(s)-1][0:len(s[len(s)-1])-1]
+            for i in range(len(s)):
+                duration_list.append(float(s[i]))
+            image = pyglet.image.load(name)
+            frames = []
+            start = image.height
+            i = 1
+            while start >= frame_height:
+                left_border = 0
+                bottom_border = image.height - frame_height*i
+                end = image.width
+                while end >= frame_width:
+                    cut = image.get_region(left_border, bottom_border, frame_width, frame_height)
+                    frames.append(cut)
+                    left_border += frame_width
+                    end -= frame_width
+                start -= frame_height
+                i += 1
+            pyg_anim = pyglet.image.Animation.from_image_sequence(frames, 0.2, False)
+            for i in range(len(duration_list)):
+                pyg_anim.frames[i].duration = float(duration_list[i])
+            anim[name[0:len(name)-4]] = pyg_anim
+            f.readline()
+        f.close()
+
 
 class Hero(Body):
     anim = {'walk': consts['img']['hero'],
@@ -219,6 +256,7 @@ class Hero(Body):
 
     def __init__(self, master):
         Body.__init__(self, master, [Chest, Head, Legs], 'Hero')
+        self.make_animation(self.anim, 'Hero')
 
 
 class Human(Body):
@@ -237,3 +275,4 @@ class Human(Body):
 
     def __init__(self, master):
         Body.__init__(self, master, [Chest, Head, Legs], 'Human')
+        self.make_animation(self.anim, 'Human')

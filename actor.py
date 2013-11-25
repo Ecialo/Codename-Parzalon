@@ -127,7 +127,7 @@ class Actor(movable_object.Movable_Object):
         map(lambda hand: hand.attached_move(vec), self.hands)
 
     @activity
-    @animate
+    #@animate
     def walk(self, horizontal_direction):
         """
         Move Actor in horizontal_direction with his body speed
@@ -140,7 +140,7 @@ class Actor(movable_object.Movable_Object):
                 self.turn()
 
     @activity
-    @animate
+    #@animate
     def stand(self):
         """
         Do not move Actor
@@ -148,7 +148,7 @@ class Actor(movable_object.Movable_Object):
         self.horizontal_speed = 0
 
     @activity
-    @animate
+    #@animate
     def sit(self):
         self.horizontal_speed = 0
 
@@ -171,7 +171,7 @@ class Actor(movable_object.Movable_Object):
     #                break
 
     @activity
-    @animate
+   # @animate
     def jump(self):
         """
         Actor jump with his body jump speed.

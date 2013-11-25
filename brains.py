@@ -61,6 +61,7 @@ class Approaches(Task):
     def __call__(self, dt):
         #print "Approach", self.target
         #print self.brain.task_manager.tasks
+        self.master.push_task(Animate(self.master, 'walk'))
         if self.target.fight_group > 0:
             dst = self.target.cshape.center.x - self.master.cshape.center.x
             d = dst/abs(dst) if abs(dst) != 0 else 0
@@ -109,6 +110,7 @@ class Close_Combat(Task):
 class Walk(Task):
 
     def __call__(self, dt):
+        self.master.push_task(Animate(self.master, 'walk'))
         self.master.walk(self.master.direction)
         if self.master.wall & (con.LEFT | con.RIGHT):
                     self.master.push_inst_task(Jump(self.master, 98))
@@ -118,6 +120,7 @@ class Walk(Task):
 class Jump(Task):
 
     def __call__(self, dt):
+        self.master.push_task(Animate(self.master, 'jump'))
         self.master.jump()
         return COMPLETE
 
@@ -125,6 +128,7 @@ class Jump(Task):
 class MoveBack(Task):
 
     def __call__(self, dt):
+        self.master.push_task(Animate(self.master, 'walk'))
         self.master.walk(-self.master.direction)
         return Task.__call__(self, dt)
 
@@ -280,15 +284,19 @@ class Controlling(Task):
     def __call__(self, dt):
         #print "intsak", id(self.scroller)
         if self.key[self.bind['down']]:
+            self.master.push_task(Animate(self.master, 'sit'))
             self.master.sit()
             #print "intsak", id(self.scroller)
         else:
             hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
             if self.key[self.bind['jump']] and self.master.on_ground:
+                self.master.push_task(Animate(self.master, 'jump'))
                 self.master.jump()
             if hor_dir == 0:
+                self.master.push_task(Animate(self.master, 'stand'))
                 self.master.stand()
             elif hor_dir != 0 and self.master.on_ground:
+                self.master.push_task(Animate(self.master, 'walk'))
                 self.master.walk(hor_dir)
 
         #Action
@@ -341,7 +349,7 @@ class Controlling(Task):
 
         inv = self.key[self.bind['inventory']]
         if inv and not self.pressed:
-            self.key[self.bind['inventory']] = False
+            self.key[self.bind['inventord y']] = False
             self.master.open()
             self.pressed = True
         elif inv and self.pressed:
@@ -356,47 +364,11 @@ class Controlling(Task):
 
 
 class Animate(Task):
-    def __init__(self, master, filename):
+    def __init__(self, master, name):
         Task.__init__(self, master)
-        self.filename = filename
-
-    def __call__(self, dt):
-        f = open(self.filename)
-        while 1:
-            name = f.readline()
-            if not name:
-                break
-            name = name[0:len(name)-1]
-            frame_height = int(f.readline())
-            frame_width = int(f.readline())
-            duration_list = []
-            l = f.readline()
-            s = l.split(' ')
-            s[len(s)-1] = s[len(s)-1][0:len(s[len(s)-1])-1]
-            for i in range(len(s)):
-                duration_list.append(float(s[i]))
-            image = pyglet.image.load(name)
-            frames = []
-            start = image.height
-            i = 1
-            while start >= frame_height:
-                left_border = 0
-                bottom_border = image.height - frame_height*i
-                end = image.width
-                while end >= frame_width:
-                    cut = image.get_region(left_border, bottom_border, frame_width, frame_height)
-                    frames.append(cut)
-                    left_border += frame_width
-                    end -= frame_width
-                start -= frame_height
-                i += 1
-            pyg_anim = pyglet.image.Animation.from_image_sequence(frames, 0.2, False)
-            for i in range(len(duration_list)):
-                pyg_anim.frames[i].duration = float(duration_list[i])
-            self.master.body.anim[name[0:len(name)-4]] = pyg_anim
-            f.readline()
-        f.close()
-        return COMPLETE
+        if self.master.state != name:
+            self.master.state = name
+            self.master.image = self.master.body.anim[name]
 
 
 class Task_Manager(object):
@@ -442,7 +414,6 @@ class Brain(ac.Action):
         self.environment = self.master.tilemap
         self.task_manager = Task_Manager()
         #self.tilemap = self.master.get_ancestor(cocos.layer.ScrollableLayer).force_ground
-        self.task_manager.push_instant_task(Animate(self.master, self.master.body.body_name))
 
     def step(self, dt):
         self.master.update(dt)
