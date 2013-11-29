@@ -4,10 +4,11 @@ import brains
 import bodies
 import weapons
 import twister
+import armors
 objs = {'hero':     {'type': con.UNIT,
                      'brain': brains.Controller,
                      'body': bodies.Hero,
-                     'items': [weapons.Sword, weapons.Knife]},
+                     'items': [armors.Helmet, weapons.Sword, weapons.Knife]},
         'enemy':    {'type': con.UNIT,
                      'brain': brains.Base_Enemy_Mind,
                      'body': bodies.Human,

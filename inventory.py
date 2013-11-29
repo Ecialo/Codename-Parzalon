@@ -1,26 +1,26 @@
 import consts as con
-import pyglet
-import cocos
 from cocos import layer
 
 
 class Inventory(layer.Layer):
+
+    is_event_handler = True
+
     def __init__(self, helmet, first_weapon, second_weapon, master):
         super(Inventory, self).__init__()
-        self.image = cocos.sprite.Sprite(pyglet.image.load('inventory.png'))
-        self.image.position = (350, 300)
-        self.helmet = helmet
-        self.first_weapon = first_weapon
-        self.second_weapon = second_weapon
+        self.inv = {'helmet': helmet,
+                    'first_weapon': first_weapon,
+                    'second_weapon': second_weapon}
         self.master = master
+        print master
 
     def put_item(self, item):
         if item.slot != con.HAND:
-            self.helmet = item
-        elif not self.first_weapon:
-            self.first_weapon = item
+            self.inv['helmet'] = item
+        elif not self.inv['first_weapon']:
+            self.inv['first_weapon'] = item
         else:
-            self.second_weapon = item
+            self.inv['second_weapon'] = item
 
     def get_item(self, item):
         if item.slot == con.HAND:
@@ -33,13 +33,15 @@ class Inventory(layer.Layer):
                     break
 
     def open(self):
-        self.first_weapon.position = (490, 330)
-        self.second_weapon.position = (190, 330)
-        self.add(self.image)
-        self.add(self.first_weapon)
-        self.add(self.second_weapon)
+        print 'open'
+        self.inv['helmet'].position = (40, 40)
+        self.inv['first_weapon'].position = (110, 40)
+        self.inv['second_weapon'].position = (190, 40)
+        for i in self.inv:
+            self.add(self.inv[i], z=5)
 
     def close(self):
-        self.remove(self.image)
-        self.remove(self.first_weapon)
-        self.remove(self.second_weapon)
+        for i in self.inv:
+            if self.inv[i]:
+                self.remove(self.inv[i])
+

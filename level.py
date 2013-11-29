@@ -102,6 +102,7 @@ class Level(object):
 
         scene.add(scroller, z=0)
         scene.add(hud.HUD(player_layer), z=2)
+        scene.add(player_layer.hero.inventory, z=2)
         return scene
 
     def change_location(self, direction, actor, location):

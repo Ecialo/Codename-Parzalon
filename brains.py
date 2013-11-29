@@ -270,6 +270,7 @@ class Turn(Task):
 class Controlling(Task):
 
     bind = consts['bindings']
+    pressed = False
 
     def __init__(self, master):
         Task.__init__(self, master)
@@ -349,7 +350,7 @@ class Controlling(Task):
 
         inv = self.key[self.bind['inventory']]
         if inv and not self.pressed:
-            self.key[self.bind['inventord y']] = False
+            self.key[self.bind['inventory']] = False
             self.master.open()
             self.pressed = True
         elif inv and self.pressed:
