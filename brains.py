@@ -332,7 +332,7 @@ class Controlling(Task):
 
         action = self.key[self.bind['action']]
         if action:
-            print "CONTROLLER", self.key
+            #print "CONTROLLER", self.key
             self.key[self.bind['action']] = False
             triggers = filter(lambda sc: 'trigger' in sc.properties,
                               self.triggers.iter_colliding(self.master))

@@ -63,5 +63,11 @@
     <property name="trigger" value="change_location"/>
    </properties>
   </object>
+  <object name="dialog_test" x="372" y="2164" width="119" height="102">
+   <properties>
+    <property name="event" value="run_dialog"/>
+    <property name="run_dialog" value="Dialog 1"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

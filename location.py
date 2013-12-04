@@ -67,7 +67,13 @@ class Script_Manager(event.EventDispatcher):
         self.dispatch_event('printer', location)
         actor.last_activated_trigger = None
 
+    def activate_event(self, ev, actor, location):
+        ev_name = ev.properties['event']
+        ev_attr = ev.properties[ev_name]
+        self.dispatch_event(ev_name, ev_attr, actor, location)
+
 Script_Manager.register_event_type('change_location')
+Script_Manager.register_event_type('run_dialog')
 Script_Manager.register_event_type('printer')
 
 
@@ -168,6 +174,12 @@ class Location_Layer(layer.ScrollableLayer):
         """
 
         #All collisions between movable objects calculate here
+        events = filter(lambda sc: 'event' in sc.properties,
+                              self.scripts.iter_colliding(self.hero))
+        for ev in events:
+            self.script_manager.activate_event(ev, self.hero, self)
+            self.scripts.remove_tricky(ev)
+
         self.collman.clear()
         for hit in self.hits:
             if hit.time_to_complete <= 0.0 and not hit.completed:
