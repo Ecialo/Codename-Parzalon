@@ -1,0 +1,10 @@
+#Dialog 1
+Parzalon:"Die, monster. You don't belong in this world!"
+Enemy:"It was not by my hand that I am once again given flesh."
+Enemy:"I was called here by humans who wished to pay me tribute."
+Parzalon:"Tribute? You steal men's souls, and make them your slaves!"
+Enemy:"Perhaps the same could be said of all religions."
+Parzalon:"Your words are as empty as your soul."
+Parzalon:"Mankind ill needs a savior such as you!"
+Enemy:"What is a man? A miserable little pile of secrets!"
+Enemy:"But enough talk; have at you!"
