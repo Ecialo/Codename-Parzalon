@@ -321,12 +321,15 @@ class Controlling(Task):
         if items > 1:
             second_hand_ac = self.mouse[self.bind['second_hand']]
             second_item = self.hands[con.SECOND_HAND]
-            if second_hand_ac and not second_item.on_use:
-                second_item.start_use(pos, con.STAB if alt else con.CHOP)
-            elif second_hand_ac and second_item.on_use and second_item.available:
-                second_item.continue_use(pos)
-            elif not second_hand_ac and second_item.on_use and second_item.available:
-                second_item.end_use(pos)
+            if second_item:
+                if second_hand_ac and not second_item.on_use:
+                    second_item.start_use(pos, con.STAB if alt else con.CHOP)
+                elif second_hand_ac and second_item.on_use and second_item.available:
+                    second_item.continue_use(pos)
+                elif not second_hand_ac and second_item.on_use and second_item.available:
+                    second_item.end_use(pos)
+                else:
+                    pass
             else:
                 pass
 
@@ -340,11 +343,20 @@ class Controlling(Task):
             for tr in triggers:
                 self.master.activate_trigger(tr)
 
+        change = self.key[self.bind['change_weapon']]
+        if change:
+            self.key[self.bind['change_weapon']] = False
+            self.master.change_weapon()
+
         gain = self.key[self.bind['gain']]
         if gain:
             self.key[self.bind['gain']] = False
             items = self.static_objs.objs_touching_point(*pos)
             for item in items:
+                if not self.hands[1]:
+                    self.hands[1] = item
+                if not self.hands[2]:
+                    self.hands[2] = item
                 self.master.put_item(item)
                 item.get_up()
 
@@ -359,6 +371,7 @@ class Controlling(Task):
             self.pressed = False
         else:
             pass
+
         #cx, cy = self.master.position
         #print cx, cy
         self.scroller.set_focus(*self.master.position)

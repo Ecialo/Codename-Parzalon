@@ -60,9 +60,11 @@ class Throw(Usage):
         self.actual_hit = hit_zone
         self.master.dispatch_event('on_launch_missile', hit_zone)
         #hit_zone.show_hitboxes()
-        self.owner.hands.remove(self.master)
+        #self.owner.hands.remove(self.master)
+        self.owner.hands[1] = None
         self.master.on_use = False
         self.master.available = True
+        self.master.length -= 1
 
     def destroy_missile(self, missile):
         self.master.dispatch_event('on_remove_missile', missile)
@@ -147,6 +149,12 @@ class Stab(Swing):
         Swing.__init__(self, effects, hit_pattern=con.STAB)
 
 
+class Punch(Swing):
+
+    def __init__(self, effects):
+        Swing.__init__(self, effects,hit_pattern=con.STAB)
+
+
 class Shoot(Usage):
 
     def __init__(self, effects, bullet_image):
@@ -157,7 +165,7 @@ class Shoot(Usage):
         if self.master.ammo > 0:
             end_point = eu.Vector2(*args[0])
             v = end_point - self.owner.cshape.center
-            hit_zone = hit.Hit_Zone(self, self.bullet_image, v, 300, self.owner.position)
+            hit_zone = hit.Hit_Zone(self, self.bullet_image, v, 300, self.owner.position, con.LINE)
             self.actual_hit = hit_zone
             self.master.dispatch_event('on_launch_missile', hit_zone)
             hit_zone.show_hitboxes()

@@ -29,7 +29,7 @@ class Knife(items.Usage_Item):
         first_usage = usages.Chop([onh.damage(1)])
         second_usage = usages.Throw([onh.damage(1)])
         items.Usage_Item.__init__(self, img, first_usage, second_usage,
-                                  [items.length(20)])
+                                  [items.length(1)])
 
 
 class Musket(items.Usage_Item):
@@ -40,3 +40,11 @@ class Musket(items.Usage_Item):
         second_usage = usages.Shoot([onh.damage(10)], consts['img']['bullet'])
         items.Usage_Item.__init__(self, img, first_usage, second_usage,
                                   [items.length(100), items.ammo(10)])
+
+
+class Hands(items.Usage_Item):
+
+    def __init__(self):
+        img = consts['img']['weapon']
+        first_usage = usages.Punch([onh.damage(1)])
+        items.Usage_Item.__init__(self, img, first_usage, None, [items.length(100)])

@@ -64,7 +64,7 @@ class Actor(movable_object.Movable_Object):
         self.body = body(self)
         self.launcher = Launcher(self)
         self.state = 'stand'
-        self.inventory = Inventory(None, None, None, self)
+        self.inventory = Inventory(None, None, None, None, self)
         cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
         super(Actor, self).__init__(self.body.img, cshape)
 
@@ -107,6 +107,9 @@ class Actor(movable_object.Movable_Object):
     def close(self):
         self.inventory.close()
 
+    def change_weapon(self):
+        self.inventory.change_weapon()
+
     def destroy(self):
         """
         Remove Actor from level
@@ -124,10 +127,9 @@ class Actor(movable_object.Movable_Object):
         old = self.cshape.center.copy()
         super(Actor, self)._move(dx, dy)
         vec = self.cshape.center.copy() - old
-        map(lambda hand: hand.attached_move(vec), self.hands)
+        map(lambda hand: hand.attached_move(vec) if hand else not hand, self.hands)
 
     @activity
-    #@animate
     def walk(self, horizontal_direction):
         """
         Move Actor in horizontal_direction with his body speed
@@ -140,7 +142,6 @@ class Actor(movable_object.Movable_Object):
                 self.turn()
 
     @activity
-    #@animate
     def stand(self):
         """
         Do not move Actor
@@ -148,7 +149,6 @@ class Actor(movable_object.Movable_Object):
         self.horizontal_speed = 0
 
     @activity
-    #@animate
     def sit(self):
         self.horizontal_speed = 0
 
@@ -171,7 +171,6 @@ class Actor(movable_object.Movable_Object):
     #                break
 
     @activity
-   # @animate
     def jump(self):
         """
         Actor jump with his body jump speed.
