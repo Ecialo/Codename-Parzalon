@@ -2,6 +2,7 @@ __author__ = 'Ecialo'
 from cocos import euclid as eu
 import hits as hit
 import consts as con
+import on_hit_effects as on_h
 
 
 def interval_proection(point, interval):
@@ -72,9 +73,8 @@ class Throw(Usage):
 
 class Swing(Usage):
 
-    def __init__(self, effects, hit_pattern):
+    def __init__(self, effects):
 
-        self.hit_pattern = hit_pattern
         self.effects = effects
         self.actual_hit = None
         self.swing_time = 0.5
@@ -101,7 +101,7 @@ class Swing(Usage):
         vec = start_point - stp
         end = stp + vec.normalize()*self.length
         #Send line to holder in weapon for update end point and to screen for draw
-        self.actual_hit = hit.Swing(stp, end, self, self.hit_pattern)
+        self.actual_hit = hit.Swing(stp, end, self)
         self.master.dispatch_event('on_do_hit', self.actual_hit)
 
     def continue_use(self, *args):
@@ -140,13 +140,15 @@ class Swing(Usage):
 class Chop(Swing):
 
     def __init__(self, effects):
-        Swing.__init__(self, effects, hit_pattern=con.CHOP)
+        effects.append(on_h.chop)
+        Swing.__init__(self, effects)
 
 
 class Stab(Swing):
 
     def __init__(self, effects):
-        Swing.__init__(self, effects, hit_pattern=con.STAB)
+        effects.append(on_h.stab)
+        Swing.__init__(self, effects)
 
 
 class Punch(Swing):

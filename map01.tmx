@@ -53,7 +53,7 @@
   </object>
   <object name="opponent" type="Position" x="1283" y="2572" width="138" height="84">
    <properties>
-    <property name="opponent" value="yes"/>
+    <property name="spawn" value="twister"/>
    </properties>
   </object>
   <object name="right_entry" type="Position" x="2987" y="2544" width="208" height="140">

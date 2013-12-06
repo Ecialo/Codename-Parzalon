@@ -33,13 +33,14 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
 
     tilemap = None
 
-    def __init__(self, img, cshape, position=(0, 0), vertical_speed=0, horizontal_speed=0):
+    def __init__(self, img, cshape=None, position=(0, 0), vertical_speed=0, horizontal_speed=0):
         cocos.sprite.Sprite.__init__(self, img, position)
         self.image = img
         self.vertical_speed = vertical_speed
         self.horizontal_speed = horizontal_speed
-        self.cshape = cshape
-        self.cshape.center = eu.Vector2(*position)
+        if cshape is not None:
+            self.cshape = cshape
+            self.cshape.center = eu.Vector2(*position)
         self.wall = con.NO_TR
         self.on_ground = False
 

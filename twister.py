@@ -1,5 +1,6 @@
 __author__ = 'Ecialo'
 
+from pyglet.image import Animation
 from cocos import euclid as eu
 from cocos import sprite
 import bodies
@@ -15,7 +16,9 @@ consts = con.consts
 
 def on_collide_damage(value):
     def mast_on_collide_damage(master):
+        #ddddprint "MASTERED"
         def targ_on_collide_damage(target):
+            #print "LAUNCH"
             hit_z = hits.Invisible_Hit_Zone(master.launcher, master.cshape.rx*2 + 200, master.cshape.ry*2 + 200,
                                             eu.Vector2(0, 0), 0, master.position,
                                             [on_h.damage(value)])
@@ -35,9 +38,9 @@ class Skull(bodies.Body_Part):
 
 class Twister_Body(bodies.Body):
 
-    anim = {'walk': consts['img']['twister'],
-            'stand': consts['img']['twister'],
-            'jump': consts['img']['twister']}
+    anim = {'walk': Animation.from_image_sequence([consts['img']['twister']], 0.0),
+            'stand': Animation.from_image_sequence([consts['img']['twister']], 0.0),
+            'jump': Animation.from_image_sequence([consts['img']['twister']], 0.0)}
 
     parts_pos = {'walk': [(con.HEAD, (0, 0))],
                  'stand': [(con.HEAD, (0, 0))],
@@ -47,29 +50,15 @@ class Twister_Body(bodies.Body):
 
     def __init__(self, master):
         bodies.Body.__init__(self, master,
-                             [Skull],
+                             [Skull], 'twister_body',
                              [on_collide_damage(3)])
         self.skull = sprite.Sprite(consts['img']['skull'])
-        self.add(self.skull)
-
-
-class Wait_And_Stalk(brains.Task):
-
-    def __init__(self, master, brain):
-        brains.Task.__init__(self, master, 0)
-        self.brain = brain
-
-    def __call__(self, dt):
-        #print 111
-        for unit_wd in self.brain.visible_actors_wd:
-            unit, dst = unit_wd
-            if self.brain.is_enemy(unit):
-                self.master.push_task(Stalk(self.master, self.brain, unit))
+        self.master.add(self.skull)
 
 
 class Stalk(brains.Task):
     def __init__(self, master, brain, target):
-        brains.Task.__init__(self, master, 1)
+        brains.Task.__init__(self, master)
         self.brain = brain
         self.target = target
 
@@ -78,14 +67,15 @@ class Stalk(brains.Task):
             dst = self.target.cshape.center.x - self.master.cshape.center.x
             d = dst/abs(dst) if abs(dst) != 0 else 0
             #print dst
-            if d != self.master.direction:
-                self.master.push_task(brains.Turn(self.master, 11))
-            self.master.walk(self.master.direction)
             if self.master.wall & (con.LEFT | con.RIGHT):
-                self.master.push_task(brains.Jump(self.master, 98))
+                self.master.push_inst_task(brains.Jump(self.master))
+            if d != self.master.direction:
+                self.master.push_inst_task(brains.Turn(self.master))
+            self.master.walk(self.master.direction)
         else:
             #print 1234
-            self.master.push_task(brains.Stand(self.master, 1))
+            self.master.push_task(brains.Stand(self.master))
+            self.brain.observed_units.remove(self.target)
             return brains.COMPLETE
 
 
@@ -96,7 +86,7 @@ class Skull_Move(brains.Task):
         self.v = v
 
     def __call__(self, dt):
-        self.master.push_task(brains.Body_Part_Move_On(self.master, self.v, con.HEAD, self.priority))
+        self.master.push_task(brains.Body_Part_Move_On(self.master, self.v, con.HEAD))
         self.body.skull.position += self.v
         return brains.COMPLETE
 
@@ -105,7 +95,21 @@ class Twister_Mind(brains.Primitive_AI):
 
     def start(self):
         brains.Primitive_AI.start(self)
-        self.task_manager.push_task(Wait_And_Stalk(self.master, self))
+
+    def sensing(self):
+        self.clear_vision()
+        for obj in self.vision.objs_near(self.master, self.range_of_vision):
+            if obj.fight_group < consts['slash_fight_group']:
+                self.visible_actors.append(obj)
+            elif obj.fight_group < consts['missile_fight_group']:
+                self.visible_hits.append(obj)
+            else:
+                pass
+        for enemy in filter(lambda x: self.is_enemy(x), self.visible_actors):
+            if enemy not in self.observed_units:
+                print 123, enemy
+                self.task_manager.push_task(Stalk(self.master, self, enemy))
+                self.observed_units.add(enemy)
 
 
 class Twister_Shard(items.Usage_Item):

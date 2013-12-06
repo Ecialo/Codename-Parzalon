@@ -37,7 +37,7 @@ consts = {'window': {'width': 800,
                   'helmet': pyglet.resource.image('helm.png'),
                   'twister': pyglet.resource.image('twister.png'),
                   'inventory': pyglet.resource.image('inventory.png'),
-                  'swing': pyglet.resource.image('swing.png')},
+                  'skull': pyglet.resource.image('skull.png')},
           'params': {'human': {'speed': 200,
                                'jump_speed': 1000},
                      'primitive': {'range_of_vision': 400,
@@ -59,12 +59,11 @@ consts = {'window': {'width': 800,
           }
 
 LEFT, UP, RIGHT, DOWN, NO_TR = 0b1000, 0b0100, 0b0010, 0b0001, 0b0000
-CHOP, STAB = xrange(2)
-FIRST_HAND, SECOND_HAND = 0, 1
+FIRST_HAND, SECOND_HAND = 0, -1
 FIRST, SECOND = xrange(2)
 HAND, HEAD, CHEST, LEGS = xrange(4)
 ARMOR = 100
-CLEAVE, PENETRATE = xrange(2)
+CHOP, STAB, CLEAVE, PENETRATE = xrange(4)
 LINE, RECTANGLE = xrange(2)
 UNIT, ITEM = xrange(2)
 EMPTY_LIST = []

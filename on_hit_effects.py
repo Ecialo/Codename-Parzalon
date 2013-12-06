@@ -47,3 +47,9 @@ def cleave(master):
 
 def penetrate(master):
     master.features.add(con.PENETRATE)
+
+def chop(master):
+    master.features.add(con.CHOP)
+
+def stab(master):
+    master.features.add(con.STAB)

@@ -42,6 +42,7 @@ class Launcher(EventDispatcher):
         self.owner = master
 
     def launch(self, missile):
+        #print missile
         self.dispatch_event('on_launch_missile', missile)
 
     def destroy_missile(self, missile):
@@ -55,6 +56,8 @@ class Actor(movable_object.Movable_Object):
     is_event_handler = True
 
     def __init__(self, body):
+        super(Actor, self).__init__(body.img)
+
         self.fight_group = -1
 
         self.direction = 1
@@ -65,8 +68,8 @@ class Actor(movable_object.Movable_Object):
         self.launcher = Launcher(self)
         self.state = 'stand'
         self.inventory = Inventory(None, None, None, None, self)
-        cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
-        super(Actor, self).__init__(self.body.img, cshape)
+        self.cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
+
 
         self.recovery = 0.0  # Time before moment when acton can be controlled again
         #self.scale = 0.5

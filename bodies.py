@@ -165,7 +165,7 @@ class Body(object):
         inner_trace.p = inner_p
         cleaved = False
         #inner_trace = gm.LineSegment2(inner_p, hit.trace.v)
-        if hit.hit_pattern is con.CHOP:
+        if con.CHOP in hit.features:
             self.body_parts.sort(lambda a, b: a.chop_priority - b.chop_priority)
         else:
             self.body_parts.sort(lambda a, b: a.stab_priority - b.stab_priority)

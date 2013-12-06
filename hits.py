@@ -18,55 +18,6 @@ from collides import cross_angle
 consts = con.consts
 
 
-def slash_rotation(sprite, v):
-    cos = cross_angle(v, eu.Vector2(1, 0))
-    spin = (-1 if v.y < 0 else 1)*(1 if v.x >= 0 else -1)
-    #zspin = (-1 if v.x < 0 else 1)*(-1 if v.y > 0 else 1)
-
-    angle = math.acos(cos)*spin + (math.pi if v.x < 0 else 0)
-    si = abs(math.sin(angle - math.pi/2))
-    co = math.cos(angle)
-
-    print math.degrees(angle), si, co
-
-    x, y0, z = sprite.grid.get_original_vertex(1, 1)
-    x, y1, z = sprite.grid.get_original_vertex(0, 0)
-
-    if y0 > y1:
-        # Normal Grid
-        a = (0, 0)
-        b = (0, 1)
-        c = (1, 0)
-        d = (1, 1)
-        y = y0
-    else:
-        # Reversed Grid
-        b = (0, 0)
-        a = (0, 1)
-        d = (1, 0)
-        c = (1, 1)
-        y = y1
-
-    diff_y = y*si/2
-    diff_z = (y*co)*si/2
-
-    # bottom-left
-    xx, yy, zz = sprite.grid.get_original_vertex(*a)
-    sprite.grid.set_vertex(a[0], a[1], (xx, diff_y, z+diff_z))
-
-    # upper-left
-    xx, yy, zz = sprite.grid.get_original_vertex(*b)
-    sprite.grid.set_vertex(b[0], b[1], (xx, y-diff_y, z-diff_z))
-
-    # bottom-right
-    xx, yy, zz = sprite.grid.get_original_vertex(*c)
-    sprite.grid.set_vertex(c[0], c[1], (xx, diff_y, z+diff_z))
-
-    # upper-right
-    xx, yy, zz = sprite.grid.get_original_vertex(*d)
-    sprite.grid.set_vertex(d[0], d[1], (xx, y-diff_y, z-diff_z))
-
-
 def shape_to_cshape(shape):
     """
     Transform geometry shape to collision shape

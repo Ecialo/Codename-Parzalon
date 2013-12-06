@@ -66,7 +66,7 @@ def parry(self, other):
             #else other.time_to_complete/other.master.swing_time
         first = self if self.uncompleteness() < other.uncompleteness() else other
         second = self if first is other else other
-        if second.hit_pattern is con.STAB:
+        if con.STAB in second.features:
             return
         p = self.trace.intersect(other.trace)
         if p is not None and cross_angle(self.trace.v, other.trace.v) <= consts['parry_cos_disp']:

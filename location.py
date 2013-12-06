@@ -115,11 +115,11 @@ class Location_Layer(layer.ScrollableLayer):
 
         #Move guys to location
         for sc in scripts:
-            if 'opponent' in sc.properties:
+            if 'spawn' in sc.properties:
                 #r = self.opponent.get_rect()
                 #r.midbottom = sc.midbottom
                 dx, dy = sc.center
-                self.spawn('enemy', (dx, dy))
+                self.spawn(sc.properties['spawn'], (dx, dy))
 
     def connect(self, level):
         #self.script_manager.push_handlers(level)
