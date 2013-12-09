@@ -25,7 +25,7 @@ def collide_actor_actor(actor1, actor2):
 
 def collide_actor_hit_zone(actor, hit_zone):
     if actor.fight_group != hit_zone.base_fight_group:
-        #print 21231
+        #print hit_zone
         actor.take_hit(hit_zone)
 
 

@@ -133,6 +133,7 @@ class Location_Layer(layer.ScrollableLayer):
     def prepare(self, spawn_point, hero):
         #print spawn_point, hero
         movable_object.Movable_Object.tilemap = self.force_ground
+        br.Task.environment = self.force_ground
         eff.Advanced_Emitter.surface = self  # This bad
         #self.loc_key_handler
         for sc in self.scripts.known_objs():
@@ -182,7 +183,8 @@ class Location_Layer(layer.ScrollableLayer):
 
         self.collman.clear()
         for hit in self.hits:
-            if hit.time_to_complete <= 0.0 and not hit.completed:
+            if hit.uncompleteness() <= 0.01 and not hit.completed:
+                print "hit complete"
                 hit.complete()
             elif hit.completed:
                 pass
@@ -191,7 +193,13 @@ class Location_Layer(layer.ScrollableLayer):
                 self.collman.add(hit)
 
         for missile in self.missiles:
-            self.collman.add(missile)
+            #print missile.uncompleteness(), missile.completed
+            if missile.uncompleteness() <= 0.01 and not missile.completed:
+                missile.complete()
+            elif missile.completed:
+                pass
+            else:
+                self.collman.add(missile)
 
         for hit_1, hit_2 in self.collman.iter_all_collisions():
             hit_1.collide(hit_2)
@@ -213,7 +221,7 @@ class Location_Layer(layer.ScrollableLayer):
         self.missiles.append(missile)
 
     def on_remove_missile(self, missile):
-        #print missile
+       #print missile
         self.missiles.remove(missile)
         #if self.collman.knows(missile):
         #    self.collman.remove_tricky(missile)

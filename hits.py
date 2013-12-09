@@ -132,7 +132,7 @@ def on_level_collide_destroy(update_fun):
 
 
 def non_gravity_update(self, dt):
-    #print self.position, self.cshape.center,
+    #print self.vertical_speed, self.horizontal_speed
     start_point = self.cshape.center.copy()
     dy = self.vertical_speed * dt if self.vertical_speed != 0 else 0
     dx = self.horizontal_speed * dt if self.horizontal_speed != 0 else 0
@@ -147,7 +147,8 @@ def non_gravity_update(self, dt):
 
 class Hit_Zone(mova.Movable_Object):
 
-    def __init__(self, master, img, vector, speed, position, hit_shape, effects=con.EMPTY_LIST):
+    def __init__(self, master, img, vector, speed, position, hit_shape,
+                 effects=con.EMPTY_LIST):
         #cshape = cm.AARectShape(eu.Vector2(*position), img.width/2, img.height/2)
         if hit_shape is con.RECTANGLE:
             trace = gm.Rectangle(gm.Point2(0, 0), eu.Vector2(img.width, img.height))
@@ -179,7 +180,8 @@ class Hit_Zone(mova.Movable_Object):
         self.schedule(self.update)
         #print self.update
 
-    update = on_level_collide_destroy(non_gravity_update)
+    def update(self, dt):
+        pass
 
     def uncompleteness(self):
         return 0.0
@@ -187,6 +189,7 @@ class Hit_Zone(mova.Movable_Object):
     def complete(self):
         if self.completed:
             return
+        print "TROUBLE"
         self.completed = True
         self.master.destroy_missile(self)
 
@@ -211,5 +214,13 @@ class Hit_Zone(mova.Movable_Object):
 class Invisible_Hit_Zone(Hit_Zone):
 
     def __init__(self, master, width, height, v, speed, position, effects=con.EMPTY_LIST):
-        img = image.SolidColorImagePattern().create_image(width, height)
+        img = image.SolidColorImagePattern((255, 255, 255, 126)).create_image(width, height)
         Hit_Zone.__init__(self, master, img, v, speed, position, con.RECTANGLE, effects)
+
+
+class Missile(Hit_Zone):
+
+    update = on_level_collide_destroy(non_gravity_update)
+
+    def uncompleteness(self):
+        return 0.5

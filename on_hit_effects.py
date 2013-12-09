@@ -11,7 +11,6 @@ def damage(value):
             else:
                 body_part.health -= value
                 body_part.master.health -= value
-            #print body_part.slot, body_part.armor, body_part.health
         return fab_damage
     return mast_damage
 

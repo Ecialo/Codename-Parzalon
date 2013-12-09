@@ -46,7 +46,8 @@ class Launcher(EventDispatcher):
         self.dispatch_event('on_launch_missile', missile)
 
     def destroy_missile(self, missile):
-        self.master.dispatch_event('on_remove_missile', missile)
+        #print "LOLOLOLOLOLLOLOLOLOLOLOLOLO"
+        self.dispatch_event('on_remove_missile', missile)
 Launcher.register_event_type('on_launch_missile')
 Launcher.register_event_type('on_remove_missile')
 
