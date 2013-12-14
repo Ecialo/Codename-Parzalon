@@ -11,7 +11,7 @@ def damage(value):
             else:
                 body_part.health -= value
                 body_part.master.health -= value
-            print "take_damage"
+            body_part.master.master.dispatch_event("on_take_damage", body_part)
         return fab_damage
     return mast_damage
 

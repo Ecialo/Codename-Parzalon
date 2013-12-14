@@ -245,3 +245,4 @@ class Actor(movable_object.Movable_Object):
     #def on_enter(self):
     #    self.launcher.push_handlers(self.get_ancestor(layer.scrolling.ScrollableLayer))
 Actor.register_event_type('on_activate_trigger')
+Actor.register_event_type('on_take_damage')
