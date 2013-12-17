@@ -61,8 +61,9 @@ class Inventory(layer.Layer):
             self.add(self.inv['first_weapon'], z=5)
         if self.master.hands[1]:
             self.add(self.inv['second_weapon'], z=5)
-        if self.master.hands[2]:
-            self.add(self.inv['additional_weapon'], z=5)
+        if len(self.master.hands) > 2:
+            if self.master.hands[2]:
+                self.add(self.inv['additional_weapon'], z=5)
 
     def close(self):
         self.remove(self.image)
@@ -71,15 +72,17 @@ class Inventory(layer.Layer):
             self.remove(self.inv['first_weapon'])
         if self.master.hands[1]:
             self.remove(self.inv['second_weapon'])
-        if self.master.hands[2]:
-            self.remove(self.inv['additional_weapon'])
+        if len(self.master.hands) > 2:
+            if self.master.hands[2]:
+                self.remove(self.inv['additional_weapon'])
 
     def change_weapon(self):
-        swap = self.inv['second_weapon']
-        self.inv['second_weapon'] = self.inv['additional_weapon']
-        self.inv['additional_weapon'] = swap
-        swap = self.master.hands[1]
-        self.master.hands[1] = self.master.hands[2]
-        self.master.hands[2] = swap
+        if len(self.master.hands) > 2:
+            swap = self.inv['second_weapon']
+            self.inv['second_weapon'] = self.inv['additional_weapon']
+            self.inv['additional_weapon'] = swap
+            swap = self.master.hands[1]
+            self.master.hands[1] = self.master.hands[2]
+            self.master.hands[2] = swap
 
 
