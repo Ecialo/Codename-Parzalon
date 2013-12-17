@@ -129,6 +129,7 @@ class Actor(movable_object.Movable_Object):
             self.fight_group = -1
             self.remove_action(self.actions[0])
             self.kill()
+            self.dispatch_event('on_death', self)
 
     def _move(self, dx, dy):
         old = self.cshape.center.copy()
@@ -249,3 +250,4 @@ class Actor(movable_object.Movable_Object):
     #    self.launcher.push_handlers(self.get_ancestor(layer.scrolling.ScrollableLayer))
 Actor.register_event_type('on_activate_trigger')
 Actor.register_event_type('on_take_damage')
+Actor.register_event_type('on_death')
