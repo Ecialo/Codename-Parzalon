@@ -62,7 +62,7 @@ class Throw(Usage):
         self.master.dispatch_event('on_launch_missile', hit_zone)
         #hit_zone.show_hitboxes()
         #self.owner.hands.remove(self.master)
-        self.owner.hands[1] = None
+        self.owner.hands.remove(self.master)
         self.master.on_use = False
         self.master.available = True
         self.master.length -= 1
