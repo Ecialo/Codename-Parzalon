@@ -7,6 +7,7 @@ from cocos.layer import Layer
 from cocos.director import director
 from cocos.batch import BatchNode
 from cocos.sprite import Sprite
+from cocos.draw import Line
 from pyglet.event import EventDispatcher
 
 consts = con.consts
@@ -59,7 +60,6 @@ class DudeDamageLayer(ResizableLayer):
         self.add(self.armored_bp, z=1)
 
     def _init_body_parts(self, layer_type='front'):
-        # ACHTUNG! HARDCODE!
         self.ui_body[layer_type]['head'] = Sprite(consts['hud']['body'][layer_type]['head'])
         self.ui_body[layer_type]['head'].position = (50, self.cur_y-50)
         self.ui_body[layer_type]['chest'] = Sprite(consts['hud']['body'][layer_type]['chest'])
@@ -99,6 +99,44 @@ class DudeDamageLayer(ResizableLayer):
             self.ui_body['front'][bp_name].opacity = 255.0 * body_part.health / body_part.max_health
 
 
+class DudeStatusLayer(ResizableLayer):
+    is_event_handler = True
+
+    def __init__(self, game_layer):
+        super(DudeStatusLayer, self).__init__()
+        self.game_layer = game_layer
+        self.batch = BatchNode()
+
+        self.ui_status_icons = {'health_icon': Sprite(consts['hud']['status']['health_icon'],
+                                                      position=(110, self.cur_y-50))}
+
+        self.bar_orig_x = 140
+        self.hb_len = 100  # health bar length
+        self.ui_health_bar = Line((self.bar_orig_x, self.cur_y-50),
+                                  (self.bar_orig_x + self.hb_len, self.cur_y-50),
+                                  (255, 0, 0, 255), 15)
+
+        # the layer now listens to on_take_damage event from hero
+        self.game_layer.hero.push_handlers(self.on_take_damage)
+
+        for icon in self.ui_status_icons:
+            self.batch.add(self.ui_status_icons[icon])
+        self.add(self.batch)
+
+        self.add(self.ui_health_bar)
+
+    def on_hud_shift_needed(self, dx, dy):
+        for icon in self.ui_status_icons:
+            self.ui_status_icons[icon].y += dy
+        self.ui_health_bar.y += dy
+
+    def on_take_damage(self, body_part):
+        hb = self.ui_health_bar
+        hb.end = (self.bar_orig_x +
+                  self.hb_len * body_part.master.health / float(body_part.master.max_health),
+                  self.cur_y-50)
+
+
 class HUD(cocos.layer.Layer):
     is_event_handler = True
 
@@ -108,6 +146,7 @@ class HUD(cocos.layer.Layer):
         self.game_layer.script_manager.set_handler('run_dialog', self.run_dialog)
         self.current_dialog = None
         self.add(DudeDamageLayer(game_layer))
+        self.add(DudeStatusLayer(game_layer))
 
     def run_dialog(self, dialog_name, actor, location):
         print "DIALOGS"

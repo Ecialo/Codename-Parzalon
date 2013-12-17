@@ -56,7 +56,6 @@ class OptionsMenu(Menu):
         self.items = []
         self.items.append(MenuItem('Change controls', self.on_change_controls))
         self.items.append(ToggleMenuItem('Show FPS: ', self.on_show_FPS, director.show_FPS))
-        self.items.append(ToggleMenuItem('Fullscreen: ', self.on_fullscreen, 0))
         self.items.append(MenuItem('Back', self.on_quit))
 
         self.create_menu(self.items, shake(), shake_back())
@@ -66,9 +65,6 @@ class OptionsMenu(Menu):
 
     def on_show_FPS(self, state):
         director.show_FPS = state
-
-    def on_fullscreen(self, state):
-        director.window.set_fullscreen(not director.window.fullscreen)
 
     def on_quit(self):
         self.parent.switch_to(0)
