@@ -128,7 +128,10 @@ class DudeStatusLayer(ResizableLayer):
     def on_hud_shift_needed(self, dx, dy):
         for icon in self.ui_status_icons:
             self.ui_status_icons[icon].y += dy
-        self.ui_health_bar.y += dy
+        self.ui_health_bar.start = (self.ui_health_bar.start[0],
+                                    self.ui_health_bar.start[1] + dy)
+        self.ui_health_bar.end = (self.ui_health_bar.end[0],
+                                  self.ui_health_bar.end[1] + dy)
 
     def on_take_damage(self, body_part):
         hb = self.ui_health_bar
