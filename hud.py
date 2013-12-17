@@ -84,14 +84,14 @@ class DudeDamageLayer(ResizableLayer):
         else:
             slot = body_part.slot
 
-        if slot == con.HEAD:
-            bp_name = 'head'
-        elif slot == con.CHEST:
-            bp_name = 'chest'
-        elif slot == con.LEGS:
-            bp_name = 'legs'
+        body_parts = {con.HEAD: 'head',
+                      con.CHEST: 'chest',
+                      con.LEGS: 'legs'}
+
+        if slot in body_parts:
+            bp_name = body_parts[slot]
         else:
-            bp_name = 'right_arm'
+            bp_name = 'right_arm'  # why not?
 
         if armor_damage:
             self.ui_body['armored'][bp_name].opacity = 255.0 * body_part.armor / body_part.max_armor
@@ -100,7 +100,6 @@ class DudeDamageLayer(ResizableLayer):
 
 
 class HUD(cocos.layer.Layer):
-
     is_event_handler = True
 
     def __init__(self, game_layer):

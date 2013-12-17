@@ -1,8 +1,8 @@
 __author__ = "Ecialo"
 
 from cocos.director import director
+from menu import GameMenu
 
-from level import Level
 import consts as con
 import cProfile
 
@@ -11,9 +11,8 @@ consts = con.consts
 
 def main():
     director.init(**consts['window'])
-    lvl = Level((0, 0), [['map01.tmx'], ['map02.tmx']])
-    lvl.run()
-
+    menu = GameMenu()
+    menu.start_game()
 
 if __name__ == "__main__":
     main()
