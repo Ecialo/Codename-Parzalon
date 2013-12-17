@@ -75,11 +75,14 @@ class Actor(movable_object.Movable_Object):
         self.recovery = 0.0  # Time before moment when acton can be controlled again
         #self.scale = 0.5
 
-        #self.schedule(self.update)
+        self.schedule(self.item_update)
 
     height = property(lambda self: self.body.img.height)
     width = property(lambda self: self.body.img.width)
     #attack_perform = property(lambda self: self.hands[0].attack_perform)
+
+    def item_update(self, dt):
+        map(lambda x: x.item_update(dt), self.hands)
 
     def collide(self, other):
         other._collide_actor(self)

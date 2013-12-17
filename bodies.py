@@ -124,7 +124,8 @@ class Body(object):
         self.speed = self.base_speed
         self.body_parts = map(lambda x: x(self), body_parts)
         self.on_collide_effects = map(lambda x: x(self.master), on_collide_effects)
-        self.health = sum(map(lambda x: x.max_health, body_parts))/2
+        self.max_health = sum(map(lambda x: x.max_health, filter(lambda x: x.slot < 100, body_parts)))/2
+        self.health = self.max_health
         self.body_name = body_name
 
     horizontal_speed = property(lambda self: self.master.horizontal_speed)

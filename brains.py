@@ -33,6 +33,12 @@ def _set_rec(self, value):
     self.master.recovery = value
 
 
+def Animate(master, name):
+    if master.state != name:
+        master.state = name
+        master.image = master.body.anim[name]
+
+
 class Task(object):
 
     hands = property(lambda self: self.master.hands)
@@ -62,7 +68,7 @@ class Approaches(Task):
     def __call__(self, dt):
         #print "Approach", self.target
         #print self.brain.task_manager.tasks
-        self.master.push_task(Animate(self.master, 'walk'))
+        Animate(self.master, 'walk')
         if self.target.fight_group > 0:
             dst = self.target.cshape.center.x - self.master.cshape.center.x
             d = dst/abs(dst) if abs(dst) != 0 else 0
@@ -111,17 +117,18 @@ class Close_Combat(Task):
 class Walk(Task):
 
     def __call__(self, dt):
-        self.master.push_task(Animate(self.master, 'walk'))
+        Animate(self.master, 'walk')
         self.master.walk(self.master.direction)
         if self.master.wall & (con.LEFT | con.RIGHT):
-                    self.master.push_inst_task(Jump(self.master, 98))
+                    self.master.push_inst_task(Jump(self.master))
         return Task.__call__(self, dt)
 
 
 class Jump(Task):
 
     def __call__(self, dt):
-        self.master.push_task(Animate(self.master, 'jump'))
+        print self
+        Animate(self.master, 'jump')
         self.master.jump()
         return COMPLETE
 
@@ -129,7 +136,7 @@ class Jump(Task):
 class MoveBack(Task):
 
     def __call__(self, dt):
-        self.master.push_task(Animate(self.master, 'walk'))
+        Animate(self.master, 'walk')
         self.master.walk(-self.master.direction)
         return Task.__call__(self, dt)
 
@@ -205,7 +212,6 @@ class Aim(Task):
             cell = self.environment.get_at_pixel(pos[0], pos[1])
             if cell.get('right') and dx is con.LEFT or cell.get('left') and dx is con.RIGHT or\
                             cell.get('top') and dy is con.DOWN or cell.get('bottom') and dy is con.UP:
-                print "OOPS"
                 return COMPLETE
             pos += v
             #print pos
@@ -222,7 +228,6 @@ class Shoot(Task):
         self.target = target
 
     def __call__(self, dt):
-        print "SHOOT"
         hand = self.weapon
         start = self.master.position
         end = self.target.position
@@ -291,20 +296,20 @@ class Controlling(Task):
     def __call__(self, dt):
         #print "intsak", id(self.scroller)
         if self.key[self.bind['down']]:
-            self.master.push_task(Animate(self.master, 'sit'))
             self.master.sit()
+            Animate(self.master, 'sit')
             #print "intsak", id(self.scroller)
         else:
             hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
             if self.key[self.bind['jump']] and self.master.on_ground:
-                self.master.push_task(Animate(self.master, 'jump'))
                 self.master.jump()
+                Animate(self.master, 'jump')
             if hor_dir == 0:
-                self.master.push_task(Animate(self.master, 'stand'))
                 self.master.stand()
+                Animate(self.master, 'stand')
             elif hor_dir != 0 and self.master.on_ground:
-                self.master.push_task(Animate(self.master, 'walk'))
                 self.master.walk(hor_dir)
+                Animate(self.master, 'walk')
 
         #Action
         items = len(self.hands)
@@ -381,14 +386,6 @@ class Controlling(Task):
         #cx, cy = self.master.position
         #print cx, cy
         self.scroller.set_focus(*self.master.position)
-
-
-class Animate(Task):
-    def __init__(self, master, name):
-        Task.__init__(self, master)
-        if self.master.state != name:
-            self.master.state = name
-            self.master.image = self.master.body.anim[name]
 
 
 class Task_Manager(object):

@@ -163,17 +163,21 @@ class Shoot(Usage):
         self.bullet_image = bullet_image
         self.effects = effects
 
+    def start_use(self, *args):
+        self.master.available = False
+
     def end_use(self, *args):
-        if self.master.ammo > 0:
-            end_point = eu.Vector2(*args[0])
-            v = end_point - self.owner.cshape.center
-            hit_zone = hit.Missile(self, self.bullet_image, v, 300, self.owner.position, con.LINE)
-            self.actual_hit = hit_zone
-            self.master.dispatch_event('on_launch_missile', hit_zone)
-            hit_zone.show_hitboxes()
-            self.master.on_use = False
-            self.master.available = True
-            self.master.ammo -= 1
+        end_point = eu.Vector2(*args[0])
+        v = end_point - self.owner.cshape.center
+        hit_zone = hit.Missile(self, self.bullet_image, v, 300, self.owner.position, con.LINE)
+        self.actual_hit = hit_zone
+        self.master.dispatch_event('on_launch_missile', hit_zone)
+        hit_zone.show_hitboxes()
+        self.master.on_use = False
+        self.master.ammo -= 1
+        if self.master.ammo != 0:
+            self.master.cur_reload = self.master.reload_time
+
 
     def destroy_missile(self, missile):
         self.master.dispatch_event('on_remove_missile', missile)

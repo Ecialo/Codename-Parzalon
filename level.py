@@ -105,6 +105,10 @@ class Level(object):
         scene.add(player_layer.hero.inventory, z=2)
         return scene
 
+    def win(self, _, actor, location):
+        self.unload_location(location)
+        director.pop()
+
     def change_location(self, direction, actor, location):
         print 'change', direction
         self.unload_location(location)

@@ -53,6 +53,11 @@
     <property name="trigger" value="change_location"/>
    </properties>
   </object>
-  <object name="opponent" type="Position" x="480" y="2192" width="151" height="76"/>
+  <object name="winzone" x="2964" y="2580" width="225" height="102">
+   <properties>
+    <property name="event" value="win"/>
+    <property name="win" value=""/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

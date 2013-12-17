@@ -167,10 +167,14 @@ class Hit_Zone(mova.Movable_Object):
         self.master = master
         self.fight_group = master.owner.fight_group + consts['missile_fight_group']
         self.base_fight_group = master.owner.fight_group
+
         self.features = set()
         self.hit_pattern = con.STAB
 
         self.completed = False
+
+        self.time_to_complete = 0.1
+        self.time = 0.1
 
         if effects is not con.EMPTY_LIST:
             self.effects = filter(None, map(lambda eff: eff(self), effects))
@@ -181,15 +185,14 @@ class Hit_Zone(mova.Movable_Object):
         #print self.update
 
     def update(self, dt):
-        pass
+        self.time -= dt
 
     def uncompleteness(self):
-        return 0.0
+        return max(0.0, self.time)/self.time_to_complete
 
     def complete(self):
         if self.completed:
             return
-        print "TROUBLE"
         self.completed = True
         self.master.destroy_missile(self)
 
@@ -214,7 +217,7 @@ class Hit_Zone(mova.Movable_Object):
 class Invisible_Hit_Zone(Hit_Zone):
 
     def __init__(self, master, width, height, v, speed, position, effects=con.EMPTY_LIST):
-        img = image.SolidColorImagePattern((255, 255, 255, 126)).create_image(width, height)
+        img = image.SolidColorImagePattern((0, 0, 0, 0)).create_image(width, height)
         Hit_Zone.__init__(self, master, img, v, speed, position, con.RECTANGLE, effects)
 
 

@@ -19,6 +19,20 @@ def ammo(value):
     return add_ammo
 
 
+def fire_rate(time_between_shots):
+    def add_fire_rate(master):
+        def reload_weapon(dt):
+            if master.cur_reload != 0.0:
+                master.cur_reload -= dt
+                if master.cur_reload <= 0.0:
+                    master.cur_reload = 0.0
+                    master.available = True
+        master.reload_time = time_between_shots
+        master.cur_reload = 0.0
+        master.item_update = reload_weapon
+    return add_fire_rate
+
+
 class Item(mova.Movable_Object):
 
     slot = None
@@ -28,6 +42,8 @@ class Item(mova.Movable_Object):
         mova.Movable_Object.__init__(self, img, cshape)
 
         self.master = None
+
+        self.item_update = lambda dt: None
 
     def __call__(self, environment):
         try:

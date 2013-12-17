@@ -75,11 +75,11 @@ class Stalk(brains.Task):
             dst = self.target.cshape.center.x - self.master.cshape.center.x
             d = dst/abs(dst) if abs(dst) != 0 else 0
             #print dst
+            self.master.walk(self.master.direction)
             if self.master.wall & (con.LEFT | con.RIGHT):
                 self.master.push_inst_task(brains.Jump(self.master))
             if d != self.master.direction:
                 self.master.push_inst_task(brains.Turn(self.master))
-            self.master.walk(self.master.direction)
         else:
             return brains.COMPLETE
 
@@ -95,7 +95,7 @@ class Twister_Fight(brains.Task):
         if self.target.fight_group > 0:
             dst = self.target.cshape.center.x - self.master.cshape.center.x
             d = dst/abs(dst) if abs(dst) != 0 else 0
-            if abs(dst) > 100:
+            if abs(dst) > 300:
                 #print "Like a sir"
                 hand = self.master.choose_free_hand()
                 if hand:
@@ -149,4 +149,4 @@ class Twister_Shard(items.Usage_Item):
         first_usage = usages.Shoot([on_h.damage(1)], img)
         second_usage = None
         items.Usage_Item.__init__(self, img, first_usage, second_usage,
-                                  [items.length(1), items.ammo(99)])
+                                  [items.length(1), items.fire_rate(0.5), items.ammo(1)])
