@@ -48,16 +48,31 @@ class DudeDamageLayer(ResizableLayer):
         # the layer now listens to on_take_damage event from hero
         self.game_layer.hero.push_handlers(self.on_take_damage)
 
+        armored_bp = self._get_armored_body_parts()
+
         for body_part in self.ui_body['back']:
             self.red_bp.add(self.ui_body['back'][body_part])
         for body_part in self.ui_body['front']:
             self.normal_bp.add(self.ui_body['front'][body_part])
         for body_part in self.ui_body['armored']:
-            self.armored_bp.add(self.ui_body['armored'][body_part])
+            if body_part in armored_bp:
+                self.armored_bp.add(self.ui_body['armored'][body_part])
 
         self.add(self.red_bp, z=-1)
         self.add(self.normal_bp, z=0)
         self.add(self.armored_bp, z=1)
+
+    def _get_armored_body_parts(self):
+        armored = set()
+        for bp in self.game_layer.hero.body.body_parts:
+            if bp.attached is not None:
+                if bp.slot == con.HEAD:
+                    armored.add('head')
+                elif bp.slot == con.CHEST:
+                    armored.add('chest')
+                elif bp.slot == con.LEGS:
+                    armored.add('legs')
+        return armored
 
     def _init_body_parts(self, layer_type='front'):
         self.ui_body[layer_type]['head'] = Sprite(consts['hud']['body'][layer_type]['head'])
@@ -116,8 +131,9 @@ class DudeStatusLayer(ResizableLayer):
                                   (self.bar_orig_x + self.hb_len, self.cur_y-50),
                                   (255, 0, 0, 255), 15)
 
-        # the layer now listens to on_take_damage event from hero
+        # the layer now listens to on_take_damage and on_death event from hero
         self.game_layer.hero.push_handlers(self.on_take_damage)
+        self.game_layer.hero.push_handlers(self.on_death)
 
         for icon in self.ui_status_icons:
             self.batch.add(self.ui_status_icons[icon])
@@ -138,6 +154,9 @@ class DudeStatusLayer(ResizableLayer):
         hb.end = (self.bar_orig_x +
                   self.hb_len * body_part.master.health / float(body_part.master.max_health),
                   self.cur_y-50)
+
+    def on_death(self, hero):
+        self.ui_health_bar.end = (self.bar_orig_x, self.cur_y-50)
 
 
 class HUD(cocos.layer.Layer):
