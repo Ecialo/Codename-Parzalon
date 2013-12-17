@@ -368,6 +368,8 @@ class Controlling(Task):
                     self.hands[1] = item
                 if not self.hands[2]:
                     self.hands[2] = item
+                else:
+                    self.hands.append(item)
                 self.master.put_item(item)
                 item.get_up()
 
