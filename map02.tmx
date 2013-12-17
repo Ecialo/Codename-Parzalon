@@ -42,7 +42,7 @@
    <property name="obstackle" value="yes"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJztmltuwjAQRUM30J92of1ifU03Vs0HKkIJOOnYcz1zjnTFI8ImHMbGJssCAAAAAAAAAAAAUIdvh4zopwp2rh+X8znio3cfGaA+AABysi6MuSqsy58PfpPEcnNhUB+x3LuAWHChAy50wIUOuNABFzrgYiysG7RgXa0F9QEAAACgCddlaHFmHcNaph/URy16em5t76cxFTg6Hh714dFepb1Xhfp4RiUX6uBCB1zogAsdcKEDLnTAhQ640AEXOoxwsT7cHj1+O3afjIw6t3Xn/qtjLe1lYeT3zNMHLnz623r8zE1LOxmIGH+3+mt9ruXYrETNhVtz8Z6PvTk723ye5TxG8ej/P/8Re6UqW99d+zy+LnGp6mNvHImsi6rXxiiO6VV9KLowKvpQdWFU86HswqjkQ92FUcXHDC6MCj5mcWFkXw/O5CI7uNChogu1/bNX7bde07+VyP2T1lzf/OLhxF7/ednO2bZvdbbXrkq8fXg48a4/pb330fXhWScezDj/9PCh4GRGF0YvH5FOZnVh9PQR4WRmF0ZvHyOdzO7CGOFjhJMMLoxRPno6yeLCGOmjh5NMLozRPjydZHNhRPjwcNLDxbtze2eI8nHvhPTdL4mI7cdFvwdCCCGEEEIIIYQQQgghdfML4UZ4iQ==
+   eJzt2FtuwjAQBVDoBvrTrrXrg5VViCIeJdRpPPHYOUe6f0RyfOPEeLcDAAAAAAAAAAAAAAAAAAB6c/zJoSCX3xLjdn5P8/2xn87hyTXU8zivJetj6lqWqTGfOqmj5jzqZJmI+dPJ/0TOm05+m/M9jqCTe6X71Ug6uWq9Pi50ks/InWR57uc6PmQUGb4LXPW6PujLnHNlz12sOefK3sux/nOubH3EaLnX0vm91vvekvfiVvpo3cWJ9XGWoQvOdNHW4xmJLmBbnCvk4VwhD+cKeWQ+V9javqn1/b56L17WXusxriXDfZa+CzOMNVKP99fjmEv0fF9Zxj5nvzP6nihDJ19v9aKT5Wr2oZPlavehk2Ui+hitk2eJ+oZG9TFKJ1Om/m9m7mPkTnpcH6N3EmGNPnRSbq0+dFJmzT508re1+9DJay36yNrJe+sB7Nr1cduJXNOyj5r53Lcfg4iIiIiIiIiIiIhsN9/V2YFl
   </data>
  </layer>
  <objectgroup name="Scripts" width="100" height="100">
@@ -57,6 +57,21 @@
    <properties>
     <property name="event" value="win"/>
     <property name="win" value=""/>
+   </properties>
+  </object>
+  <object name="opponent" type="Position" x="1074" y="1902" width="161" height="99">
+   <properties>
+    <property name="spawn" value="enemy"/>
+   </properties>
+  </object>
+  <object name="opponent" type="Position" x="1721" y="1125" width="201" height="79">
+   <properties>
+    <property name="spawn" value="enemy"/>
+   </properties>
+  </object>
+  <object name="opponent" type="Position" x="2773" y="1559" width="191" height="101">
+   <properties>
+    <property name="spawn" value="twister"/>
    </properties>
   </object>
  </objectgroup>

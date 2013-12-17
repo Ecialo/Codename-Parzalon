@@ -53,7 +53,7 @@ class Level(object):
         self.scroller = layer.ScrollingManager()
 
     def run(self):
-        director.run(self.load_location())
+        director.push(self.load_location())
 
     def load_location(self):
         location = self.locations[self.x][self.y]
@@ -109,6 +109,11 @@ class Level(object):
         self.unload_location(location)
         director.pop()
 
+    def loose(self, location):
+        self.unload_location(location)
+        print 'LLLL'
+        director.pop()
+
     def change_location(self, direction, actor, location):
         print 'change', direction
         self.unload_location(location)
@@ -129,14 +134,15 @@ class Level(object):
 
     def unload_location(self, location):
         print "LOCATION", location.hero.parent
-        location.hero.kill()
-        location.actors.remove(location.hero)
-        location.collman.clear()
+        if location.hero.fight_group > 0:
+            location.hero.kill()
+            location.actors.remove(location.hero)
+        location.unschedule(location.update)
+        #location.collman.clear()
         #print "STACK", location.hero._event_stack
         location.hero.remove_handlers(location)
         #print "CLEAR STACK", location.hero._event_stack
         location.disconnect(self)
-        location.unschedule(location.update)
         #location.hero.actions[0].task_manager.clear_queue()
         #location.hero.launcher.pop_handlers()
 

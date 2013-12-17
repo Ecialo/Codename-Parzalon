@@ -75,6 +75,8 @@ class Script_Manager(event.EventDispatcher):
 Script_Manager.register_event_type('change_location')
 Script_Manager.register_event_type('run_dialog')
 Script_Manager.register_event_type('printer')
+Script_Manager.register_event_type('loose')
+Script_Manager.register_event_type('win')
 
 
 class Location_Layer(layer.ScrollableLayer):
@@ -232,6 +234,9 @@ class Location_Layer(layer.ScrollableLayer):
         print "location triggered"
         print "!!!!"
         self.script_manager.activate_trigger(trigger, actor, self)
+
+    def on_death(self, actor):
+        self.script_manager.dispatch_event('loose', self)
 
     def on_do_hit(self, hit):
         """
