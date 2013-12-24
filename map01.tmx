@@ -51,7 +51,7 @@
     <property name="start_entry" value="yes"/>
    </properties>
   </object>
-  <object name="opponent" type="Position" x="1283" y="2572" width="138" height="84">
+  <object name="opponent" type="Position" x="1855" y="2584" width="138" height="84">
    <properties>
     <property name="spawn" value="enemy"/>
    </properties>
@@ -67,6 +67,11 @@
    <properties>
     <property name="event" value="run_dialog"/>
     <property name="run_dialog" value="Dialog 1"/>
+   </properties>
+  </object>
+  <object name="opponent" type="Position" x="1284" y="2585" width="138" height="84">
+   <properties>
+    <property name="spawn" value="twister"/>
    </properties>
   </object>
  </objectgroup>
