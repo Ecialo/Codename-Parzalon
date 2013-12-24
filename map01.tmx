@@ -51,11 +51,6 @@
     <property name="start_entry" value="yes"/>
    </properties>
   </object>
-  <object name="opponent" type="Position" x="1855" y="2584" width="138" height="84">
-   <properties>
-    <property name="spawn" value="enemy"/>
-   </properties>
-  </object>
   <object name="right_entry" type="Position" x="2987" y="2544" width="208" height="140">
    <properties>
     <property name="change_location" value="right"/>
