@@ -3,6 +3,7 @@ __author__ = 'Ecialo'
 from pyglet.image import Animation
 from cocos import euclid as eu
 from cocos import sprite
+from brains import Animate
 import bodies
 import brains
 import items
@@ -46,7 +47,7 @@ class Skull(bodies.Body_Part):
 
 class Twister_Body(bodies.Body):
 
-    anim = {'walk': Animation.from_image_sequence([consts['img']['twister']], 0.0),
+    anim = {'windwalk': Animation.from_image_sequence([consts['img']['twister']], 0.0),
             'stand': Animation.from_image_sequence([consts['img']['twister']], 0.0),
             'jump': Animation.from_image_sequence([consts['img']['twister']], 0.0)}
 
@@ -60,8 +61,9 @@ class Twister_Body(bodies.Body):
         bodies.Body.__init__(self, master,
                              [Skull], 'twister_body',
                              [on_collide_damage(1)])
-        self.skull = sprite.Sprite(consts['img']['skull'])
-        self.master.add(self.skull)
+        self.make_animation(self.anim, 'Twister')
+        #self.skull = sprite.Sprite(consts['img']['skull'])
+        #self.master.add(self.skull)
 
 
 class Stalk(brains.Task):
@@ -76,6 +78,7 @@ class Stalk(brains.Task):
             d = dst/abs(dst) if abs(dst) != 0 else 0
             #print dst
             self.master.walk(self.master.direction)
+            Animate(self.master, 'windwalk')
             if self.master.wall & (con.LEFT | con.RIGHT):
                 self.master.push_inst_task(brains.Jump(self.master))
             if d != self.master.direction:

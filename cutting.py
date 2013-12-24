@@ -23,6 +23,7 @@ class Dealing_With_Animations(cocos.layer.Layer):
         self.pyg_anim = pyglet.image.Animation.from_image_sequence(image_sequence, 0.2, True)
         for i in range(len(self.duration_list)):
             self.pyg_anim.frames[i].duration = float(self.duration_list[i])
+            print self.pyg_anim.frames[i].duration
         self.animation = cocos.sprite.Sprite(self.pyg_anim)
         self.animation.position = (300, 300)
         self.add(self.animation)
@@ -59,6 +60,7 @@ class FrameMenu(Menu):
 
         items = [EntryMenuItem('Number of Frame', self.on_change_frame, str(0)),
                  EntryMenuItem('Its duration', self.on_change_duration, str(0)),
+                 EntryMenuItem('Change duration for all frames', self.on_change_duration, str(0)),
                  MenuItem('Back', self.on_back)]
         self.create_menu(items)
 
@@ -67,6 +69,12 @@ class FrameMenu(Menu):
 
     def on_change_duration(self, value):
         self.d.duration_list[int(self.frame)] = value
+
+    def on_change_duration(self, value):
+        print 'here'
+        for i in range(len(self.d.frames)):
+            #print i, value
+            self.d.duration_list[i] = value
 
     def on_back(self):
         self.parent.switch_to(0)
