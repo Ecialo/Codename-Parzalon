@@ -183,8 +183,8 @@ class Random_Attack(Task):
         h = rnd.randint(-self.master.height/2, self.master.height/2)
         h += self.master.position[1]
         x = self.master.position[0] + self.master.width*dire
-        targ_x = target.position[0] + rnd.randint(-target.width/2, -target.width/2)
-        targ_y = target.position[1] + rnd.randint(-target.height/2, -target.height/2)
+        targ_x = target.position[0] + rnd.randint(-target.width/2, target.width/2)
+        targ_y = target.position[1] + rnd.randint(-target.height/2, target.height/2)
         start = eu.Vector2(x, h)
         end = (targ_x, targ_y)
         self.master.use_hand(hand, [start, con.CHOP], [end])
