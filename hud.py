@@ -25,7 +25,7 @@ class ResizableLayer(Layer, EventDispatcher):
         self.dx = width - self.cur_x
         self.dy = height - self.cur_y
         self.cur_x, self.cur_y = width, height
-        self.dispatch_event('on_hud_shift_needed', self.dx, self.dy)
+        self.dispatch_event('on_hud_shift_needed')
 
 ResizableLayer.register_event_type('on_hud_shift_needed')
 
@@ -75,21 +75,21 @@ class DudeDamageLayer(ResizableLayer):
         return armored
 
     def _init_body_parts(self, layer_type='front'):
-        self.ui_body[layer_type]['head'] = Sprite(consts['hud']['body'][layer_type]['head'])
-        self.ui_body[layer_type]['head'].position = (50, self.cur_y-50)
-        self.ui_body[layer_type]['chest'] = Sprite(consts['hud']['body'][layer_type]['chest'])
-        self.ui_body[layer_type]['chest'].position = (50, self.cur_y-85)
-        self.ui_body[layer_type]['left_arm'] = Sprite(consts['hud']['body'][layer_type]['left_arm'])
-        self.ui_body[layer_type]['left_arm'].position = (34, self.cur_y-90)
-        self.ui_body[layer_type]['right_arm'] = Sprite(consts['hud']['body'][layer_type]['right_arm'])
-        self.ui_body[layer_type]['right_arm'].position = (66, self.cur_y-91)
-        self.ui_body[layer_type]['legs'] = Sprite(consts['hud']['body'][layer_type]['legs'])
-        self.ui_body[layer_type]['legs'].position = (50, self.cur_y-119)
+        self.ui_body[layer_type]['head'] = Sprite(consts['hud']['body'][layer_type]['head'],
+                                                  position=(50, self.cur_y-50))
+        self.ui_body[layer_type]['chest'] = Sprite(consts['hud']['body'][layer_type]['chest'],
+                                                   position=(50, self.cur_y-85))
+        self.ui_body[layer_type]['left_arm'] = Sprite(consts['hud']['body'][layer_type]['left_arm'],
+                                                      position=(34, self.cur_y-90))
+        self.ui_body[layer_type]['right_arm'] = Sprite(consts['hud']['body'][layer_type]['right_arm'],
+                                                       position=(66, self.cur_y-91))
+        self.ui_body[layer_type]['legs'] = Sprite(consts['hud']['body'][layer_type]['legs'],
+                                                  position=(50, self.cur_y-119))
 
-    def on_hud_shift_needed(self, dx, dy):
+    def on_hud_shift_needed(self):
         for layer_type in ('back', 'front', 'armored'):
             for body_part in self.ui_body[layer_type]:
-                self.ui_body[layer_type][body_part].y += dy
+                self.ui_body[layer_type][body_part].y += self.dy
 
     def on_take_damage(self, body_part):
         armor_damage = False
@@ -141,13 +141,13 @@ class DudeStatusLayer(ResizableLayer):
 
         self.add(self.ui_health_bar)
 
-    def on_hud_shift_needed(self, dx, dy):
+    def on_hud_shift_needed(self):
         for icon in self.ui_status_icons:
-            self.ui_status_icons[icon].y += dy
+            self.ui_status_icons[icon].y += self.dy
         self.ui_health_bar.start = (self.ui_health_bar.start[0],
-                                    self.ui_health_bar.start[1] + dy)
+                                    self.ui_health_bar.start[1] + self.dy)
         self.ui_health_bar.end = (self.ui_health_bar.end[0],
-                                  self.ui_health_bar.end[1] + dy)
+                                  self.ui_health_bar.end[1] + self.dy)
 
     def on_take_damage(self, body_part):
         hb = self.ui_health_bar
@@ -156,7 +156,7 @@ class DudeStatusLayer(ResizableLayer):
                   self.cur_y-50)
 
     def on_death(self, hero):
-        self.ui_health_bar.end = (self.bar_orig_x, self.cur_y-50)
+        self.ui_health_bar.end = (self.bar_orig_x, self.cur_y-50)  # zero length bar
 
 
 class HUD(cocos.layer.Layer):
