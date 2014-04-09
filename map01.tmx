@@ -46,7 +46,7 @@
   </data>
  </layer>
  <objectgroup name="Scripts" width="100" height="100">
-  <object name="player_start" type="Position" x="16" y="2159" width="181" height="108">
+  <object name="player_start" type="Position" x="192" y="1917" width="181" height="108">
    <properties>
     <property name="start_entry" value="yes"/>
    </properties>

@@ -45,17 +45,28 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
         self.b2body = self.world.CreateDynamicBody(position=position, userData=self)
         if cshape:
             self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(cshape.rx, cshape.ry))))
+            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-cshape.rx, -cshape.ry),
+                                                                           vertex2=(cshape.rx, -cshape.ry)),
+                                                      isSensor=True))
         self.cshape = cshape
         if cshape:
             self.cshape.center = eu.Vector2(*position)
         self.wall = con.NO_TR
+        self.ground_count = 0
         self.on_ground = False
+
+    # def move_to(self, x, y):
+    #     old = self.cshape.center.copy()
+    #     vec = eu.Vector2(int(x), int(y))
+    #     self._move(*(vec-old))
 
     def _move(self, dx, dy):
         """
         Try to move Actor on dx, ndy with registrations all collisions
         with map.
         """
+        self.b2move(dx,dy)
+        return
         self.on_ground = False
         self.wall = con.NO_TR
         #if self.cshape:
@@ -78,19 +89,36 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
         self.cshape.center += vec
 
     def update(self, dt):
+        self.b2update()
+        return
         dy = self.vertical_speed * dt if self.vertical_speed != 0 else 0
         dx = self.horizontal_speed * dt if self.horizontal_speed != 0 else 0
-        self.b2update((self.horizontal_speed, self.vertical_speed))
-        #self._move(dx, dy)
-        # if not self.on_ground:
-        #     self.vertical_speed -= consts['gravity'] * dt
-        # else:
-        #     self.vertical_speed = 0
-        # speed = abs(self.horizontal_speed)
-        # d = self.horizontal_speed/speed if self.horizontal_speed != 0 else 0
-        # if self.on_ground:
-        #     speed -= consts['rubbing'] * dt
-        # self.horizontal_speed = speed * d if speed >= 0 else 0
+        self._move(dx, dy)
+        if not self.on_ground:
+            self.vertical_speed -= consts['gravity'] * dt
+        else:
+            self.vertical_speed = 0
+        speed = abs(self.horizontal_speed)
+        d = self.horizontal_speed/speed if self.horizontal_speed != 0 else 0
+        if self.on_ground:
+            speed -= consts['rubbing'] * dt
+        self.horizontal_speed = speed * d if speed >= 0 else 0
 
-    def b2update(self, velocity):
-        self.b2body.linearVelocity = velocity
+    def b2move(self, dx, dy):
+        self.b2body.position += (dx,dy)
+        #self.position = (self.position[0]+dx, self.position[1]+dy)
+
+    def b2update(self):
+        if self.on_ground:
+            self.b2body.linearVelocity = (self.horizontal_speed, self.vertical_speed)
+        else:
+            (self.horizontal_speed, self.vertical_speed) = self.b2body.linearVelocity
+        #print (self.b2body.linearVelocity)
+        self.position = self.b2body.position
+        self.cshape.center = self.b2body.position
+        # for contact_edge in self.b2body.contacts:
+        #     contact = contact_edge.contact
+        #     #print "AABB"
+        #     if contact.touching:
+        #         if contact.fixtureB.body.userData.actions[0].fight_group == 1:
+        #             print "LOL"

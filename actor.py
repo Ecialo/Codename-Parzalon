@@ -58,7 +58,8 @@ class Actor(movable_object.Movable_Object):
     is_event_handler = True
 
     def __init__(self, body):
-        super(Actor, self).__init__(body.img)
+        cshape = cm.AARectShape(eu.Vector2(0, 0), TILE_SIZE/2, body.img.height/2)
+        super(Actor, self).__init__(body.img, cshape=cshape)
 
         self.fight_group = -1
 
@@ -70,7 +71,6 @@ class Actor(movable_object.Movable_Object):
         self.launcher = Launcher(self)
         self.state = 'stand'
         self.inventory = Inventory(None, None, None, None, self)
-        self.cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
 
 
         self.recovery = 0.0  # Time before moment when acton can be controlled again
@@ -185,7 +185,6 @@ class Actor(movable_object.Movable_Object):
         Actor jump with his body jump speed.
         """
         self.vertical_speed = consts['params']['human']['jump_speed']
-        self.on_ground = False
 
     def move_to(self, x, y):
         """
@@ -195,6 +194,7 @@ class Actor(movable_object.Movable_Object):
         vec = eu.Vector2(int(x), int(y))
         self.position = vec
         self.cshape.center = vec
+        self.b2body.position = vec
         map(lambda hand: hand.attached_move(vec - old), self.hands)
 
     def choose_free_hand(self):

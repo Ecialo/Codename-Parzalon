@@ -34,7 +34,7 @@
    <property name="transparent" value="yes"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJztwwEJAAAMBKH7/qWXY6Dgqqmq+uoB+w0Ccg==
+   eJxjZGBgYBzFo3gUj2I6YGxgoN00ikfxKB7FQxUDAOCRAm0=
   </data>
  </layer>
  <layer name="Player Level" width="25" height="25">
@@ -42,7 +42,7 @@
    <property name="obstackle" value="yes"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJw7yMDAcJAOmJZg1I5RO6hh1kCk56EWVpTaQUlYDiZ/DBY7Rstd4sygxA5qlAlDJazIsWO0TMRvB60xAPLKYsQ=
+   eJw7yMDAcJAOmJGGeNSOUTtG7Ri1Y9SOUTtG7Ri1Y7DZQWsMAC+8SnI=
   </data>
  </layer>
  <objectgroup name="Scripts" width="25" height="25">

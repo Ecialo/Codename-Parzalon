@@ -68,6 +68,45 @@ Script_Manager.register_event_type('loose')
 Script_Manager.register_event_type('win')
 
 
+class b2Listener(b2.b2ContactListener):
+    def __init__(self):
+        b2.b2ContactListener.__init__(self)
+    def BeginContact(self, contact):
+        fa = contact.fixtureA
+        fb = contact.fixtureB
+        sa = fa.sensor
+        sb = fb.sensor
+        if sa or sb:
+            if sb:
+                sensor = fb
+                other = fa
+            else:
+                sensor = fa
+                other = fb
+            sensor.body.userData.ground_count += 1
+            sensor.body.userData.on_ground = True
+
+    def EndContact(self, contact):
+        fa = contact.fixtureA
+        fb = contact.fixtureB
+        sa = fa.sensor
+        sb = fb.sensor
+        if sa or sb:
+            if sb:
+                sensor = fb
+                other = fa
+            else:
+                sensor = fa
+                other = fb
+            sensor.body.userData.ground_count -= 1
+            if sensor.body.userData.ground_count == 0:
+                sensor.body.userData.on_ground = False
+    def PreSolve(self, contact, oldManifold):
+        pass
+    def PostSolve(self, contact, impulse):
+        pass
+
+
 class Location_Layer(layer.ScrollableLayer):
 
     is_event_handler = True
@@ -86,9 +125,11 @@ class Location_Layer(layer.ScrollableLayer):
         #self.scripts = scripts
 
         #Box2D world
-        self.b2world = b2.b2World(gravity=(0, 0))
+        self.b2world = b2.b2World(gravity=(0, -100),#-con.tiles_value_to_pixel_value(con.GRAVITY)),
+                                  contactListener=b2Listener())
         self.b2level = self.b2world.CreateStaticBody()
         self._create_b2_tile_map(force_ground)
+        #print self.b2world
 
         #Collision managers. For static global and dynamic screen objects
         self.script_manager = Script_Manager()
@@ -160,13 +201,14 @@ class Location_Layer(layer.ScrollableLayer):
         i = 0
         for cell_column in cells:
             for cell in cell_column:
-                #print i
-                i += 1
-                #print self.b2world
-                shape.SetAsBox(WIDTH, HEIGHT, cell.center, 0)
-                self.b2level.CreateFixture(shape=shape, userData=cell)
-                #if i>9990:
-                #   temp = self.b2world
+                if cell.get('top'):
+                    #print i
+                    i += 1
+                    #print self.b2world
+                    shape.SetAsBox(WIDTH, HEIGHT, cell.center, 0)
+                    self.b2level.CreateFixture(shape=shape, userData=cell)
+                    #if i>9990:
+                    #   temp = self.b2world
         #print "TEST21"
 
     def run(self):
