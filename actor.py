@@ -8,6 +8,7 @@ from cocos import layer
 
 import movable_object
 import consts as con
+from consts import TILE_SIZE
 import collides as coll
 from inventory import Inventory
 

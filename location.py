@@ -1,15 +1,11 @@
 __author__ = 'Ecialo'
 
-#import pyglet
-from pyglet.window import key
-from pyglet.window import mouse
 from pyglet import event
 
-import cocos
-from cocos.director import director
 from cocos import collision_model as cm
 from cocos import layer
-from cocos import tiles
+
+import Box2D as b2
 
 import movable_object
 import effects as eff
@@ -17,19 +13,12 @@ import actor as ac
 import obj_db as db
 import consts as con
 import brains as br
-import cocos.euclid as eu
-import math
-from vertex_research import TestLayer
-from inventory import Inventory
-
-from cocos.actions.grid3d_actions import FlipY3D
 
 consts = con.consts
 
-from collides import cross_angle
-
 
 def _spawn_unit(level, name, pos):
+    #print "LOLOLO"
     un_par = db.objs[name]
     unit = ac.Actor(un_par['body'])
     map(lambda x: unit.get_item(x()(level)), un_par['items'])
@@ -96,6 +85,11 @@ class Location_Layer(layer.ScrollableLayer):
         self.force_ground = force_ground
         #self.scripts = scripts
 
+        #Box2D world
+        self.b2world = b2.b2World(gravity=(0, 0))
+        self.b2level = self.b2world.CreateStaticBody()
+        self._create_b2_tile_map(force_ground)
+
         #Collision managers. For static global and dynamic screen objects
         self.script_manager = Script_Manager()
         self.script_manager.push_handlers(self)
@@ -115,14 +109,6 @@ class Location_Layer(layer.ScrollableLayer):
         #Append hero
         self.hero = None
 
-        #Move guys to location
-        for sc in scripts:
-            if 'spawn' in sc.properties:
-                #r = self.opponent.get_rect()
-                #r.midbottom = sc.midbottom
-                dx, dy = sc.center
-                self.spawn(sc.properties['spawn'], (dx, dy))
-
     def connect(self, level):
         #self.script_manager.push_handlers(level)
         self.script_manager.push_handlers(level)
@@ -135,6 +121,8 @@ class Location_Layer(layer.ScrollableLayer):
     def prepare(self, spawn_point, hero):
         #print spawn_point, hero
         movable_object.Movable_Object.tilemap = self.force_ground
+        movable_object.Movable_Object.world = self.b2world
+        #print "ZEBRA"
         br.Task.environment = self.force_ground
         eff.Advanced_Emitter.surface = self  # This bad
         #self.loc_key_handler
@@ -142,17 +130,44 @@ class Location_Layer(layer.ScrollableLayer):
             if spawn_point in sc.properties:
                 #r = self.hero.get_rect()
                 #r.midbottom = sc.midbottom
+                print hero
                 dx, dy = sc.center
                 self.spawn(hero, (dx, dy))
+                #print "LOSHADKA"
         if hero is not 'hero':
             self.hero = hero
+        print "Prepared"
         #print self.hero._event_stack
         self.hero.push_handlers(self)
         self.hero.refresh_environment(self)
         self.hero.show_hitboxes()
-        #print self.scroller
+        print self.scroller
+        for sc in self.scripts.known_objs():
+            if 'spawn' in sc.properties:
+                #r = self.opponent.get_rect()
+                #r.midbottom = sc.midbottom
+                dx, dy = sc.center
+                self.spawn(sc.properties['spawn'], (dx, dy))
         self.run()
         #self.scroller.set_focus(*self.hero.position)
+
+    def _create_b2_tile_map(self, rect_map):
+        WIDTH, HEIGHT = con.TILE_SIZE/2, con.TILE_SIZE/2
+        cells = rect_map.cells
+
+        shape = b2.b2PolygonShape()
+        #print "TEST"
+        i = 0
+        for cell_column in cells:
+            for cell in cell_column:
+                #print i
+                i += 1
+                #print self.b2world
+                shape.SetAsBox(WIDTH, HEIGHT, cell.center, 0)
+                self.b2level.CreateFixture(shape=shape, userData=cell)
+                #if i>9990:
+                #   temp = self.b2world
+        #print "TEST21"
 
     def run(self):
         self.schedule(self.update)
@@ -183,6 +198,7 @@ class Location_Layer(layer.ScrollableLayer):
             self.script_manager.activate_event(ev, self.hero, self)
             self.scripts.remove_tricky(ev)
 
+        self.b2world.Step(dt, 1, 1)
         self.collman.clear()
         for hit in self.hits:
             if hit.uncompleteness() <= 0.01 and not hit.completed:
@@ -214,8 +230,10 @@ class Location_Layer(layer.ScrollableLayer):
 
     def spawn(self, obj, pos):
         if obj in db.objs:
+            #print "SLONIK"
             self._spawn[db.objs[obj]['type']](self, obj, pos)
         elif isinstance(obj, ac.Actor):
+            #print "ZIRAFIK"
             _spawn_prepared_unit(self, obj, pos)
 
     def on_launch_missile(self, missile):

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="25" height="25" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="mytileset_01" tilewidth="32" tileheight="32">
+  <image source="../Codename-Parzalon/mytileset_01.png" width="507" height="382"/>
+ </tileset>
+ <tileset firstgid="166" name="5z1KX" tilewidth="32" tileheight="32">
+  <image source="../Codename-Parzalon/5z1KX.png" width="736" height="672"/>
+  <tile id="27">
+   <properties>
+    <property name="bottom" value="yes"/>
+    <property name="left" value="yes"/>
+    <property name="right" value="yes"/>
+    <property name="top" value="yes"/>
+   </properties>
+  </tile>
+  <tile id="28">
+   <properties>
+    <property name="top" value="yes"/>
+   </properties>
+  </tile>
+  <tile id="29">
+   <properties>
+    <property name="top" value="yes"/>
+   </properties>
+  </tile>
+  <tile id="449">
+   <properties>
+    <property name="Player_start" value="yes"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Background" width="25" height="25">
+  <properties>
+   <property name="transparent" value="yes"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJztwwEJAAAMBKH7/qWXY6Dgqqmq+uoB+w0Ccg==
+  </data>
+ </layer>
+ <layer name="Player Level" width="25" height="25">
+  <properties>
+   <property name="obstackle" value="yes"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJw7yMDAcJAOmJZg1I5RO6hh1kCk56EWVpTaQUlYDiZ/DBY7Rstd4sygxA5qlAlDJazIsWO0TMRvB60xAPLKYsQ=
+  </data>
+ </layer>
+ <objectgroup name="Scripts" width="25" height="25" visible="0"/>
+</map>
