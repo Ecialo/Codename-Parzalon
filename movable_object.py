@@ -8,7 +8,7 @@ import consts as con
 
 consts = con.consts
 
-
+#
 class Level_Collider(tiles.RectMapCollider):
 
     def collide_bottom(self, dy):
