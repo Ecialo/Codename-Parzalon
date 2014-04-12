@@ -16,8 +16,17 @@ GRAVITY = 50
 
 
 def tiles_value_to_pixel_value(tiles):
-    return float(tiles*TILE_SIZE)
+    #return float(tiles*TILE_SIZE)
+    if hasattr(tiles, '__iter__'):
+        return type(tiles)([x*1.0*TILE_SIZE for x in tiles])
+    else:
+        return tiles*1.0*TILE_SIZE
 
+def pixel_value_to_tiles_value(pixels):
+    if hasattr(pixels, '__iter__'):
+        return type(pixels)([x*1.0/TILE_SIZE for x in pixels])
+    else:
+        return pixels*1.0/TILE_SIZE
 
 def jump_height_to_pixel_speed(height_in_tiles):
     return tiles_value_to_pixel_value(sqrt(2*GRAVITY*height_in_tiles))

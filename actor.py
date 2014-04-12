@@ -194,7 +194,7 @@ class Actor(movable_object.Movable_Object):
         vec = eu.Vector2(int(x), int(y))
         self.position = vec
         self.cshape.center = vec
-        self.b2body.position = vec
+        self.b2body.position = con.pixel_value_to_tiles_value((vec.x, vec.y))
         map(lambda hand: hand.attached_move(vec - old), self.hands)
 
     def choose_free_hand(self):
