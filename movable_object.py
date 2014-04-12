@@ -53,6 +53,7 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
             self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=pix_to_tile((-cshape.rx, -cshape.ry)),
                                                                            vertex2=pix_to_tile((cshape.rx, -cshape.ry))),
                                                       isSensor=True))
+            self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.onGroundBegin, self.onGroundEnd)
         self.cshape = cshape
         if cshape:
             self.cshape.center = eu.Vector2(*position)
@@ -92,6 +93,15 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
         # vec = eu.Vector2(int(ndx), int(ndy))
         # self.position += vec
         # self.cshape.center += vec
+
+    def onGroundBegin(self, fixture):
+        self.ground_count += 1
+        self.on_ground = True
+
+    def onGroundEnd(self, fixture):
+        self.ground_count -= 1
+        if self.ground_count == 0:
+            self.on_ground = False
 
     def update(self, dt):
         self.b2update()

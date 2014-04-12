@@ -68,43 +68,81 @@ Script_Manager.register_event_type('loose')
 Script_Manager.register_event_type('win')
 
 
+# class oldb2Listener(b2.b2ContactListener):
+#     def __init__(self):
+#         b2.b2ContactListener.__init__(self)
+#     def BeginContact(self, contact):
+#         fa = contact.fixtureA
+#         fb = contact.fixtureB
+#         sa = fa.sensor
+#         sb = fb.sensor
+#         if sa or sb:
+#             if sb:
+#                 sensor = fb
+#                 other = fa
+#             else:
+#                 sensor = fa
+#                 other = fb
+#             sensor.body.userData.ground_count += 1
+#             sensor.body.userData.on_ground = True
+#
+#     def EndContact(self, contact):
+#         fa = contact.fixtureA
+#         fb = contact.fixtureB
+#         sa = fa.sensor
+#         sb = fb.sensor
+#         if sa or sb:
+#             if sb:
+#                 sensor = fb
+#                 other = fa
+#             else:
+#                 sensor = fa
+#                 other = fb
+#             sensor.body.userData.ground_count -= 1
+#             if sensor.body.userData.ground_count == 0:
+#                 sensor.body.userData.on_ground = False
+#     def PreSolve(self, contact, oldManifold):
+#         pass
+#     def PostSolve(self, contact, impulse):
+#         pass
+
 class b2Listener(b2.b2ContactListener):
     def __init__(self):
         b2.b2ContactListener.__init__(self)
+        self.beginHandlers = {}
+        self.endHandlers = {}
     def BeginContact(self, contact):
-        fa = contact.fixtureA
-        fb = contact.fixtureB
-        sa = fa.sensor
-        sb = fb.sensor
-        if sa or sb:
-            if sb:
-                sensor = fb
-                other = fa
-            else:
-                sensor = fa
-                other = fb
-            sensor.body.userData.ground_count += 1
-            sensor.body.userData.on_ground = True
-
+        fixtureA = contact.fixtureA
+        fixtureB = contact.fixtureB
+        try:
+            self.beginHandlers[fixtureA](fixtureB)
+        except KeyError:
+            pass
+        try:
+            self.beginHandlers[fixtureB](fixtureA)
+        except KeyError:
+            pass
     def EndContact(self, contact):
-        fa = contact.fixtureA
-        fb = contact.fixtureB
-        sa = fa.sensor
-        sb = fb.sensor
-        if sa or sb:
-            if sb:
-                sensor = fb
-                other = fa
-            else:
-                sensor = fa
-                other = fb
-            sensor.body.userData.ground_count -= 1
-            if sensor.body.userData.ground_count == 0:
-                sensor.body.userData.on_ground = False
+        fixtureA = contact.fixtureA
+        fixtureB = contact.fixtureB
+        try:
+            self.endHandlers[fixtureA](fixtureB)
+        except KeyError:
+            pass
+        try:
+            self.endHandlers[fixtureB](fixtureA)
+        except KeyError:
+            pass
     def PreSolve(self, contact, oldManifold):
         pass
     def PostSolve(self, contact, impulse):
         pass
+    def addEventHandler(self, listener, beginHandler, endHandler):
+        self.beginHandlers[listener] = beginHandler
+        self.endHandlers[listener] = endHandler
+    def removeEventHandler(self, listener):
+        del self.beginHandlers[listener]
+        del self.endHandlers[listener]
 
 
 class Location_Layer(layer.ScrollableLayer):
