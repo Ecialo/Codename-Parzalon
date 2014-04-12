@@ -125,7 +125,7 @@ class Location_Layer(layer.ScrollableLayer):
         #self.scripts = scripts
 
         #Box2D world
-        self.b2world = b2.b2World(gravity=(0, -100),#-con.tiles_value_to_pixel_value(con.GRAVITY)),
+        self.b2world = b2.b2World(gravity=(0, -con.GRAVITY),
                                   contactListener=b2Listener())
         self.b2level = self.b2world.CreateStaticBody()
         self._create_b2_tile_map(force_ground)
@@ -193,7 +193,7 @@ class Location_Layer(layer.ScrollableLayer):
         #self.scroller.set_focus(*self.hero.position)
 
     def _create_b2_tile_map(self, rect_map):
-        WIDTH, HEIGHT = con.TILE_SIZE/2, con.TILE_SIZE/2
+        # WIDTH, HEIGHT = con.TILE_SIZE/2, con.TILE_SIZE/2
         cells = rect_map.cells
 
         shape = b2.b2PolygonShape()
@@ -205,7 +205,7 @@ class Location_Layer(layer.ScrollableLayer):
                     #print i
                     i += 1
                     #print self.b2world
-                    shape.SetAsBox(WIDTH, HEIGHT, cell.center, 0)
+                    shape.SetAsBox(0.5, 0.5, con.pixel_value_to_tiles_value(cell.center), 0)
                     self.b2level.CreateFixture(shape=shape, userData=cell)
                     #if i>9990:
                     #   temp = self.b2world
