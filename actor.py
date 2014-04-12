@@ -68,9 +68,8 @@ class Actor(movable_object.Movable_Object):
         self.body = body(self)
         self.launcher = Launcher(self)
         self.state = 'stand'
-        self.inventory = Inventory(None, None, None, None, self)
+        self.inventory = Inventory(self)
         self.cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
-
 
         self.recovery = 0.0  # Time before moment when acton can be controlled again
         #self.scale = 0.5
@@ -80,6 +79,9 @@ class Actor(movable_object.Movable_Object):
     height = property(lambda self: self.body.img.height)
     width = property(lambda self: self.body.img.width)
     #attack_perform = property(lambda self: self.hands[0].attack_perform)
+
+    def current_main_item(self):
+        return self.inventory.main_item
 
     def item_update(self, dt):
         map(lambda x: x.item_update(dt), self.hands)
@@ -103,9 +105,6 @@ class Actor(movable_object.Movable_Object):
         map(lambda item: item(environment), self.hands)
 
     def get_item(self, item):
-        self.inventory.get_item(item)
-
-    def put_item(self, item):
         self.inventory.put_item(item)
 
     def open(self):
@@ -113,9 +112,6 @@ class Actor(movable_object.Movable_Object):
 
     def close(self):
         self.inventory.close()
-
-    def change_weapon(self):
-        self.inventory.change_weapon()
 
     def destroy(self):
         """

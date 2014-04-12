@@ -8,8 +8,8 @@ from os import path
 import pyglet
 from pyglet.window import key
 from pyglet.window import mouse
-consts = {'window': {'width': 800,
-                     'height': 600,
+consts = {'window': {'width': 1024,
+                     'height': 768,
                      'vsync': True,
                      'resizable': True,
                      'do_not_scale': True},

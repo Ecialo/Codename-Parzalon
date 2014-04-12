@@ -33,7 +33,7 @@ def _spawn_unit(level, name, pos):
     un_par = db.objs[name]
     unit = ac.Actor(un_par['body'])
     map(lambda x: unit.get_item(x()(level)), un_par['items'])
-    map(lambda x: unit.put_item(x()(level)), un_par['items'])
+    #map(lambda x: unit.put_item(x()(level)), un_par['items'])
     unit.move_to(*pos)
     if un_par['brain'].fight_group is consts['group']['hero'] and level.hero is None:
         level.hero = unit

@@ -2,8 +2,11 @@ __author__ = 'Ecialo'
 from random import randint
 from cocos import collision_model as cm
 from cocos import euclid as eu
+from cocos.tiles import Tile
 import movable_object as mova
 import consts as con
+
+SMALL, LARGE = xrange(2)
 
 
 def length(value):
@@ -36,6 +39,7 @@ def fire_rate(time_between_shots):
 class Item(mova.Movable_Object):
 
     slot = None
+    size = SMALL
 
     def __init__(self, img):
         cshape = cm.AARectShape(eu.Vector2(0, 0), img.width/2, img.height/2,)
@@ -43,6 +47,7 @@ class Item(mova.Movable_Object):
 
         self.master = None
 
+        self.inventory_representation = Tile(-1, {'item': self}, img)
         self.item_update = lambda dt: None
 
     def __call__(self, environment):

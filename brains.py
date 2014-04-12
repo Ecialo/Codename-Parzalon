@@ -312,66 +312,66 @@ class Controlling(Task):
                 Animate(self.master, 'walk')
 
         #Action
-        items = len(self.hands)
-        first_hand_ac = self.mouse[self.bind['first_hand']]
-        alt = self.key[self.bind['alt_mode']]
-        pos = self.mouse['pos']
-        first_item = self.hands[con.FIRST_HAND]
-
-        if first_hand_ac and not first_item.on_use:
-            first_item.start_use(pos, con.STAB if alt else con.CHOP)
-        elif first_hand_ac and first_item.on_use and first_item.available:
-            #print "cont use"
-            first_item.continue_use(pos)
-        elif not first_hand_ac and first_item.on_use and first_item.available:
-            #print "end use"
-            first_item.end_use(pos)
-        else:
-            pass
-
-        if items > 1:
-            second_hand_ac = self.mouse[self.bind['second_hand']]
-            second_item = self.hands[con.SECOND_HAND]
-            if second_item:
-                if second_hand_ac and not second_item.on_use:
-                    second_item.start_use(pos, con.STAB if alt else con.CHOP)
-                elif second_hand_ac and second_item.on_use and second_item.available:
-                    second_item.continue_use(pos)
-                elif not second_hand_ac and second_item.on_use and second_item.available:
-                    second_item.end_use(pos)
-                else:
-                    pass
-            else:
-                pass
-
-        action = self.key[self.bind['action']]
-        if action:
-            #print "CONTROLLER", self.key
-            self.key[self.bind['action']] = False
-            triggers = filter(lambda sc: 'trigger' in sc.properties,
-                              self.triggers.iter_colliding(self.master))
-            #print list(triggers)
-            for tr in triggers:
-                self.master.activate_trigger(tr)
-
-        change = self.key[self.bind['change_weapon']]
-        if change:
-            self.key[self.bind['change_weapon']] = False
-            self.master.change_weapon()
-
-        gain = self.key[self.bind['gain']]
-        if gain:
-            self.key[self.bind['gain']] = False
-            items = self.static_objs.objs_touching_point(*pos)
-            for item in items:
-                if not self.hands[1]:
-                    self.hands[1] = item
-                if not self.hands[2]:
-                    self.hands[2] = item
-                else:
-                    self.hands.append(item)
-                self.master.put_item(item)
-                item.get_up()
+        # items = len(self.hands)
+        # first_hand_ac = self.mouse[self.bind['first_hand']]
+        # alt = self.key[self.bind['alt_mode']]
+        # pos = self.mouse['pos']
+        # first_item = self.hands[con.FIRST_HAND]
+        #
+        # if first_hand_ac and not first_item.on_use:
+        #     first_item.start_use(pos, con.STAB if alt else con.CHOP)
+        # elif first_hand_ac and first_item.on_use and first_item.available:
+        #     #print "cont use"
+        #     first_item.continue_use(pos)
+        # elif not first_hand_ac and first_item.on_use and first_item.available:
+        #     #print "end use"
+        #     first_item.end_use(pos)
+        # else:
+        #     pass
+        #
+        # if items > 1:
+        #     second_hand_ac = self.mouse[self.bind['second_hand']]
+        #     second_item = self.hands[con.SECOND_HAND]
+        #     if second_item:
+        #         if second_hand_ac and not second_item.on_use:
+        #             second_item.start_use(pos, con.STAB if alt else con.CHOP)
+        #         elif second_hand_ac and second_item.on_use and second_item.available:
+        #             second_item.continue_use(pos)
+        #         elif not second_hand_ac and second_item.on_use and second_item.available:
+        #             second_item.end_use(pos)
+        #         else:
+        #             pass
+        #     else:
+        #         pass
+        #
+        # action = self.key[self.bind['action']]
+        # if action:
+        #     #print "CONTROLLER", self.key
+        #     self.key[self.bind['action']] = False
+        #     triggers = filter(lambda sc: 'trigger' in sc.properties,
+        #                       self.triggers.iter_colliding(self.master))
+        #     #print list(triggers)
+        #     for tr in triggers:
+        #         self.master.activate_trigger(tr)
+        #
+        # change = self.key[self.bind['change_weapon']]
+        # if change:
+        #     self.key[self.bind['change_weapon']] = False
+        #     self.master.change_weapon()
+        #
+        # gain = self.key[self.bind['gain']]
+        # if gain:
+        #     self.key[self.bind['gain']] = False
+        #     items = self.static_objs.objs_touching_point(*pos)
+        #     for item in items:
+        #         if not self.hands[1]:
+        #             self.hands[1] = item
+        #         if not self.hands[2]:
+        #             self.hands[2] = item
+        #         else:
+        #             self.hands.append(item)
+        #         self.master.put_item(item)
+        #         item.get_up()
 
         inv = self.key[self.bind['inventory']]
         if inv and not self.pressed:
