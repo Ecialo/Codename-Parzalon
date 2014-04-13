@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="100" height="100" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="mytileset_01" tilewidth="32" tileheight="32">
-  <image source="mytileset_01.png" width="507" height="382"/>
+  <image source="../Codename-Parzalon/mytileset_01.png" width="507" height="382"/>
  </tileset>
  <tileset firstgid="166" name="5z1KX" tilewidth="32" tileheight="32">
-  <image source="5z1KX.png" width="736" height="672"/>
+  <image source="../Codename-Parzalon/5z1KX.png" width="736" height="672"/>
   <tile id="27">
    <properties>
     <property name="bottom" value="yes"/>
@@ -42,11 +42,11 @@
    <property name="obstackle" value="yes"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJzt2k1O60AQRWGbDTCBhTJifZiNoRpERMgB29TP7a7zSXeIeXDo8GyyLAAAAAAAAADQx4fDMj5PF/a1vqzXd6ZH9OeYAecDAOa0LbzmqtiW7x78n6TWrYXhfNS6b4FatNBBCx200EELHbTQQYtc3Ddo4b5aC+cDAABAE+/L0HLlPoZ7mTicj14iOx+93ufBdXD29fBsD4/rdXr2qnA+ftOphTpa6KCFDlrooIUOWuighQ5a6KCFDlrooIUOWuighQ5a6KCFDlqcs/3Yf/5G7LWu9n527fvxttata49HryOV56Lre2MUX9O79lBsYTr2UG1huvVQbmE69VBvYbr0GKGF6dBjlBZm9vvBkVrMjhY6OrZQe3721/WPvqd/b5XPT47u/clvHk3s41/X/V299u2cPbquyrx7eDTxPn9Kz96zz4fnOfEw4u+fiB4KTUZsYaJ6VDYZtYWJ7FHRZOQWJrpHZpPRW5iMHhlNZmhhsnpENpmlhcnsEdFkphYmu4dnk9lamIoeHk0iWjw7X++Kqh73TVjs85KK2fO46n8DY4wxxhhjjDHGGGOMsb77Aqg9Wjk=
+   eJzt2k1O60AQRWGbDWQCC2XE+jAbQzWISCIn+Keq63bX+aQ7fIbHoQM2mSYAAAAAAAAAqOPbYS0+ThX2f32fj29Pj+iPMQLOBwCMaZl4zVWxTH89+J0k17WF4Xzkum2BXLTQQQsdtNBBCx200EGLtrhv0MJ9tRbOBwAAgCbel6HlyH0M9zJxOB+1RHbeer2fjatg7+vh3h4e16v07FXhfLxSqYU6WuighQ5a6KCFDlrooIUOWuighQ5a6KCFDlrooIUOWuighQ5a7LM87MzfiL1W1dr3rn09Pue8Ve3x7HUk81xUfW+M4mt61R6KLUzFHqotTLUeyi1MpR7qLUyVHj20MBV69NLCRN4PKjTuqUW07B60uJfZo2ILtedn/11/63v615b5/GTrvt785tHE/v3HvL6j176es2fXVZl3D48m3udP6dl76/PheU489PjzJ6KHQpMeW5ioHplNem1hIntkNOm5hYnu0bJJ7y1Mix4tmozQwrTqEdlklBamZY+IJiO1MK17eDY52yL7d/I1GT08mnici8fP4XLyeh6yetw2YbHPSzJmz+OyPwfGGGOMMcYYY4wxxhhjdfcLb6hfgA==
   </data>
  </layer>
  <objectgroup name="Scripts" width="100" height="100">
-  <object name="player_start" type="Position" x="16" y="2159" width="181" height="108">
+  <object name="player_start" type="Position" x="192" y="1917" width="181" height="108">
    <properties>
     <property name="start_entry" value="yes"/>
    </properties>
