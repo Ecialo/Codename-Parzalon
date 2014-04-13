@@ -47,7 +47,7 @@ class Item(mova.Movable_Object):
 
         self.master = None
 
-        self.inventory_representation = Tile(-1, {'item': self}, img)
+        self.inventory_representation = Tile(1, {'item': self}, img)
         self.item_update = lambda dt: None
 
     def __call__(self, environment):

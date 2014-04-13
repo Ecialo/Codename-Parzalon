@@ -1,6 +1,5 @@
 import cocos.euclid as eu
 
-#Just a test for forking
 
 class Geometry(eu.Geometry):
 

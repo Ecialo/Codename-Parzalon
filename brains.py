@@ -438,9 +438,9 @@ class Brain(ac.Action):
         #self.tilemap = self.master.get_ancestor(cocos.layer.ScrollableLayer).force_ground
 
     def step(self, dt):
+        self.master.update(dt)
         self.sensing()
         self.activity(dt)
-        self.master.update(dt)
         
     def sensing(self):
         pass

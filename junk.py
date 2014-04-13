@@ -15,4 +15,3 @@ class Money(items.Item):
 class Apple(items.Item):
     def __init__(self):
         super(Apple, self).__init__(apple)
-

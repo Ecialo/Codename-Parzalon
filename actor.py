@@ -8,7 +8,6 @@ from cocos import layer
 
 import movable_object
 import consts as con
-from consts import TILE_SIZE
 import collides as coll
 from inventory import Inventory
 
@@ -58,8 +57,7 @@ class Actor(movable_object.Movable_Object):
     is_event_handler = True
 
     def __init__(self, body):
-        cshape = cm.AARectShape(eu.Vector2(0, 0), TILE_SIZE/2, body.img.height/2)
-        super(Actor, self).__init__(body.img, cshape=cshape)
+        super(Actor, self).__init__(body.img)
 
         self.fight_group = -1
 
@@ -72,7 +70,6 @@ class Actor(movable_object.Movable_Object):
         self.state = 'stand'
         self.inventory = Inventory(self)
         self.cshape = cm.AARectShape(eu.Vector2(0, 0), self.body.img.width/2, self.body.img.height/2)
-
 
         self.recovery = 0.0  # Time before moment when acton can be controlled again
         #self.scale = 0.5
@@ -193,7 +190,6 @@ class Actor(movable_object.Movable_Object):
         vec = eu.Vector2(int(x), int(y))
         self.position = vec
         self.cshape.center = vec
-        self.b2body.position = con.pixel_value_to_tiles_value((vec.x, vec.y))
         map(lambda hand: hand.attached_move(vec - old), self.hands)
 
     def choose_free_hand(self):
