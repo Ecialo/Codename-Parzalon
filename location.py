@@ -111,6 +111,7 @@ class b2Listener(b2.b2ContactListener):
         b2.b2ContactListener.__init__(self)
         self.beginHandlers = {}
         self.endHandlers = {}
+
     def BeginContact(self, contact):
         fixtureA = contact.fixtureA
         fixtureB = contact.fixtureB
@@ -122,6 +123,7 @@ class b2Listener(b2.b2ContactListener):
             self.beginHandlers[fixtureB](fixtureA)
         except KeyError:
             pass
+
     def EndContact(self, contact):
         fixtureA = contact.fixtureA
         fixtureB = contact.fixtureB
@@ -133,13 +135,17 @@ class b2Listener(b2.b2ContactListener):
             self.endHandlers[fixtureB](fixtureA)
         except KeyError:
             pass
+
     def PreSolve(self, contact, oldManifold):
         pass
+
     def PostSolve(self, contact, impulse):
         pass
+
     def addEventHandler(self, listener, beginHandler, endHandler):
         self.beginHandlers[listener] = beginHandler
         self.endHandlers[listener] = endHandler
+
     def removeEventHandler(self, listener):
         del self.beginHandlers[listener]
         del self.endHandlers[listener]
