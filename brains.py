@@ -18,6 +18,7 @@ consts = con.consts
 
 COMPLETE = True
 TASK_CHANGE_TIME = 0.1
+SECONDARY, MAIN = xrange(2)
 
 
 def cross_hit_trace(hit):
@@ -311,39 +312,14 @@ class Controlling(Task):
                 self.master.walk(hor_dir)
                 Animate(self.master, 'walk')
 
-        #Action
-        # items = len(self.hands)
-        # first_hand_ac = self.mouse[self.bind['first_hand']]
-        # alt = self.key[self.bind['alt_mode']]
-        # pos = self.mouse['pos']
-        # first_item = self.hands[con.FIRST_HAND]
-        #
-        # if first_hand_ac and not first_item.on_use:
-        #     first_item.start_use(pos, con.STAB if alt else con.CHOP)
-        # elif first_hand_ac and first_item.on_use and first_item.available:
-        #     #print "cont use"
-        #     first_item.continue_use(pos)
-        # elif not first_hand_ac and first_item.on_use and first_item.available:
-        #     #print "end use"
-        #     first_item.end_use(pos)
-        # else:
-        #     pass
-        #
-        # if items > 1:
-        #     second_hand_ac = self.mouse[self.bind['second_hand']]
-        #     second_item = self.hands[con.SECOND_HAND]
-        #     if second_item:
-        #         if second_hand_ac and not second_item.on_use:
-        #             second_item.start_use(pos, con.STAB if alt else con.CHOP)
-        #         elif second_hand_ac and second_item.on_use and second_item.available:
-        #             second_item.continue_use(pos)
-        #         elif not second_hand_ac and second_item.on_use and second_item.available:
-        #             second_item.end_use(pos)
-        #         else:
-        #             pass
-        #     else:
-        #         pass
-        #
+        #Use items
+        first_item_trigger = self.mouse[self.bind['first_hand']]
+        alt = self.key[self.bind['alt_mode']]
+        pos = self.mouse['pos']
+        self.master.use_item(MAIN, first_item_trigger, [pos, alt])
+        second_item_trigger = self.mouse[self.bind['second_hand']]
+        self.master.use_item(SECONDARY, second_item_trigger, [pos, alt])
+
         # action = self.key[self.bind['action']]
         # if action:
         #     #print "CONTROLLER", self.key

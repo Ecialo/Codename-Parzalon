@@ -87,6 +87,7 @@ class Inventory(layer.Layer):
         self.add(self.bag, z=1)
 
     def put_item(self, item):
+        item.set_master(self.master)
         if item.size is items.SMALL:
             self.bag.put_item(item)
         else:
@@ -107,7 +108,8 @@ class Inventory(layer.Layer):
         else:
             item_to_drop = self.armor[item.slot]
             self.armor[item.slot] = item
-        item_to_drop.drop()
+        if item_to_drop:
+            item_to_drop.drop()
 
     def drop_item(self, item):
         item.drop()

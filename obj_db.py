@@ -9,7 +9,7 @@ import junk
 objs = {'hero':     {'type': con.UNIT,
                      'brain': brains.Controller,
                      'body': bodies.Hero,
-                     'items': [junk.Money, junk.Apple]},
+                     'items': [weapons.Sword, junk.Money, junk.Apple]},
         'enemy':    {'type': con.UNIT,
                      'brain': brains.Base_Enemy_Mind,
                      'body': bodies.Human,

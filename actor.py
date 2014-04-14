@@ -13,6 +13,7 @@ from inventory import Inventory
 
 consts = con.consts
 
+SECONDARY, MAIN = xrange(2)
 
 def animate(func):
     def decorate(*args, **kwargs):
@@ -80,8 +81,21 @@ class Actor(movable_object.Movable_Object):
     width = property(lambda self: self.body.img.width)
     #attack_perform = property(lambda self: self.hands[0].attack_perform)
 
-    def current_main_item(self):
-        return self.inventory.main_item
+    def use_item(self, item_type, trigger, args):       # MAIN or SECONDARY
+        if item_type is MAIN:
+            item = self.inventory.main_item
+        else:
+            item = self.inventory.secondary_item
+
+        if not item:
+            return
+
+        if trigger and not item.on_use:
+            item.start_use(*args)
+        elif trigger and item.on_use and item.available:
+            item.continue_use(*args)
+        elif not trigger and item.on_use and item.available:
+            item.end_use(*args)
 
     def item_update(self, dt):
         map(lambda x: x.item_update(dt), self.hands)

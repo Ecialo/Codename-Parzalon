@@ -91,6 +91,7 @@ class Swing(Usage):
             stp = start_point.copy()
         else:
             stp = eu.Vector2(*start_point)
+        print "!!!!!", self.master
         stp = self.owner.from_global_to_self(stp)
         stp.x = stp.x/abs(stp.x) if stp.x != 0 else 0
         stp.x *= self.owner.width/2

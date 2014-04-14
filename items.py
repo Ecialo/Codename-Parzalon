@@ -80,6 +80,10 @@ class Item(mova.Movable_Object):
         if self.wall & con.DOWN:
             self.dispatch_event('on_lay_item', self)
             self.unschedule(self.update)
+
+    def set_master(self, master):
+        self.master = master
+
 Item.register_event_type('on_drop_item')
 Item.register_event_type('on_get_up_item')
 Item.register_event_type('on_lay_item')
@@ -88,6 +92,7 @@ Item.register_event_type('on_lay_item')
 class Usage_Item(Item):
 
     slot = con.HAND
+    size = LARGE
 
     def __init__(self, img, first_usage, second_usage,
                  mutators=con.EMPTY_LIST):
