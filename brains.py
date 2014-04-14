@@ -41,7 +41,7 @@ def Animate(master, name):
 
 class Task(object):
 
-    hands = property(lambda self: self.master.hands)
+    #hands = property(lambda self: self.master.hands)
     environment = None
 
     def __init__(self, master, time=None):

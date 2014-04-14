@@ -23,10 +23,11 @@ class Bag(No_Scroll_Rect_Map_Layer):
                                     for j in xrange(MAX_INVENTORY_SIZE)]
                                   for i in xrange(MAX_INVENTORY_SIZE)])
         self.master = master
-        self.origin_x = 400#16*MAX_INVENTORY_SIZE
-        self.origin_y = 0#16*MAX_INVENTORY_SIZE
+        #self.origin_x = 400#16*MAX_INVENTORY_SIZE
+        #self.origin_y = 0#16*MAX_INVENTORY_SIZE
 
         self.prev_cell = None
+        self.selected_cell = None
 
     def put_item(self, item):
         print item
@@ -36,10 +37,14 @@ class Bag(No_Scroll_Rect_Map_Layer):
                 cell.tile = item.inventory_representation
                 self.update_cell(cell)
                 return
-        #self.cells[3][3].tile = item
-        #self._update_sprite_set()
+
+    def swap_items_in_cells(self, cell_1, cell_2):
+        cell_1.tile, cell_2.tile = cell_2.tile, cell_1.tile
+        self.update_cell(cell_1)
+        self.update_cell(cell_2)
 
     def on_enter(self):
+        self.origin_x, self.origin_y = self.position
         super(Bag, self).on_enter()
 
     def on_mouse_motion(self, x, y, dx, dy):
@@ -52,6 +57,14 @@ class Bag(No_Scroll_Rect_Map_Layer):
             i, j = cell.i, cell.j
             self.set_cell_opacity(i, j, 126)
         self.prev_cell = cell
+
+    def on_mouse_press(self, x, y, buttons, modifers):
+        if self.selected_cell is None:
+            self.selected_cell = self.get_at_pixel(x, y)
+        else:
+            n_cell = self.get_at_pixel(x, y)
+            self.swap_items_in_cells(self.selected_cell, n_cell)
+            self.selected_cell = None
 
 
 class Inventory(layer.Layer):
