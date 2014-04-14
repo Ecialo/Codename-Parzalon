@@ -24,6 +24,8 @@ class Sword(items.Usage_Item):
 
 class Knife(items.Usage_Item):
 
+    size = items.SMALL
+
     def __init__(self):
         img = consts['img']['knife']
         first_usage = usages.Chop([onh.damage(1)])

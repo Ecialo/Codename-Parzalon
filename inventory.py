@@ -11,6 +11,27 @@ import pyglet
 empty = pyglet.image.SolidColorImagePattern((255, 255, 255, 255)).create_image(32, 32)
 
 MAX_INVENTORY_SIZE = 5
+INVENTORY_CELL_SIZE = 32
+
+
+class Belt_Cell(tiles.RectCell):
+
+    def __init__(self, i, j):
+        super(Belt_Cell).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
+                                  {'is_belt': True}, tiles.Tile(-1, {}, empty))
+
+
+class Inventory_Cell(tiles.RectCell):
+
+    def __init__(self, i, j):
+        super(Inventory_Cell).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
+                                       {'is_inventory': False}, tiles.Tile(-1, {}, empty))
+
+
+class Locked_Cell(tiles.RectCell):
+
+    def __init__(self, i, j):
+        super(Locked_Cell).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE, {}, None)
 
 
 class Bag(No_Scroll_Rect_Map_Layer):
@@ -18,7 +39,7 @@ class Bag(No_Scroll_Rect_Map_Layer):
     is_event_handler = True
 
     def __init__(self, master):
-        super(Bag, self).__init__(-1, 32, 32,
+        super(Bag, self).__init__(-1, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
                                   [[tiles.RectCell(i, j, 32, 32, {}, tiles.Tile(-1, {}, empty))
                                     for j in xrange(MAX_INVENTORY_SIZE)]
                                   for i in xrange(MAX_INVENTORY_SIZE)])
