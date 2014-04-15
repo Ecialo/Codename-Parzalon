@@ -31,7 +31,7 @@ class Knife(items.Usage_Item):
         first_usage = usages.Chop([onh.damage(1)])
         second_usage = usages.Throw([onh.damage(1)])
         items.Usage_Item.__init__(self, img, first_usage, second_usage,
-                                  [items.length(1)])
+                                  [items.length(1000)])
 
 
 class Musket(items.Usage_Item):

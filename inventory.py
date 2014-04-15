@@ -12,80 +12,122 @@ empty = pyglet.image.SolidColorImagePattern((255, 255, 255, 255)).create_image(3
 
 MAX_INVENTORY_SIZE = 5
 INVENTORY_CELL_SIZE = 32
+SEPARATE_ROW = 1
+BELT_ROW = 1
+BELT_CELL = -1
+NO_SCROLL = 0
 
 
 class Belt_Cell(tiles.RectCell):
 
-    def __init__(self, i, j):
-        super(Belt_Cell).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
+    def __init__(self, i):
+        j = MAX_INVENTORY_SIZE + SEPARATE_ROW
+        super(Belt_Cell, self).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
                                   {'is_belt': True}, tiles.Tile(-1, {}, empty))
 
 
 class Inventory_Cell(tiles.RectCell):
 
     def __init__(self, i, j):
-        super(Inventory_Cell).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
+        super(Inventory_Cell, self).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
                                        {'is_inventory': False}, tiles.Tile(-1, {}, empty))
 
 
 class Locked_Cell(tiles.RectCell):
 
     def __init__(self, i, j):
-        super(Locked_Cell).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE, {}, None)
+        super(Locked_Cell, self).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE, {}, None)
+
+
+class Belt(object):
+
+    def __init__(self, size):
+        self.size = size
+        self.items = [None for i in xrange(MAX_INVENTORY_SIZE)]
+        self.current = 0     # index for slots
+
+    def update_size(self, size):
+        if size < self.size:
+            self.current = 0
+        self.size = size
+
+    def select_secondary_item(self, scroll):
+        self.current = (self.current + scroll) % self.size
+        return self.items[self.current]
+
+    def set_new_item(self, item, index):
+        self.items[index] = item
 
 
 class Bag(No_Scroll_Rect_Map_Layer):
 
-    is_event_handler = True
+    is_event_handler = False
 
     def __init__(self, master):
-        super(Bag, self).__init__(-1, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
-                                  [[tiles.RectCell(i, j, 32, 32, {}, tiles.Tile(-1, {}, empty))
-                                    for j in xrange(MAX_INVENTORY_SIZE)]
-                                  for i in xrange(MAX_INVENTORY_SIZE)])
+
+        cells = []
+        for i in xrange(MAX_INVENTORY_SIZE):
+            column = []
+            for j in xrange(MAX_INVENTORY_SIZE + SEPARATE_ROW + BELT_ROW):
+                if j < MAX_INVENTORY_SIZE:
+                    column.append(Inventory_Cell(i, j))
+                else:
+                    column.append(Locked_Cell(i, j))
+            cells.append(column)
+
+        super(Bag, self).__init__(-1, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE, cells)
+        self.belt = Belt(0)
         self.master = master
         #self.origin_x = 400#16*MAX_INVENTORY_SIZE
         #self.origin_y = 0#16*MAX_INVENTORY_SIZE
 
-        self.prev_cell = None
-        self.selected_cell = None
+        self.set_belt_size(3)
+
+    def select_secondary_item(self, scroll):
+        return self.belt.select_secondary_item(scroll)
 
     def put_item(self, item):
         print item
         for cell in chain(*self.cells):
             if cell.tile.id == -1:
-                print cell.i, cell.j
+                #print cell.i, cell.j
                 cell.tile = item.inventory_representation
                 self.update_cell(cell)
                 return
+        else:
+            item.drop()
 
     def swap_items_in_cells(self, cell_1, cell_2):
         cell_1.tile, cell_2.tile = cell_2.tile, cell_1.tile
         self.update_cell(cell_1)
         self.update_cell(cell_2)
 
+    def set_new_belt_item(self, cell):
+        self.belt.set_new_item(cell.get('item'), cell.i)
+
+    def set_belt_size(self, belt_size):
+        old_belt_size = self.belt.size
+        if old_belt_size > belt_size:
+            l = belt_size
+            r = old_belt_size
+            for i in xrange(l, r):
+                n_cell = Locked_Cell(i, BELT_CELL)
+                content = self.cells[i][Belt_Cell].get('item')
+                self.cells[i][Belt_Cell] = n_cell
+                self.put_item(content)
+                self.update_cell(n_cell)
+        elif old_belt_size < belt_size:
+            l = old_belt_size
+            r = belt_size
+            for i in xrange(l, r):
+                n_cell = Belt_Cell(i)
+                self.cells[i][BELT_CELL] = n_cell
+                self.update_cell(n_cell)
+        self.belt.update_size(belt_size)
+
     def on_enter(self):
         self.origin_x, self.origin_y = self.position
         super(Bag, self).on_enter()
-
-    def on_mouse_motion(self, x, y, dx, dy):
-        prev_cell = self.prev_cell
-        cell = self.get_at_pixel(x, y)
-        if prev_cell:
-            i, j = prev_cell.i, prev_cell.j
-            self.set_cell_opacity(i, j, 255)
-        if cell:
-            i, j = cell.i, cell.j
-            self.set_cell_opacity(i, j, 126)
-        self.prev_cell = cell
-
-    def on_mouse_press(self, x, y, buttons, modifers):
-        if self.selected_cell is None:
-            self.selected_cell = self.get_at_pixel(x, y)
-        else:
-            n_cell = self.get_at_pixel(x, y)
-            self.swap_items_in_cells(self.selected_cell, n_cell)
-            self.selected_cell = None
 
 
 class Inventory(layer.Layer):
@@ -100,11 +142,14 @@ class Inventory(layer.Layer):
         self.armor = {}     # key is item.slot
         self.bag = Bag(master)
 
+        self.selected_cell = None
+        self.prev_cell = None
+
         buddy = sprite.Sprite('inventory.png')
         buddy.position = (400, 400)
         self.bag.position = (400, 0)
 
-        self.add(buddy)
+        #self.add(buddy)
         self.add(self.bag, z=1)
 
     def put_item(self, item):
@@ -122,6 +167,9 @@ class Inventory(layer.Layer):
     def close(self):
         self.kill()
 
+    def select_secondary_item(self, scroll=0):
+        self.secondary_item = self.bag.select_secondary_item(scroll)
+
     def change_item(self, item):
         if item.slot is consts.HAND:
             item_to_drop = self.main_item
@@ -134,5 +182,29 @@ class Inventory(layer.Layer):
 
     def drop_item(self, item):
         item.drop()
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        prev_cell = self.prev_cell
+        cell = self.bag.get_at_pixel(x, y)
+        if prev_cell and prev_cell.tile:
+            i, j = prev_cell.i, prev_cell.j
+            self.bag.set_cell_opacity(i, j, 255)
+        if cell and cell.tile:
+            i, j = cell.i, cell.j
+            self.bag.set_cell_opacity(i, j, 126)
+        self.prev_cell = cell
+
+    def on_mouse_press(self, x, y, buttons, modifers):
+        if not self.selected_cell:
+            self.selected_cell = self.bag.get_at_pixel(x, y)
+        else:
+            n_cell = self.bag.get_at_pixel(x, y)
+            self.bag.swap_items_in_cells(self.selected_cell, n_cell)
+            if n_cell.get('is_belt'):
+                self.bag.set_new_belt_item(n_cell)
+            if self.selected_cell.get('is_belt'):
+                self.bag.set_new_belt_item(self.selected_cell)
+            self.select_secondary_item()
+            self.selected_cell = None
 
 

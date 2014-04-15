@@ -295,30 +295,31 @@ class Controlling(Task):
         #print self.scroller
 
     def __call__(self, dt):
+        if not self.pressed:
         #print "intsak", id(self.scroller)
-        if self.key[self.bind['down']]:
-            self.master.sit()
-            Animate(self.master, 'sit')
-            #print "intsak", id(self.scroller)
-        else:
-            hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
-            if self.key[self.bind['jump']] and self.master.on_ground:
-                self.master.jump()
-                Animate(self.master, 'jump')
-            if hor_dir == 0:
-                self.master.stand()
-                Animate(self.master, 'stand')
-            elif hor_dir != 0 and self.master.on_ground:
-                self.master.walk(hor_dir)
-                Animate(self.master, 'walk')
+            if self.key[self.bind['down']]:
+                self.master.sit()
+                Animate(self.master, 'sit')
+                #print "intsak", id(self.scroller)
+            else:
+                hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
+                if self.key[self.bind['jump']] and self.master.on_ground:
+                    self.master.jump()
+                    Animate(self.master, 'jump')
+                if hor_dir == 0:
+                    self.master.stand()
+                    Animate(self.master, 'stand')
+                elif hor_dir != 0 and self.master.on_ground:
+                    self.master.walk(hor_dir)
+                    Animate(self.master, 'walk')
 
-        #Use items
-        first_item_trigger = self.mouse[self.bind['first_hand']]
-        alt = self.key[self.bind['alt_mode']]
-        pos = self.mouse['pos']
-        self.master.use_item(MAIN, first_item_trigger, [pos, alt])
-        second_item_trigger = self.mouse[self.bind['second_hand']]
-        self.master.use_item(SECONDARY, second_item_trigger, [pos, alt])
+            #Use items
+            first_item_trigger = self.mouse[self.bind['first_hand']]
+            alt = self.key[self.bind['alt_mode']]
+            pos = self.mouse['pos']
+            self.master.use_item(MAIN, first_item_trigger, [pos, alt])
+            second_item_trigger = self.mouse[self.bind['second_hand']]
+            self.master.use_item(SECONDARY, second_item_trigger, [pos, alt])
 
         # action = self.key[self.bind['action']]
         # if action:
