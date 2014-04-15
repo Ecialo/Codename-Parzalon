@@ -220,7 +220,7 @@ class Invisible_Hit_Zone(Hit_Zone):
         img = image.SolidColorImagePattern((0, 0, 0, 0)).create_image(width, height)
         Hit_Zone.__init__(self, master, img, v, speed, position, con.RECTANGLE, effects)
 
-
+#TODO: move to box2d
 class Missile(Hit_Zone):
 
     update = on_level_collide_destroy(non_gravity_update)

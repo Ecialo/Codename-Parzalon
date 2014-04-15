@@ -30,7 +30,7 @@ class Level_Collider(tiles.RectMapCollider):
         self.wall |= con.RIGHT
         #self.horizontal_speed = 0
 
-
+#TODO: move fixture adding to more specific classes
 class Movable_Object(cocos.sprite.Sprite, Level_Collider):
 
     tilemap = None
