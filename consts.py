@@ -22,14 +22,16 @@ def tiles_value_to_pixel_value(tiles):
     else:
         return tiles*1.0*TILE_SIZE
 
+
 def pixel_value_to_tiles_value(pixels):
     if hasattr(pixels, '__iter__'):
         return type(pixels)([pixel_value_to_tiles_value(x) for x in pixels])
     else:
         return pixels*1.0/TILE_SIZE
 
+
 def jump_height_to_pixel_speed(height_in_tiles):
-    return tiles_value_to_pixel_value(sqrt(2*GRAVITY*height_in_tiles))
+    return sqrt(2*GRAVITY*height_in_tiles)
 
 consts = {'window': {'width': 800,
                      'height': 600,
@@ -80,9 +82,9 @@ consts = {'window': {'width': 800,
                            },
                   'status': {'health_icon': pyglet.resource.image('ui_health_icon.png')},
                   },
-          'params': {'human': {'speed': tiles_value_to_pixel_value(7),
+          'params': {'human': {'speed': 7,
                                'jump_speed': jump_height_to_pixel_speed(4)},
-                     'primitive': {'range_of_vision': tiles_value_to_pixel_value(15),
+                     'primitive': {'range_of_vision': 15,
                                    'mastery': 0.05,
                                    'closest': 40}},
           'group': {'hero': 1,
@@ -92,8 +94,8 @@ consts = {'window': {'width': 800,
           'parry_cos_disp': 0.5,
           'effective_dst': 4.0/3.0,
           'test_slash_time': 0.8,
-          'gravity': tiles_value_to_pixel_value(50),
-          'rubbing': tiles_value_to_pixel_value(3),
+          'gravity': 50,
+          'rubbing': 3,
           'tile_size': 32,
           'slash_fight_group': 100,
           'missile_fight_group': 1000,
