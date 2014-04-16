@@ -31,7 +31,7 @@ def pixel_value_to_tiles_value(pixels):
 
 
 def jump_height_to_pixel_speed(height_in_tiles):
-    return tiles_value_to_pixel_value(sqrt(2*GRAVITY*height_in_tiles))
+    return sqrt(2*GRAVITY*height_in_tiles)
 
 consts = {'window': {'width': 800,
                      'height': 600,
@@ -83,7 +83,7 @@ consts = {'window': {'width': 800,
                   'status': {'health_icon': pyglet.resource.image('ui_health_icon.png')},
                   },
           'params': {'human': {'speed': 7,
-                               'jump_speed': 4},
+                               'jump_speed': jump_height_to_pixel_speed(4)},
                      'primitive': {'range_of_vision': 15,
                                    'mastery': 0.05,
                                    'closest': 40}},
