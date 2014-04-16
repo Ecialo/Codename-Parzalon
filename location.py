@@ -251,6 +251,8 @@ class Location_Layer(layer.ScrollableLayer):
                     #print self.b2world
                     shape.SetAsBox(0.5, 0.5, con.pixel_value_to_tiles_value(cell.center), 0)
                     self.b2level.CreateFixture(shape=shape, userData=cell)
+                    self.b2level.fixtures[-1].filterData.categoryBits = con.B2SMTH | con.B2LEVEL
+                    #self.b2level.fixtures[-1].maskBits = con.B2EVERY
                     #if i>9990:
                     #   temp = self.b2world
         #print "TEST21"

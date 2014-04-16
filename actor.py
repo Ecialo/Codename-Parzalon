@@ -5,6 +5,7 @@ from pyglet.event import EventDispatcher
 from cocos import collision_model as cm
 from cocos import euclid as eu
 from cocos import layer
+import Box2D as b2
 
 import movable_object
 import consts as con
@@ -59,7 +60,7 @@ class Actor(movable_object.Movable_Object):
 
     def __init__(self, body):
         cshape = cm.AARectShape(eu.Vector2(0, 0), TILE_SIZE/2, body.img.height/2)
-        super(Actor, self).__init__(body.img, cshape=cshape)
+        super(Actor, self).__init__(body.img, cshape=cshape, skipb2=True)
 
         self.fight_group = -1
 
@@ -72,6 +73,18 @@ class Actor(movable_object.Movable_Object):
         self.state = 'stand'
         self.inventory = Inventory(None, None, None, None, self)
 
+        pix_to_tile = con.pixel_value_to_tiles_value
+        rx, ry = pix_to_tile((cshape.rx, cshape.ry))
+        self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(vertices=[(-rx, ry), (-rx, -ry+0.1),
+                                                                                    (-rx+0.1, -ry), (rx-0.1, -ry),
+                                                                                    (rx, -ry+0.1), (rx, ry)])))
+        self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-rx, -ry), vertex2=(rx, -ry)),
+                                                      isSensor=True))
+        self.b2body.fixtures[-1].filterData.categoryBits = con.B2GNDSENS
+        self.b2body.fixtures[-1].filterData.maskBits = con.B2LEVEL
+        self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.onGroundBegin, self.onGroundEnd)
+        self.ground_count = 0
+        self.on_ground = False
 
         self.recovery = 0.0  # Time before moment when acton can be controlled again
         #self.scale = 0.5
@@ -216,6 +229,15 @@ class Actor(movable_object.Movable_Object):
 
     def push_inst_task(self, task):
         self.actions[0].task_manager.push_instant_task(task)
+
+    def onGroundBegin(self, fixture):
+        self.ground_count += 1
+        self.on_ground = True
+
+    def onGroundEnd(self, fixture):
+        self.ground_count -= 1
+        if self.ground_count == 0:
+            self.on_ground = False
 
     def take_hit(self, hit):
         """

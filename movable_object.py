@@ -36,7 +36,7 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
     tilemap = None
     world = None
 
-    def __init__(self, img, cshape=None, position=(0, 0), vertical_speed=0, horizontal_speed=0):
+    def __init__(self, img, cshape=None, position=(0, 0), vertical_speed=0, horizontal_speed=0, skipb2=False):
         cocos.sprite.Sprite.__init__(self, img, position)
         #print self.world is None
         self.image = img
@@ -44,22 +44,16 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
         self.horizontal_speed = horizontal_speed
         pix_to_tile = con.pixel_value_to_tiles_value
         self.b2body = self.world.CreateDynamicBody(position=pix_to_tile(position), fixedRotation=True, userData=self)
-        if cshape:
-            #self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=pix_to_tile((cshape.rx, cshape.ry)))))
-            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(
-                vertices=pix_to_tile([(-cshape.rx, cshape.ry), (-cshape.rx, -cshape.ry+1), (-cshape.rx+1, -cshape.ry),
-                                      (cshape.rx-1, -cshape.ry), (cshape.rx, -cshape.ry+1), (cshape.rx, cshape.ry)]),
-                friction=0)))
-            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=pix_to_tile((-cshape.rx, -cshape.ry)),
-                                                                           vertex2=pix_to_tile((cshape.rx, -cshape.ry))),
-                                                      isSensor=True))
-            self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.onGroundBegin, self.onGroundEnd)
+        if cshape and not skipb2:
+            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=pix_to_tile((cshape.rx, cshape.ry)))))
+            # self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(
+            #     vertices=pix_to_tile([(-cshape.rx, cshape.ry), (-cshape.rx, -cshape.ry+1), (-cshape.rx+1, -cshape.ry),
+            #                           (cshape.rx-1, -cshape.ry), (cshape.rx, -cshape.ry+1), (cshape.rx, cshape.ry)]),
+            #     friction=0)))
         self.cshape = cshape
         if cshape:
             self.cshape.center = eu.Vector2(*position)
         self.wall = con.NO_TR
-        self.ground_count = 0
-        self.on_ground = False
 
     # def move_to(self, x, y):
     #     old = self.cshape.center.copy()
@@ -98,15 +92,6 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
         # vec = eu.Vector2(int(ndx), int(ndy))
         # self.position += vec
         # self.cshape.center += vec
-
-    def onGroundBegin(self, fixture):
-        self.ground_count += 1
-        self.on_ground = True
-
-    def onGroundEnd(self, fixture):
-        self.ground_count -= 1
-        if self.ground_count == 0:
-            self.on_ground = False
 
     def update(self, dt):
         self.b2update()

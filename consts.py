@@ -33,6 +33,12 @@ def pixel_value_to_tiles_value(pixels):
 def jump_height_to_pixel_speed(height_in_tiles):
     return sqrt(2*GRAVITY*height_in_tiles)
 
+
+def binary_list(n):
+    if n >= 32:
+        return []
+    return map(lambda x: 2**x, range(n))
+
 consts = {'window': {'width': 800,
                      'height': 600,
                      'vsync': True,
@@ -84,7 +90,7 @@ consts = {'window': {'width': 800,
                   },
           'params': {'human': {'speed': 7,
                                'jump_speed': jump_height_to_pixel_speed(4)},
-                     'primitive': {'range_of_vision': 15,
+                     'primitive': {'range_of_vision': tiles_value_to_pixel_value(15),
                                    'mastery': 0.05,
                                    'closest': 40}},
           'group': {'hero': 1,
@@ -110,3 +116,5 @@ CHOP, STAB, CLEAVE, PENETRATE = xrange(4)
 LINE, RECTANGLE = xrange(2)
 UNIT, ITEM = xrange(2)
 EMPTY_LIST = []
+B2SMTH, B2LEVEL, B2ACTOR, B2GNDSENS, B2MISSILE = binary_list(5)
+B2EVERY = 0xFFFF
