@@ -46,7 +46,7 @@
   </data>
  </layer>
  <objectgroup name="Scripts" width="25" height="25">
-  <object x="107" y="464" width="60" height="106">
+  <object x="87" y="117" width="60" height="106">
    <properties>
     <property name="start_entry" value="yes"/>
    </properties>

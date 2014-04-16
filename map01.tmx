@@ -42,7 +42,7 @@
    <property name="obstackle" value="yes"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJzt2k1O60AQRWGbDWQCC2XE+jAbQzWISCIn+Keq63bX+aQ7fIbHoQM2mSYAAAAAAAAAqOPbYS0+ThX2f32fj29Pj+iPMQLOBwCMaZl4zVWxTH89+J0k17WF4Xzkum2BXLTQQQsdtNBBCx200EGLtrhv0MJ9tRbOBwAAgCbel6HlyH0M9zJxOB+1RHbeer2fjatg7+vh3h4e16v07FXhfLxSqYU6WuighQ5a6KCFDlrooIUOWuighQ5a6KCFDlrooIUOWuighQ5a7LM87MzfiL1W1dr3rn09Pue8Ve3x7HUk81xUfW+M4mt61R6KLUzFHqotTLUeyi1MpR7qLUyVHj20MBV69NLCRN4PKjTuqUW07B60uJfZo2ILtedn/11/63v615b5/GTrvt785tHE/v3HvL6j176es2fXVZl3D48m3udP6dl76/PheU489PjzJ6KHQpMeW5ioHplNem1hIntkNOm5hYnu0bJJ7y1Mix4tmozQwrTqEdlklBamZY+IJiO1MK17eDY52yL7d/I1GT08mnici8fP4XLyeh6yetw2YbHPSzJmz+OyPwfGGGOMMcYYY4wxxhhjdfcLb6hfgA==
+   eJzt2s1OwkAAhdHiC7jRB3Xl84kvZrogVDSFaWfaS+ec5G75yZcBWxkGAAAAAIB+fFXYFs/Ti/G9vp2Wr6RH6+c4AucD4JjOg8/cFOfh2sPfJPu6tBg5H/uatmBfWuTQIocWObTIoUUOLbbluiGL6+oszgcAQCa/y8iy5DrGtUw7zkdfWnZ+9PG+H1wPSj8PS3vUeLye7r0mnI85PbVIp0UOLXJokUOLHFrk0CKHFjm0yKFFDi1yaJFDixxa5NAihxbrrfk/cY3x28dpv+nx117nwm9jcuiRRY8semTRI4seWfTI4noQ6IF7Z+Va3mf5fKmzntq8n9qsRo+LaYejt0k/H9PXeO+1M6/259Ucbe7bsseUNv+r1eP2+6SENle1eyxtctF7m6QWt3ps0+J81O4y6qXNs/SYOnKbVj226nO0Ns/eY2ptj9cqr2KdrXqUNGl5PyJ9W/Z4tM2Sxxvvx+31XszMLHdrvlvMzMzMzMzMzEr2A2GB7Fo=
   </data>
  </layer>
  <objectgroup name="Scripts" width="100" height="100">
@@ -62,11 +62,6 @@
    <properties>
     <property name="event" value="run_dialog"/>
     <property name="run_dialog" value="Dialog 1"/>
-   </properties>
-  </object>
-  <object name="opponent" type="Position" x="1284" y="2585" width="138" height="84">
-   <properties>
-    <property name="spawn" value="twister"/>
    </properties>
   </object>
  </objectgroup>

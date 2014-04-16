@@ -25,9 +25,13 @@ from brains import COMPLETE
 from brains import Brain
 from brains import Animate
 import movable_object
+import consts as con
 from consts import tiles_value_to_pixel_value
 from consts import jump_height_to_pixel_speed
-EPS = 0.000001
+from location import Location_Layer
+from location import b2Listener
+import Box2D as b2
+EPS = 1.0
 
 
 class Path_Method(object):
@@ -291,13 +295,23 @@ class Follow_To(Task):
         path = self.path
         if not path:
             self.master.stand()
+            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
             return COMPLETE
         master = self.master
-        floor = master.get_rect().midbottom
+        x, y = self.master.cshape.center
+        y -= self.master.cshape.ry
+        # floor = master.get_rect().midbottom
+        floor = (x, y)
         current_cell = master.tilemap.get_at_pixel(*floor)
+        #print cuu
+        #down = master.tilemap.get_neighbor(current_cell, (0, -1))
+        #print current_cell
+        #i, j = down.i, down.j
+        #print i, j
+        #master.tilemap.set_cell_opacity(i, j, 100)
         target_cell, method = path[0]
         if current_cell is not target_cell:
-            print method
+            #print method
             method(master, target_cell, dt)
         else:
             path.popleft()
@@ -319,30 +333,55 @@ class Connections_Net(draw.Canvas):
         self.line_to(to[0].center)
 
 
-class Tile_Map_tester(layer.ScrollableLayer):
+class Tilemap_Tester_With_Box(Location_Layer):
 
     is_event_handler = True
     BASE_CAMERA_SPEED = 600.0
+    is_debag = False
 
-    def __init__(self, scroller, cellmap):
-        super(Tile_Map_tester, self).__init__()
+    def __init__(self, force_ground, scroller):
+        layer.ScrollableLayer.__init__(self)
         self.scroller = scroller
+        self.force_ground = force_ground
+        self.b2world = b2.b2World(gravity=(0, -con.GRAVITY),
+                                  contactListener=b2Listener())
+        self.b2level = self.b2world.CreateStaticBody()
+        self._create_b2_tile_map(force_ground)
+        #FROM TILEMAP TESTER
         self.camera_pos = [16*25, 16*25]
         self.keys = {key.LEFT: False,
                      key.RIGHT: False,
                      key.UP: False,
                      key.DOWN: False}
-        movable_object.Movable_Object.tilemap = cellmap
+        movable_object.Movable_Object.tilemap = self.force_ground
+        movable_object.Movable_Object.world = self.b2world
+
         self.unit = Actor(Human)
         #print self.unit.cshape
-        self.unit.move_to(160, 1164)
+        self.unit.move_to(60, 1716)
         self.add(self.unit, z=100)
         self.unit.do(Brain())
-        self.cellmap = cellmap
+        self.cellmap = force_ground
         #self.counter = 0
         self.path = None
 
+        self.counter = 0
+        self.fr = None
+
         self.schedule(self.update)
+
+    def update(self, dt):
+        floor = self.unit.get_rect().midbottom
+        current_cell = self.force_ground.get_at_pixel(*floor)
+        down = self.force_ground.get_neighbor(current_cell, (0, -1))
+        i, j = down.i, down.j
+        self.force_ground.set_cell_opacity(i, j, 100)
+
+        self.b2world.Step(dt, 1, 1)
+
+        self.camera_pos[0] += (self.keys[key.RIGHT] - self.keys[key.LEFT])*self.BASE_CAMERA_SPEED*dt
+        self.camera_pos[1] += (self.keys[key.UP] - self.keys[key.DOWN])*self.BASE_CAMERA_SPEED*dt
+        self.scroller.set_focus(*self.camera_pos)
 
     def on_key_press(self, symbol, modifers):
         self.keys[symbol] = True
@@ -351,41 +390,58 @@ class Tile_Map_tester(layer.ScrollableLayer):
         self.keys[symbol] = False
 
     def on_mouse_press(self, x, y, button, modifiers):
-        if self.path:
-            self.path.kill()
-        x, y = self.scroller.pixel_from_screen(x, y)
-        to = self.cellmap.get_at_pixel(x, y)
-        #fr = self.cellmap.get_neighbor(self.cellmap.get_at_pixel(*self.unit.get_rect().midbottom), self.cellmap.UP)
-        fr = self.cellmap.get_at_pixel(*self.unit.get_rect().midbottom)
-        #print self.cellmap.get_neighbor(fr, self.cellmap.DOWN).tile.properties
-        oth_path = Connections_Net([(fr, to)])
-        #self.add(oth_path, z=10)
-        t = clock()
-        #path = manhattan_dijkstra(self.fr, self.to)
-        #path = bfs(self.fr, self.to)
-        path = manhattan_Grankovski_a_star(fr, to)
-        print clock() - t
-        self.path = create_drawed_path(path)
-        self.unit.push_task(Follow_To(self.unit, path))
+        if not self.is_debag:
+            if self.path:
+                self.path.kill()
+            x, y = self.scroller.pixel_from_screen(x, y)
+            to = self.cellmap.get_at_pixel(x, y)
+            #fr = self.cellmap.get_neighbor(self.cellmap.get_at_pixel(*self.unit.get_rect().midbottom), self.cellmap.UP)
+            fr = self.cellmap.get_at_pixel(*self.unit.get_rect().midbottom)
+            #print self.cellmap.get_neighbor(fr, self.cellmap.DOWN).tile.properties
+            oth_path = Connections_Net([(fr, to)])
+            #self.add(oth_path, z=10)
+            t = clock()
+            #path = manhattan_dijkstra(self.fr, self.to)
+            #path = bfs(self.fr, self.to)
+            path = manhattan_Grankovski_a_star(fr, to)
+            print clock() - t
+            self.path = create_drawed_path(path)
+            self.unit.push_task(Follow_To(self.unit, path))
+            self.cellmap.add(self.path, z=10)
+        else:
+            if self.counter == 0:
+                if self.path:
+                    self.path.kill()
+                x, y = self.scroller.pixel_from_screen(x, y)
+                self.fr = self.cellmap.get_at_pixel(x, y)
+                self.counter = 1
+            else:
+                x, y = self.scroller.pixel_from_screen(x, y)
+                to = self.cellmap.get_at_pixel(x, y)
+                path = manhattan_Grankovski_a_star(self.fr, to)
+                self.path = create_drawed_path(path)
+                self.cellmap.add(self.path, z=10)
+                self.counter = 0
 
-        self.cellmap.add(self.path, z=10)
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifers):
+        pass
 
-    def update(self, dt):
-        #print self.unit.position, self.unit.on_ground
-        self.camera_pos[0] += (self.keys[key.RIGHT] - self.keys[key.LEFT])*self.BASE_CAMERA_SPEED*dt
-        self.camera_pos[1] += (self.keys[key.UP] - self.keys[key.DOWN])*self.BASE_CAMERA_SPEED*dt
-        self.scroller.set_focus(*self.camera_pos)
+    def on_mouse_motion(self, x, y, dx, dy):
+        pass
+
+    def on_mouse_release(self, x, y, buttons, modifers):
+        pass
 
 
 if __name__ == "__main__":
     director.init(width=1024, height=768, do_not_scale=True)
     dscene = scene.Scene()
-    mp = tiles.load('map02.tmx')
+    mp = tiles.load('map01.tmx')
     #mp = tiles.load('tst_map.tmx')
     force = mp['Player Level']
     back = mp['Background']
     scroller = layer.ScrollingManager()
-    lay = Tile_Map_tester(scroller, force)
+    lay = Tilemap_Tester_With_Box(force, scroller)
     location_preprocess(force)
     net = net_construction(force)
 #    force.add(net)
