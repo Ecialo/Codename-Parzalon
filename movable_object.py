@@ -66,12 +66,17 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
     #     vec = eu.Vector2(int(x), int(y))
     #     self._move(*(vec-old))
 
+    def set_position(self, x):
+        val = con.tiles_value_to_pixel_value(x)
+        self.position = val
+        self.cshape.center = val
+
     def _move(self, dx, dy):
         """
         Try to move Actor on dx, ndy with registrations all collisions
         with map.
         """
-        self.b2move(dx,dy)
+        self.b2move(dx, dy)
         return
         # self.on_ground = False
         # self.wall = con.NO_TR
@@ -122,18 +127,18 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
     def b2move(self, dx, dy):
         # print (dx,dy)
         # print con.pixel_value_to_tiles_value((dx,dy))
-        self.b2body.position += con.pixel_value_to_tiles_value((dx,dy))
+        self.b2body.position += (dx, dy)
         #self.position = (self.position[0]+dx, self.position[1]+dy)
 
     def b2update(self):
         if self.on_ground:
-            self.b2body.linearVelocity = con.pixel_value_to_tiles_value((self.horizontal_speed, self.vertical_speed))
+            self.b2body.linearVelocity = (self.horizontal_speed, self.vertical_speed)
         else:
             #(self.horizontal_speed, self.vertical_speed) = con.tiles_value_to_pixel_value(self.b2body.linearVelocity)
             (self.horizontal_speed, self.vertical_speed) = (0, 0)
         #print (self.b2body.linearVelocity)
-        self.position = con.tiles_value_to_pixel_value(self.b2body.position)
-        self.cshape.center = con.tiles_value_to_pixel_value(self.b2body.position)
+        self.set_position(self.b2body.position)
+        #self.cshape.center = con.tiles_value_to_pixel_value(self.b2body.position)
         # for contact_edge in self.b2body.contacts:
         #     contact = contact_edge.contact
         #     #print "AABB"
