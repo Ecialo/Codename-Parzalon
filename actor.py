@@ -60,7 +60,7 @@ class Actor(movable_object.Movable_Object):
 
     def __init__(self, body):
         cshape = cm.AARectShape(eu.Vector2(0, 0), TILE_SIZE/2, body.img.height/2)
-        super(Actor, self).__init__(body.img, cshape=cshape, skipb2=True)
+        super(Actor, self).__init__(body.img, cshape=cshape)
 
         self.fight_group = -1
 
@@ -78,11 +78,12 @@ class Actor(movable_object.Movable_Object):
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(vertices=[(-rx, ry), (-rx, -ry+0.1),
                                                                                     (-rx+0.1, -ry), (rx-0.1, -ry),
                                                                                     (rx, -ry+0.1), (rx, ry)])))
+        self.b2body.fixtures[-1].filterData.categoryBits = con.B2SMTH | con.B2ACTOR
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-rx, -ry), vertex2=(rx, -ry)),
-                                                      isSensor=True))
+                                                  isSensor=True))
         self.b2body.fixtures[-1].filterData.categoryBits = con.B2GNDSENS
         self.b2body.fixtures[-1].filterData.maskBits = con.B2LEVEL
-        self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.onGroundBegin, self.onGroundEnd)
+        self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
         self.ground_count = 0
         self.on_ground = False
 
@@ -159,7 +160,9 @@ class Actor(movable_object.Movable_Object):
         if self.on_ground:
             d = horizontal_direction * self.body.speed
             #if abs(self.horizontal_speed + d) > self.body.speed:
-            self.horizontal_speed = d
+            #self.push((d,0))
+            self.b2body.linearVelocity.x = d
+            #self.horizontal_speed = d
             if self.direction != horizontal_direction:
                 self.turn()
 
@@ -168,19 +171,24 @@ class Actor(movable_object.Movable_Object):
         """
         Do not move Actor
         """
-        self.horizontal_speed = 0
+        self.b2body.linearVelocity.x = 0
+        #self.horizontal_speed = 0
 
     @activity
     def sit(self):
-        self.horizontal_speed = 0
+        self.b2body.linearVelocity.x = 0
+        #self.horizontal_speed = 0
 
     def turn(self):
         self.direction = -self.direction
         self.body.turn()
 
     def push(self, v):
-        self.horizontal_speed += v.x
-        self.vertical_speed += v.y
+        self.b2body.linearVelocity += v
+        #self.b2body.awake = True
+        #self.b2body.ApplyLinearImpulse(impulse=v, point=self.b2body.position, wake=False)
+        #self.horizontal_speed += v.x
+        #self.vertical_speed += v.y
 
     #def get_item(self, item):
     #    if item.slot == con.HAND:
@@ -197,7 +205,9 @@ class Actor(movable_object.Movable_Object):
         """
         Actor jump with his body jump speed.
         """
-        self.vertical_speed = consts['params']['human']['jump_speed']
+        #self.push((0,consts['params']['human']['jump_speed']))
+        self.b2body.linearVelocity.y = consts['params']['human']['jump_speed']
+        #self.vertical_speed = consts['params']['human']['jump_speed']
 
     def move_to(self, x, y):
         """
@@ -230,11 +240,11 @@ class Actor(movable_object.Movable_Object):
     def push_inst_task(self, task):
         self.actions[0].task_manager.push_instant_task(task)
 
-    def onGroundBegin(self, fixture):
+    def on_ground_begin(self, fixture):
         self.ground_count += 1
         self.on_ground = True
 
-    def onGroundEnd(self, fixture):
+    def on_ground_end(self, fixture):
         self.ground_count -= 1
         if self.ground_count == 0:
             self.on_ground = False

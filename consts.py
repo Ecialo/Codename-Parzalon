@@ -22,6 +22,7 @@ def tiles_value_to_pixel_value(tiles):
     else:
         return tiles*1.0*TILE_SIZE
 
+tile_to_pix = tiles_value_to_pixel_value
 
 def pixel_value_to_tiles_value(pixels):
     if hasattr(pixels, '__iter__'):
@@ -29,6 +30,7 @@ def pixel_value_to_tiles_value(pixels):
     else:
         return pixels*1.0/TILE_SIZE
 
+pix_to_tile = pixel_value_to_tiles_value
 
 def jump_height_to_pixel_speed(height_in_tiles):
     return sqrt(2*GRAVITY*height_in_tiles)
@@ -100,7 +102,7 @@ consts = {'window': {'width': 800,
           'parry_cos_disp': 0.5,
           'effective_dst': 4.0/3.0,
           'test_slash_time': 0.8,
-          'gravity': 50,
+          'gravity': GRAVITY,
           'rubbing': 3,
           'tile_size': 32,
           'slash_fight_group': 100,
@@ -116,5 +118,5 @@ CHOP, STAB, CLEAVE, PENETRATE = xrange(4)
 LINE, RECTANGLE = xrange(2)
 UNIT, ITEM = xrange(2)
 EMPTY_LIST = []
-B2SMTH, B2LEVEL, B2ACTOR, B2GNDSENS, B2MISSILE = binary_list(5)
+B2SMTH, B2LEVEL, B2GNDSENS, B2HITZONE, B2ACTOR = binary_list(5)
 B2EVERY = 0xFFFF

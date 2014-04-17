@@ -9,6 +9,8 @@ from cocos import euclid as eu
 import math
 import geometry as gm
 import consts as con
+import Box2D as b2
+
 #import effects as eff
 import movable_object as mova
 import collides as coll
@@ -134,9 +136,11 @@ def on_level_collide_destroy(update_fun):
 def non_gravity_update(self, dt):
     #print self.vertical_speed, self.horizontal_speed
     start_point = self.cshape.center.copy()
-    dy = self.vertical_speed * dt if self.vertical_speed != 0 else 0
-    dx = self.horizontal_speed * dt if self.horizontal_speed != 0 else 0
-    self._move(dx, dy)
+    super(Hit_Zone, self).update(dt)
+    self.b2body.ApplyForce(self.b2body.mass * -self.world.gravity, self.b2body.position, True)
+    #dy = self.vertical_speed * dt if self.vertical_speed != 0 else 0
+    #dx = self.horizontal_speed * dt if self.horizontal_speed != 0 else 0
+    #self._move(dx, dy)
     #print start_point, self.cshape.center
     v = self.cshape.center - start_point
     #print v
@@ -164,6 +168,16 @@ class Hit_Zone(mova.Movable_Object):
         v = vector/abs(vector) if abs(vector) != 0 else eu.Vector2(0,0)
         v *= speed
         mova.Movable_Object.__init__(self, img, cshape, position, v.y, v.x)
+        if hit_shape is con.RECTANGLE:
+            rx, ry = con.pix_to_tile((cshape.rx, cshape.ry))
+            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry))), isSensor=True)
+        elif hit_shape is con.LINE:
+            r = con.pix_to_tile(img.width/2.0)
+            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-r, 0), vertex2=(r, 0)),
+                                                      isSensor=True))
+        self.b2body.fixtures[-1].filterData.categoryBits = con.B2HITZONE
+        self.b2body.fixtures[-1].filterData.maskBits = con.B2ACTOR | con.B2HITZONE | con.B2LEVEL
+        self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.on_begin_contact, self.on_end_contact)
         self.master = master
         self.fight_group = master.owner.fight_group + consts['missile_fight_group']
         self.base_fight_group = master.owner.fight_group
@@ -195,6 +209,21 @@ class Hit_Zone(mova.Movable_Object):
             return
         self.completed = True
         self.master.destroy_missile(self)
+
+    def on_begin_contact(self, fixture):
+        fixcat = fixture.filterData.categoryBits
+        if fixcat & con.B2LEVEL:
+            self.complete()
+        else:
+            fixture.body.userData.collide(self)
+        # elif fixcat & con.B2ACTOR:
+        #     self._collide_actor(fixture.body.userData)
+        # elif fixcat & con.B2HITZONE:
+        #     self._collide_hit_zone(fixture.body.userData)
+        # pass
+
+    def on_end_contact(self, fixture):
+        pass
 
     def collide(self, other):
         other._collide_hit_zone(self)

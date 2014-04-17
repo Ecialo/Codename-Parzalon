@@ -31,21 +31,23 @@ class Level_Collider(tiles.RectMapCollider):
         #self.horizontal_speed = 0
 
 #TODO: move fixture adding to more specific classes
-class Movable_Object(cocos.sprite.Sprite, Level_Collider):
+class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
 
     tilemap = None
     world = None
 
-    def __init__(self, img, cshape=None, position=(0, 0), vertical_speed=0, horizontal_speed=0, skipb2=False):
+    def __init__(self, img, cshape=None, position=(0, 0), vertical_speed=0, horizontal_speed=0):
         cocos.sprite.Sprite.__init__(self, img, position)
         #print self.world is None
         self.image = img
-        self.vertical_speed = vertical_speed
-        self.horizontal_speed = horizontal_speed
+        #self.vertical_speed = vertical_speed
+        #self.horizontal_speed = horizontal_speed
         pix_to_tile = con.pixel_value_to_tiles_value
-        self.b2body = self.world.CreateDynamicBody(position=pix_to_tile(position), fixedRotation=True, userData=self)
-        if cshape and not skipb2:
-            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=pix_to_tile((cshape.rx, cshape.ry)))))
+        self.b2body = self.world.CreateDynamicBody(position=pix_to_tile(position), fixedRotation=True,
+                                                   userData=self, allowSleep=False)
+        self.b2body.linearVelocity = pix_to_tile((horizontal_speed, vertical_speed))
+        #if cshape:
+            #self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=pix_to_tile((cshape.rx, cshape.ry)))))
             # self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(
             #     vertices=pix_to_tile([(-cshape.rx, cshape.ry), (-cshape.rx, -cshape.ry+1), (-cshape.rx+1, -cshape.ry),
             #                           (cshape.rx-1, -cshape.ry), (cshape.rx, -cshape.ry+1), (cshape.rx, cshape.ry)]),
@@ -116,11 +118,11 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
         #self.position = (self.position[0]+dx, self.position[1]+dy)
 
     def b2update(self):
-        if self.on_ground:
-            self.b2body.linearVelocity = (self.horizontal_speed, self.vertical_speed)
-        else:
+        #if self.on_ground:
+        #    self.b2body.linearVelocity = (self.horizontal_speed, self.vertical_speed)
+        #else:
             #(self.horizontal_speed, self.vertical_speed) = con.tiles_value_to_pixel_value(self.b2body.linearVelocity)
-            (self.horizontal_speed, self.vertical_speed) = (0, 0)
+        #    (self.horizontal_speed, self.vertical_speed) = self.b2body.linearVelocity
         #print (self.b2body.linearVelocity)
         self.set_position(self.b2body.position)
         #self.cshape.center = con.tiles_value_to_pixel_value(self.b2body.position)
