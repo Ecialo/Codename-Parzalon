@@ -184,9 +184,9 @@ class Body(object):
         else:
             if not cleaved:
                 return
-        print "Olollolo"
+        #print "Olollolo"
         if con.PENETRATE not in hit.features:
-            print "SADASFA"
+            #print "SADASFA"
             hit.complete()
 
     def show_hitboxes(self):

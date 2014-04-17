@@ -51,7 +51,6 @@ def collide_slash_hit_zone(slash, hit_zone):
 
 
 def collide_hit_zone_hit_zone(hit_zone_1, hit_zone_2):
-    print "ASHGAOSFHASO"
     pass
 
 

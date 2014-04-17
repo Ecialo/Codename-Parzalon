@@ -195,10 +195,11 @@ class Hit_Zone(mova.Movable_Object):
         mova.Movable_Object.__init__(self, img, cshape, position, v.y, v.x)
         if hit_shape is con.RECTANGLE:
             rx, ry = con.pix_to_tile((cshape.rx, cshape.ry))
-            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry))), isSensor=True)
+            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry)), isSensor=True))
         elif hit_shape is con.LINE:
             r = con.pix_to_tile(img.width/2.0)
-            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-r, 0), vertex2=(r, 0)),
+            #self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-r, 0), vertex2=(r, 0)),
+            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(r,0)),
                                                       isSensor=True))
         self.b2body.fixtures[-1].filterData.categoryBits = con.B2HITZONE
         self.b2body.fixtures[-1].filterData.maskBits = con.B2ACTOR | con.B2HITZONE | con.B2SWING | con.B2LEVEL
