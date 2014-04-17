@@ -104,6 +104,7 @@ class Swing(Usage):
         self.actual_hit = hit.Swing(stp, end, self)
         self.master.dispatch_event('on_do_hit', self.actual_hit)
 
+
     def continue_use(self, *args):
         """
         Define new end point

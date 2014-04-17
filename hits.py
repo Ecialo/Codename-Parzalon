@@ -31,18 +31,21 @@ def shape_to_cshape(shape):
         return cm.AARectShape(c, abs(shape.v.x/2), abs(shape.v.y/2))
 
 
-class Swing(cocos.draw.Line):
+class Swing(cocos.draw.Line):#, mova.Movable_Object):
 
     def __init__(self, stp, endp, master, hit_pattern=con.CHOP):
         self.master = master
         self.fight_group = master.owner.fight_group + consts['slash_fight_group']
         self.base_fight_group = master.owner.fight_group
         super(Swing, self).__init__(stp, endp, (0, 255, 0, 255))
+        #cocos.draw.Line.__init__(self, stp, endp, (0, 255, 0, 255))
+        #mova.Movable_Object.__init__(self, )
 
         self.completed = False
         self._time_to_complete = 0.0
         self._color_c = 0.0
 
+        self.b2fixture = None
         self.cshape = None
         self.trace = None
 
@@ -73,6 +76,19 @@ class Swing(cocos.draw.Line):
         self._time_to_complete = time
         self._color_c = 255.0 / time
 
+    def on_begin_contact(self, fixture):
+        print 1231251
+        #fixcat = fixture.filterData.categoryBits
+        fixture.body.userData.collide(self)
+        # elif fixcat & con.B2ACTOR:
+        #     self._collide_actor(fixture.body.userData)
+        # elif fixcat & con.B2HITZONE:
+        #     self._collide_hit_zone(fixture.body.userData)
+        # pass
+
+    def on_end_contact(self, fixture):
+        pass
+
     def collide(self, other):
         other._collide_slash(self)
 
@@ -94,11 +110,19 @@ class Swing(cocos.draw.Line):
         Morph line into real collideable figure.
         """
         #Define geometry and time data
+        actor = self.master.owner
+        v1 = actor.b2body.GetLocalVector(con.pix_to_tile((self.start.x, self.start.y)))
+        v2 = actor.b2body.GetLocalVector(con.pix_to_tile((self.end.x, self.end.y)))
         v = self.end - self.start
         start = gm.Point2(self.start.x, self.start.y)
         self.trace = gm.LineSegment2(start, v)
         self.cshape = shape_to_cshape(self.trace)
         self.set_time_to_complete(time)
+        self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=v1, vertex2=v2),
+                                                              isSensor=True))
+        self.b2fixture.filterData.categoryBits = con.B2SWING
+        self.b2fixture.filterData.maskBits = con.B2ACTOR | con.B2HITZONE | con.B2SWING
+        actor.world.contactListener.addEventHandler(self.b2fixture, self.on_begin_contact, self.on_end_contact)
 
     def complete(self):
         """
@@ -109,6 +133,7 @@ class Swing(cocos.draw.Line):
         self.completed = True
         self.fight_group = -1
         self.base_fight_group = -1
+        self.master.owner.b2body.DestroyFixture(self.b2fixture)
         self.master.complete()
         self.kill()
 
@@ -176,7 +201,7 @@ class Hit_Zone(mova.Movable_Object):
             self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-r, 0), vertex2=(r, 0)),
                                                       isSensor=True))
         self.b2body.fixtures[-1].filterData.categoryBits = con.B2HITZONE
-        self.b2body.fixtures[-1].filterData.maskBits = con.B2ACTOR | con.B2HITZONE | con.B2LEVEL
+        self.b2body.fixtures[-1].filterData.maskBits = con.B2ACTOR | con.B2HITZONE | con.B2SWING | con.B2LEVEL
         self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.on_begin_contact, self.on_end_contact)
         self.master = master
         self.fight_group = master.owner.fight_group + consts['missile_fight_group']

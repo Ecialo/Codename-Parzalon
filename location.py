@@ -307,14 +307,14 @@ class Location_Layer(layer.ScrollableLayer):
             else:
                 self.collman.add(missile)
 
-        for hit_1, hit_2 in self.collman.iter_all_collisions():
-            hit_1.collide(hit_2)
+        #for hit_1, hit_2 in self.collman.iter_all_collisions():
+        #    hit_1.collide(hit_2)
         #if self.hero.fight_group > 0:
         #    self.collman.add(self.hero)
         map(self._actor_kick_or_add, self.actors)
 
-        for obj1, obj2 in self.collman.iter_all_collisions():
-            obj1.collide(obj2)
+        #for obj1, obj2 in self.collman.iter_all_collisions():
+        #    obj1.collide(obj2)
 
     def spawn(self, obj, pos):
         if obj in db.objs:

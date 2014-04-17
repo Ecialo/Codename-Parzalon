@@ -82,7 +82,7 @@ class Actor(movable_object.Movable_Object):
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-rx, -ry), vertex2=(rx, -ry)),
                                                   isSensor=True))
         self.b2body.fixtures[-1].filterData.categoryBits = con.B2GNDSENS
-        self.b2body.fixtures[-1].filterData.maskBits = con.B2LEVEL
+        self.b2body.fixtures[-1].filterData.maskBits = con.B2LEVEL | con.B2ACTOR
         self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
         self.ground_count = 0
         self.on_ground = False
