@@ -244,6 +244,7 @@ class Hit_Zone(mova.Movable_Object):
         if self.completed:
             return
         self.completed = True
+        self.world.destroy_body(self.b2body)
         self.master.destroy_missile(self)
 
     def on_begin_contact(self, fixture):
