@@ -75,7 +75,7 @@ class Actor(movable_object.Movable_Object):
         self.recovery = 0.0  # Time before moment when acton can be controlled again
         #self.scale = 0.5
 
-        self.schedule(self.item_update)
+        #self.schedule(self.item_update)
 
     height = property(lambda self: self.body.img.height)
     width = property(lambda self: self.body.img.width)
@@ -89,16 +89,25 @@ class Actor(movable_object.Movable_Object):
 
         if not item:
             return
-
-        if trigger and not item.on_use:
+        #if item_type is not MAIN:
+            #print trigger, item.on_use, item.available
+        if trigger and not item.on_use and item.available:
             item.start_use(*args)
         elif trigger and item.on_use and item.available:
             item.continue_use(*args)
         elif not trigger and item.on_use and item.available:
             item.end_use(*args)
 
-    def item_update(self, dt):
-        map(lambda x: x.item_update(dt), self.hands)
+    #def item_update(self, dt):
+    #    map(lambda x: x.item_update(dt), self.hands)
+
+    def start_interact_with_item(self, item):
+        if item and item.item_update:
+            self.schedule(item.item_update)
+
+    def stop_interact_with_item(self, item):
+        if item and item.item_update:
+            self.unschedule(item.item_update)
 
     def collide(self, other):
         other._collide_actor(self)

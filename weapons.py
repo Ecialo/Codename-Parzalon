@@ -36,6 +36,8 @@ class Knife(items.Usage_Item):
 
 class Musket(items.Usage_Item):
 
+    size = items.SMALL
+
     def __init__(self):
         img = consts['img']['rifle']
         first_usage = usages.Stab([onh.damage(3)])

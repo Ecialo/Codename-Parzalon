@@ -25,7 +25,8 @@ def ammo(value):
 def fire_rate(time_between_shots):
     def add_fire_rate(master):
         def reload_weapon(dt):
-            if master.cur_reload != 0.0:
+            #print master
+            if master.cur_reload > 0.0:
                 master.cur_reload -= dt
                 if master.cur_reload <= 0.0:
                     master.cur_reload = 0.0
@@ -48,7 +49,7 @@ class Item(mova.Movable_Object):
         self.master = None
 
         self.inventory_representation = Tile(1, {'item': self}, img)
-        self.item_update = lambda dt: None
+        self.item_update = None
 
     def __call__(self, environment):
         try:
@@ -63,6 +64,8 @@ class Item(mova.Movable_Object):
 
     def drop(self):
         self.position = self.master.position
+        if self.item_update:
+            self.master.stop_interact_with_item(self)
         #print self.position
         self.cshape.center = eu.Vector2(self.position[0], self.position[1])
         self.horizontal_speed = self.master.horizontal_speed + randint(-500, 500)

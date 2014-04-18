@@ -154,7 +154,9 @@ class Inventory(layer.Layer):
 
     def put_item(self, item):
         item.set_master(self.master)
+        print item.size
         if item.size is items.SMALL:
+            print item
             self.bag.put_item(item)
         else:
             self.change_item(item)
@@ -168,9 +170,12 @@ class Inventory(layer.Layer):
         self.kill()
 
     def select_secondary_item(self, scroll=0):
+        self.master.stop_interact_with_item(self.secondary_item)
         self.secondary_item = self.bag.select_secondary_item(scroll)
+        self.master.start_interact_with_item(self.secondary_item)
 
     def change_item(self, item):
+        self.master.start_interact_with_item(item)
         if item.slot is consts.HAND:
             item_to_drop = self.main_item
             self.main_item = item
