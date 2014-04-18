@@ -150,6 +150,28 @@ class b2Listener(b2.b2ContactListener):
         del self.beginHandlers[listener]
         del self.endHandlers[listener]
 
+class Cool_B2_World(b2.b2World):
+
+    def __init__(self, *args, **kwargs):
+        super(Cool_B2_World, self).__init__(*args, ** kwargs)
+        self.fixtures_to_destroy = []
+        self.bodies_to_destroy = []
+
+    def destroy_fixture(self, fixture):
+        self.fixtures_to_destroy.append(fixture)
+
+    def destroy_body(self, body):
+        self.bodies_to_destroy.append(body)
+
+    def Step(self, *args, **kwargs):
+        for fixture in self.fixtures_to_destroy:
+            fixture.body.DestroyFixture(fixture)
+        self.fixtures_to_destroy = []
+        for body in self.bodies_to_destroy:
+            self.DestroyBody(body)
+        self.bodies_to_destroy = []
+        super(Cool_B2_World, self).Step(*args, **kwargs)
+
 
 class Location_Layer(layer.ScrollableLayer):
 
@@ -169,7 +191,7 @@ class Location_Layer(layer.ScrollableLayer):
         #self.scripts = scripts
 
         #Box2D world
-        self.b2world = b2.b2World(gravity=(0, -con.GRAVITY),
+        self.b2world = Cool_B2_World(gravity=(0, -con.GRAVITY),
                                   contactListener=b2Listener())
         self.b2level = self.b2world.CreateStaticBody()
         self._create_b2_tile_map(force_ground)

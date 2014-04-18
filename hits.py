@@ -111,15 +111,24 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         """
         #Define geometry and time data
         actor = self.master.owner
-        v1 = actor.b2body.GetLocalVector(con.pix_to_tile((self.start.x, self.start.y)))
-        v2 = actor.b2body.GetLocalVector(con.pix_to_tile((self.end.x, self.end.y)))
+        v1 = actor.b2body.GetLocalPoint(con.pix_to_tile((self.start.x, self.start.y)))
+        v2 = actor.b2body.GetLocalPoint(con.pix_to_tile((self.end.x, self.end.y)))
+        if v2.x <= v1.x:
+            v1, v2 = v2, v1
+        vlen = math.sqrt((v2.x-v1.x)*(v2.x-v1.x)+(v2.y-v1.y)*(v2.y-v1.y))
+        vcent = ((v1.x+v2.x)/2.0, (v1.y+v2.y)/2.0)
+        vangle = math.asin((v2.y-v1.y)/vlen)
         v = self.end - self.start
         start = gm.Point2(self.start.x, self.start.y)
         self.trace = gm.LineSegment2(start, v)
         self.cshape = shape_to_cshape(self.trace)
         self.set_time_to_complete(time)
-        self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=v1, vertex2=v2),
-                                                              isSensor=True))
+        print (vlen, vcent, vangle)
+        self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(vlen, 0,
+                                                                                                 vcent, vangle)),
+                                                                    isSensor=True))
+        # self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=v1, vertex2=v2),
+        #                                                       isSensor=True))
         self.b2fixture.filterData.categoryBits = con.B2SWING
         self.b2fixture.filterData.maskBits = con.B2ACTOR | con.B2HITZONE | con.B2SWING
         actor.world.contactListener.addEventHandler(self.b2fixture, self.on_begin_contact, self.on_end_contact)
@@ -133,7 +142,8 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         self.completed = True
         self.fight_group = -1
         self.base_fight_group = -1
-        self.master.owner.b2body.DestroyFixture(self.b2fixture)
+        self.master.owner.world.destroy_fixture(self.b2fixture)
+        #self.master.owner.b2body.DestroyFixture(self.b2fixture)
         self.master.complete()
         self.kill()
 
@@ -162,7 +172,6 @@ def non_gravity_update(self, dt):
     #print self.vertical_speed, self.horizontal_speed
     start_point = self.cshape.center.copy()
     super(Hit_Zone, self).update(dt)
-    self.b2body.ApplyForce(self.b2body.mass * -self.world.gravity, self.b2body.position, True)
     #dy = self.vertical_speed * dt if self.vertical_speed != 0 else 0
     #dx = self.horizontal_speed * dt if self.horizontal_speed != 0 else 0
     #self._move(dx, dy)
@@ -199,8 +208,9 @@ class Hit_Zone(mova.Movable_Object):
         elif hit_shape is con.LINE:
             r = con.pix_to_tile(img.width/2.0)
             #self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-r, 0), vertex2=(r, 0)),
-            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(r,0)),
+            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(r, 0)),
                                                       isSensor=True))
+        self.b2body.gravityScale = 0
         self.b2body.fixtures[-1].filterData.categoryBits = con.B2HITZONE
         self.b2body.fixtures[-1].filterData.maskBits = con.B2ACTOR | con.B2HITZONE | con.B2SWING | con.B2LEVEL
         self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.on_begin_contact, self.on_end_contact)
