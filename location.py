@@ -16,6 +16,7 @@ import brains as br
 
 consts = con.consts
 
+NO_ROTATION = 0
 
 def _spawn_unit(level, name, pos):
     #print "LOLOLO"
@@ -237,24 +238,48 @@ class Location_Layer(layer.ScrollableLayer):
         #self.scroller.set_focus(*self.hero.position)
 
     def _create_b2_tile_map(self, rect_map):
+
+        def try_create_and_append_block(cells_in_block):
+            if cells_in_block:
+                height = len(cells_in_block)
+                half_height = height/2.0
+                half_width = 0.5
+                highest_cell = cells_in_block[-1]
+                lowest_cell = cells_in_block[0]
+                cx = highest_cell.i + half_width
+                cy = lowest_cell.j + half_height
+                shape.SetAsBox(half_width, half_height, (cx, cy), NO_ROTATION)
+                self.b2level.CreateFixture(shape=shape, userData=cell)
+                self.b2level.fixtures[-1].filterData.categoryBits = con.B2SMTH | con.B2LEVEL
+                return True
+            else:
+                return False
+
         # WIDTH, HEIGHT = con.TILE_SIZE/2, con.TILE_SIZE/2
         cells = rect_map.cells
 
         shape = b2.b2PolygonShape()
         #print "TEST"
-        i = 0
+        #i = 0
         for cell_column in cells:
+            cells_in_block = []
             for cell in cell_column:
                 if cell.get('top'):
                     #print i
-                    i += 1
+                    cells_in_block.append(cell)
                     #print self.b2world
-                    shape.SetAsBox(0.5, 0.5, con.pixel_value_to_tiles_value(cell.center), 0)
-                    self.b2level.CreateFixture(shape=shape, userData=cell)
-                    self.b2level.fixtures[-1].filterData.categoryBits = con.B2SMTH | con.B2LEVEL
                     #self.b2level.fixtures[-1].maskBits = con.B2EVERY
                     #if i>9990:
                     #   temp = self.b2world
+                else:
+                    #print len(cells_in_block)
+                    if try_create_and_append_block(cells_in_block):
+                        cells_in_block = []
+            try_create_and_append_block(cells_in_block)
+
+
+
+                    #pass
         #print "TEST21"
 
     def run(self):
