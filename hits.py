@@ -58,6 +58,12 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
 
     effects = property(lambda self: filter(None, map(lambda eff: eff(self), self.master.effects)))
 
+    def update(self, dt):
+        if self.time_to_complete <= 0.0:
+            self.complete()
+        else:
+            self.time_to_complete -= dt
+
     def uncompleteness(self):
         return self.time_to_complete/self.master.swing_time
 
@@ -139,6 +145,10 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         self.b2fixture.filterData.categoryBits = con.B2SWING
         self.b2fixture.filterData.maskBits = con.B2ACTOR | con.B2HITZONE | con.B2SWING
         actor.world.contactListener.addEventHandler(self.b2fixture, self.on_begin_contact, self.on_end_contact)
+        self.schedule(self.update)
+
+    def set_batch(self, _):
+        pass
 
     def complete(self, parried=False):
         """
@@ -147,6 +157,7 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         if self.completed:
             return
         self.completed = True
+        self.unschedule(self.update)
         if not parried:
             for actor in self.contacts:
                 actor.collide(self)
