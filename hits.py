@@ -51,6 +51,7 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         self.b2fixture = None
         self.cshape = None
         self.trace = None
+        self.contacts = []
 
         self.hit_pattern = hit_pattern
         self.features = set()
@@ -80,9 +81,11 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         self._color_c = 255.0 / time
 
     def on_begin_contact(self, fixture):
-        print 1231251
+        if fixture.filterData.categoryBits & con.B2ACTOR:
+            self.contacts.append(fixture.body.userData)
+        else:
+            fixture.body.userData.collide(self)
         #fixcat = fixture.filterData.categoryBits
-        fixture.body.userData.collide(self)
         # elif fixcat & con.B2ACTOR:
         #     self._collide_actor(fixture.body.userData)
         # elif fixcat & con.B2HITZONE:
@@ -90,7 +93,8 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         # pass
 
     def on_end_contact(self, fixture):
-        pass
+        if fixture.filterData.categoryBits & con.B2ACTOR:
+            self.contacts.remove(fixture.body.userData)
 
     def collide(self, other):
         other._collide_slash(self)
@@ -136,13 +140,16 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         self.b2fixture.filterData.maskBits = con.B2ACTOR | con.B2HITZONE | con.B2SWING
         actor.world.contactListener.addEventHandler(self.b2fixture, self.on_begin_contact, self.on_end_contact)
 
-    def complete(self):
+    def complete(self, parried=False):
         """
         End life of this line
         """
         if self.completed:
             return
         self.completed = True
+        if not parried:
+            for actor in self.contacts:
+                actor.collide(self)
         self.fight_group = -1
         self.base_fight_group = -1
         self.master.owner.world.destroy_fixture(self.b2fixture)
@@ -243,7 +250,7 @@ class Hit_Zone(mova.Movable_Object):
     def uncompleteness(self):
         return max(0.0, self.time)/self.time_to_complete
 
-    def complete(self):
+    def complete(self, parried=False):
         if self.completed:
             return
         self.completed = True
