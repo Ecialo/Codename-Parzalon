@@ -240,13 +240,16 @@ class Location_Layer(layer.ScrollableLayer):
     def _create_b2_tile_map(self, rect_map):
 
         def try_create_and_append_block(cells_in_block):
+            #num_of_cells = len(cells_in_block)
+            #checker = (num_of_cells > 0) if mode else (num_of_cells > 1)
             if cells_in_block:
-                height = len(cells_in_block)
+                height = 1 # len(cells_in_block) if not mode else 1
+                width = len(cells_in_block) # if mode else 1
                 half_height = height/2.0
-                half_width = 0.5
-                highest_cell = cells_in_block[-1]
+                half_width = width/2.0
+                #highest_cell = cells_in_block[-1]
                 lowest_cell = cells_in_block[0]
-                cx = highest_cell.i + half_width
+                cx = lowest_cell.i + half_width
                 cy = lowest_cell.j + half_height
                 shape.SetAsBox(half_width, half_height, (cx, cy), NO_ROTATION)
                 self.b2level.CreateFixture(shape=shape, userData=cell)
@@ -257,25 +260,38 @@ class Location_Layer(layer.ScrollableLayer):
 
         # WIDTH, HEIGHT = con.TILE_SIZE/2, con.TILE_SIZE/2
         cells = rect_map.cells
+        m = len(cells)
+        n = len(cells[0])
 
         shape = b2.b2PolygonShape()
         #print "TEST"
         #i = 0
-        for cell_column in cells:
-            cells_in_block = []
-            for cell in cell_column:
+        # for cell_column in cells:
+        #     cells_in_vertical_block = []
+        #     for cell in cell_column:
+        #         if cell.get('top'):
+        #             #print i
+        #             cells_in_vertical_block.append(cell)
+        #             #print self.b2world
+        #             #self.b2level.fixtures[-1].maskBits = con.B2EVERY
+        #             #if i>9990:
+        #             #   temp = self.b2world
+        #         else:
+        #             #print len(cells_in_block)
+        #             if try_create_and_append_block(cells_in_vertical_block, 0):
+        #                 cells_in_vertical_block = []
+        #     try_create_and_append_block(cells_in_vertical_block, 0)
+
+        for j in xrange(n):
+            cells_in_horizontal_block = []
+            for i in xrange(m):
+                cell = cells[i][j]
                 if cell.get('top'):
-                    #print i
-                    cells_in_block.append(cell)
-                    #print self.b2world
-                    #self.b2level.fixtures[-1].maskBits = con.B2EVERY
-                    #if i>9990:
-                    #   temp = self.b2world
+                    cells_in_horizontal_block.append(cell)
                 else:
-                    #print len(cells_in_block)
-                    if try_create_and_append_block(cells_in_block):
-                        cells_in_block = []
-            try_create_and_append_block(cells_in_block)
+                    if try_create_and_append_block(cells_in_horizontal_block):
+                        cells_in_horizontal_block = []
+            try_create_and_append_block(cells_in_horizontal_block)
 
 
 
