@@ -102,14 +102,15 @@ class Swing(Usage):
         end = stp + vec.normalize()*self.length
         #Send line to holder in weapon for update end point and to screen for draw
         self.actual_hit = hit.Swing(stp, end, self)
-        self.master.dispatch_event('on_do_hit', self.actual_hit)
-
+        #self.master.dispatch_event('on_do_hit', self.actual_hit)
+        print "!232312", self.owner
+        self.owner.add(self.actual_hit, z=100)
 
     def continue_use(self, *args):
         """
         Define new end point
         """
-        end_point = args[0]
+        end_point = self.owner.from_global_to_self(eu.Vector2(*args[0]))
         start_point = self.actual_hit.start
         vec = end_point - start_point
         end = start_point + vec.normalize()*self.length
@@ -126,7 +127,7 @@ class Swing(Usage):
     def complete(self):
         if self.actual_hit is not None:
             print "send to remove", self.actual_hit
-            self.master.dispatch_event('on_remove_hit', self.actual_hit)
+            #self.master.dispatch_event('on_remove_hit', self.actual_hit)
             print "removed"
             self.actual_hit = None
             self.master.available = True
@@ -178,7 +179,6 @@ class Shoot(Usage):
         self.master.ammo -= 1
         if self.master.ammo != 0:
             self.master.cur_reload = self.master.reload_time
-
 
     def destroy_missile(self, missile):
         self.master.dispatch_event('on_remove_missile', missile)

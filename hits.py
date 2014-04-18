@@ -35,6 +35,9 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
 
     def __init__(self, stp, endp, master, hit_pattern=con.CHOP):
         self.master = master
+        owner = self.master.owner
+        stp = owner.from_global_to_self(stp)
+        endp = owner.from_global_to_self(endp)
         self.fight_group = master.owner.fight_group + consts['slash_fight_group']
         self.base_fight_group = master.owner.fight_group
         super(Swing, self).__init__(stp, endp, (0, 255, 0, 255))
@@ -103,7 +106,7 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
 
     def aim(self, vec):
         end = self.start + vec.normalize()*self.master.length
-        self.end = end
+        self.end = end # self.master.owner.from_global_to_self(end)
 
     def perform(self, time):
         """

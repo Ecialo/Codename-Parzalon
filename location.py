@@ -310,15 +310,15 @@ class Location_Layer(layer.ScrollableLayer):
 
         self.b2world.Step(dt, 1, 1)
         self.collman.clear()
-        for hit in self.hits:
-            if hit.uncompleteness() <= 0.01 and not hit.completed:
-                print "hit complete"
-                hit.complete()
-            elif hit.completed:
-                pass
-            else:
-                hit.time_to_complete = hit.time_to_complete - dt
-                self.collman.add(hit)
+        #for hit in self.hits:
+        #    if hit.uncompleteness() <= 0.01 and not hit.completed:
+        #        print "hit complete"
+        #        hit.complete()
+        #    elif hit.completed:
+        #        pass
+        #    else:
+        #        hit.time_to_complete = hit.time_to_complete - dt
+        #        self.collman.add(hit)
 
         for missile in self.missiles:
             #print missile.uncompleteness(), missile.completed
@@ -382,15 +382,15 @@ class Location_Layer(layer.ScrollableLayer):
         print "append hit to collision manager", hit
         self.hits.append(hit)
 
-    def on_remove_hit(self, hit):
-        """
-        Remove overdue Hit from game.
-        """
-        try:
-            self.hits.remove(hit)
-        except ValueError:
-            pass
-        print "remove hit"
+    # def on_remove_hit(self, hit):
+    #     """
+    #     Remove overdue Hit from game.
+    #     """
+    #     try:
+    #         self.hits.remove(hit)
+    #     except ValueError:
+    #         pass
+    #     print "remove hit"
 
     def on_drop_item(self, item):
         #print item
