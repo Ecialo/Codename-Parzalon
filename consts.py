@@ -22,14 +22,24 @@ def tiles_value_to_pixel_value(tiles):
     else:
         return tiles*1.0*TILE_SIZE
 
+tile_to_pix = tiles_value_to_pixel_value
+
 def pixel_value_to_tiles_value(pixels):
     if hasattr(pixels, '__iter__'):
         return type(pixels)([pixel_value_to_tiles_value(x) for x in pixels])
     else:
         return pixels*1.0/TILE_SIZE
 
+pix_to_tile = pixel_value_to_tiles_value
+
 def jump_height_to_pixel_speed(height_in_tiles):
-    return tiles_value_to_pixel_value(sqrt(2*GRAVITY*height_in_tiles))
+    return sqrt(2*GRAVITY*height_in_tiles)
+
+
+def binary_list(n):
+    if n >= 32:
+        return []
+    return map(lambda x: 2**x, range(n))
 
 consts = {'window': {'width': 800,
                      'height': 600,
@@ -80,7 +90,7 @@ consts = {'window': {'width': 800,
                            },
                   'status': {'health_icon': pyglet.resource.image('ui_health_icon.png')},
                   },
-          'params': {'human': {'speed': tiles_value_to_pixel_value(7),
+          'params': {'human': {'speed': 7,
                                'jump_speed': jump_height_to_pixel_speed(4)},
                      'primitive': {'range_of_vision': tiles_value_to_pixel_value(15),
                                    'mastery': 0.05,
@@ -92,8 +102,8 @@ consts = {'window': {'width': 800,
           'parry_cos_disp': 0.5,
           'effective_dst': 4.0/3.0,
           'test_slash_time': 0.8,
-          'gravity': tiles_value_to_pixel_value(50),
-          'rubbing': tiles_value_to_pixel_value(3),
+          'gravity': GRAVITY,
+          'rubbing': 3,
           'tile_size': 32,
           'slash_fight_group': 100,
           'missile_fight_group': 1000,
@@ -108,3 +118,5 @@ CHOP, STAB, CLEAVE, PENETRATE = xrange(4)
 LINE, RECTANGLE = xrange(2)
 UNIT, ITEM = xrange(2)
 EMPTY_LIST = []
+B2SMTH, B2LEVEL, B2GNDSENS, B2HITZONE, B2ACTOR, B2SWING = binary_list(6)
+B2EVERY = 0xFFFF

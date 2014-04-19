@@ -152,4 +152,4 @@ class Twister_Shard(items.Usage_Item):
         first_usage = usages.Shoot([on_h.damage(1)], img)
         second_usage = None
         items.Usage_Item.__init__(self, img, first_usage, second_usage,
-                                  [items.length(1), items.fire_rate(0.5), items.ammo(1)])
+                                  [items.length(1), items.fire_rate(0.5), items.ammo(100)])

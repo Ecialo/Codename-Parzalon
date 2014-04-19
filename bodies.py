@@ -42,8 +42,8 @@ class Body_Part(object):
         self.attached = None
 
     position = property(lambda self: self.master.master.from_self_to_global(self.shape.pc))
-    horizontal_speed = property(lambda self: self.master.horizontal_speed)
-    vertical_speed = property(lambda self: self.master.vertical_speed)
+    #horizontal_speed = property(lambda self: self.master.horizontal_speed)
+    #vertical_speed = property(lambda self: self.master.vertical_speed)
 
     def turn(self):
         c = self.shape.pc
@@ -128,8 +128,8 @@ class Body(object):
         self.health = self.max_health
         self.body_name = body_name
 
-    horizontal_speed = property(lambda self: self.master.horizontal_speed)
-    vertical_speed = property(lambda self: self.master.vertical_speed)
+    #horizontal_speed = property(lambda self: self.master.horizontal_speed)
+    #vertical_speed = property(lambda self: self.master.vertical_speed)
         
     def destroy(self):
 
@@ -186,6 +186,7 @@ class Body(object):
                 return
         #print "Olollolo"
         if con.PENETRATE not in hit.features:
+            #print "SADASFA"
             hit.complete()
 
     def show_hitboxes(self):

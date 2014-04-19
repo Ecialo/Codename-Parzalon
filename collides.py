@@ -73,8 +73,8 @@ def parry(self, other):
             #print eff.Sparkles.add_to_surface
             #print p
             eff.Sparkles().add_to_surface(p)
-            other.complete()
-            self.complete()
+            other.complete(parried=True)
+            self.complete(parried=True)
 
 
 def cross_angle(v1, v2):

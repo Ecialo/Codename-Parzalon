@@ -150,6 +150,28 @@ class b2Listener(b2.b2ContactListener):
         del self.beginHandlers[listener]
         del self.endHandlers[listener]
 
+class Cool_B2_World(b2.b2World):
+
+    def __init__(self, *args, **kwargs):
+        super(Cool_B2_World, self).__init__(*args, ** kwargs)
+        self.fixtures_to_destroy = []
+        self.bodies_to_destroy = []
+
+    def destroy_fixture(self, fixture):
+        self.fixtures_to_destroy.append(fixture)
+
+    def destroy_body(self, body):
+        self.bodies_to_destroy.append(body)
+
+    def Step(self, *args, **kwargs):
+        for fixture in self.fixtures_to_destroy:
+            fixture.body.DestroyFixture(fixture)
+        self.fixtures_to_destroy = []
+        for body in self.bodies_to_destroy:
+            self.DestroyBody(body)
+        self.bodies_to_destroy = []
+        super(Cool_B2_World, self).Step(*args, **kwargs)
+
 
 class Location_Layer(layer.ScrollableLayer):
 
@@ -169,7 +191,7 @@ class Location_Layer(layer.ScrollableLayer):
         #self.scripts = scripts
 
         #Box2D world
-        self.b2world = b2.b2World(gravity=(0, -con.GRAVITY),
+        self.b2world = Cool_B2_World(gravity=(0, -con.GRAVITY),
                                   contactListener=b2Listener())
         self.b2level = self.b2world.CreateStaticBody()
         self._create_b2_tile_map(force_ground)
@@ -251,6 +273,8 @@ class Location_Layer(layer.ScrollableLayer):
                     #print self.b2world
                     shape.SetAsBox(0.5, 0.5, con.pixel_value_to_tiles_value(cell.center), 0)
                     self.b2level.CreateFixture(shape=shape, userData=cell)
+                    self.b2level.fixtures[-1].filterData.categoryBits = con.B2SMTH | con.B2LEVEL
+                    #self.b2level.fixtures[-1].maskBits = con.B2EVERY
                     #if i>9990:
                     #   temp = self.b2world
         #print "TEST21"
@@ -286,15 +310,15 @@ class Location_Layer(layer.ScrollableLayer):
 
         self.b2world.Step(dt, 1, 1)
         self.collman.clear()
-        for hit in self.hits:
-            if hit.uncompleteness() <= 0.01 and not hit.completed:
-                print "hit complete"
-                hit.complete()
-            elif hit.completed:
-                pass
-            else:
-                hit.time_to_complete = hit.time_to_complete - dt
-                self.collman.add(hit)
+        #for hit in self.hits:
+        #    if hit.uncompleteness() <= 0.01 and not hit.completed:
+        #        print "hit complete"
+        #        hit.complete()
+        #    elif hit.completed:
+        #        pass
+        #    else:
+        #        hit.time_to_complete = hit.time_to_complete - dt
+        #        self.collman.add(hit)
 
         for missile in self.missiles:
             #print missile.uncompleteness(), missile.completed
@@ -305,14 +329,14 @@ class Location_Layer(layer.ScrollableLayer):
             else:
                 self.collman.add(missile)
 
-        for hit_1, hit_2 in self.collman.iter_all_collisions():
-            hit_1.collide(hit_2)
+        #for hit_1, hit_2 in self.collman.iter_all_collisions():
+        #    hit_1.collide(hit_2)
         #if self.hero.fight_group > 0:
         #    self.collman.add(self.hero)
         map(self._actor_kick_or_add, self.actors)
 
-        for obj1, obj2 in self.collman.iter_all_collisions():
-            obj1.collide(obj2)
+        #for obj1, obj2 in self.collman.iter_all_collisions():
+        #    obj1.collide(obj2)
 
     def spawn(self, obj, pos):
         if obj in db.objs:
@@ -358,15 +382,15 @@ class Location_Layer(layer.ScrollableLayer):
         print "append hit to collision manager", hit
         self.hits.append(hit)
 
-    def on_remove_hit(self, hit):
-        """
-        Remove overdue Hit from game.
-        """
-        try:
-            self.hits.remove(hit)
-        except ValueError:
-            pass
-        print "remove hit"
+    # def on_remove_hit(self, hit):
+    #     """
+    #     Remove overdue Hit from game.
+    #     """
+    #     try:
+    #         self.hits.remove(hit)
+    #     except ValueError:
+    #         pass
+    #     print "remove hit"
 
     def on_drop_item(self, item):
         #print item

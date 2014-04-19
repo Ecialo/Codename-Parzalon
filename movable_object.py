@@ -30,8 +30,8 @@ class Level_Collider(tiles.RectMapCollider):
         self.wall |= con.RIGHT
         #self.horizontal_speed = 0
 
-
-class Movable_Object(cocos.sprite.Sprite, Level_Collider):
+#TODO: move fixture adding to more specific classes
+class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
 
     tilemap = None
     world = None
@@ -40,38 +40,39 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
         cocos.sprite.Sprite.__init__(self, img, position)
         #print self.world is None
         self.image = img
-        self.vertical_speed = vertical_speed
-        self.horizontal_speed = horizontal_speed
+        #self.vertical_speed = vertical_speed
+        #self.horizontal_speed = horizontal_speed
         pix_to_tile = con.pixel_value_to_tiles_value
-        self.b2body = self.world.CreateDynamicBody(position=pix_to_tile(position), fixedRotation=True, userData=self)
-        if cshape:
+        self.b2body = self.world.CreateDynamicBody(position=pix_to_tile(position), fixedRotation=True,
+                                                   userData=self, allowSleep=False)
+        self.b2body.linearVelocity = pix_to_tile((horizontal_speed, vertical_speed))
+        #if cshape:
             #self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=pix_to_tile((cshape.rx, cshape.ry)))))
-            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(
-                vertices=pix_to_tile([(-cshape.rx, cshape.ry), (-cshape.rx, -cshape.ry+1), (-cshape.rx+1, -cshape.ry),
-                                      (cshape.rx-1, -cshape.ry), (cshape.rx, -cshape.ry+1), (cshape.rx, cshape.ry)]),
-                friction=0)))
-            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=pix_to_tile((-cshape.rx, -cshape.ry)),
-                                                                           vertex2=pix_to_tile((cshape.rx, -cshape.ry))),
-                                                      isSensor=True))
-            self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.onGroundBegin, self.onGroundEnd)
+            # self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(
+            #     vertices=pix_to_tile([(-cshape.rx, cshape.ry), (-cshape.rx, -cshape.ry+1), (-cshape.rx+1, -cshape.ry),
+            #                           (cshape.rx-1, -cshape.ry), (cshape.rx, -cshape.ry+1), (cshape.rx, cshape.ry)]),
+            #     friction=0)))
         self.cshape = cshape
         if cshape:
             self.cshape.center = eu.Vector2(*position)
         self.wall = con.NO_TR
-        self.ground_count = 0
-        self.on_ground = False
 
     # def move_to(self, x, y):
     #     old = self.cshape.center.copy()
     #     vec = eu.Vector2(int(x), int(y))
     #     self._move(*(vec-old))
 
+    def set_position(self, x):
+        val = con.tiles_value_to_pixel_value(x)
+        self.position = val
+        self.cshape.center = val
+
     def _move(self, dx, dy):
         """
         Try to move Actor on dx, ndy with registrations all collisions
         with map.
         """
-        self.b2move(dx,dy)
+        self.b2move(dx, dy)
         return
         # self.on_ground = False
         # self.wall = con.NO_TR
@@ -94,15 +95,6 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
         # self.position += vec
         # self.cshape.center += vec
 
-    def onGroundBegin(self, fixture):
-        self.ground_count += 1
-        self.on_ground = True
-
-    def onGroundEnd(self, fixture):
-        self.ground_count -= 1
-        if self.ground_count == 0:
-            self.on_ground = False
-
     def update(self, dt):
         self.b2update()
         return
@@ -122,18 +114,18 @@ class Movable_Object(cocos.sprite.Sprite, Level_Collider):
     def b2move(self, dx, dy):
         # print (dx,dy)
         # print con.pixel_value_to_tiles_value((dx,dy))
-        self.b2body.position += con.pixel_value_to_tiles_value((dx,dy))
+        self.b2body.position += (dx, dy)
         #self.position = (self.position[0]+dx, self.position[1]+dy)
 
     def b2update(self):
-        if self.on_ground:
-            self.b2body.linearVelocity = con.pixel_value_to_tiles_value((self.horizontal_speed, self.vertical_speed))
-        else:
+        #if self.on_ground:
+        #    self.b2body.linearVelocity = (self.horizontal_speed, self.vertical_speed)
+        #else:
             #(self.horizontal_speed, self.vertical_speed) = con.tiles_value_to_pixel_value(self.b2body.linearVelocity)
-            (self.horizontal_speed, self.vertical_speed) = (0, 0)
+        #    (self.horizontal_speed, self.vertical_speed) = self.b2body.linearVelocity
         #print (self.b2body.linearVelocity)
-        self.position = con.tiles_value_to_pixel_value(self.b2body.position)
-        self.cshape.center = con.tiles_value_to_pixel_value(self.b2body.position)
+        self.set_position(self.b2body.position)
+        #self.cshape.center = con.tiles_value_to_pixel_value(self.b2body.position)
         # for contact_edge in self.b2body.contacts:
         #     contact = contact_edge.contact
         #     #print "AABB"

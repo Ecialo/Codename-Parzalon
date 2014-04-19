@@ -5,6 +5,7 @@ from pyglet.event import EventDispatcher
 from cocos import collision_model as cm
 from cocos import euclid as eu
 from cocos import layer
+import Box2D as b2
 
 import movable_object
 import consts as con
@@ -72,6 +73,19 @@ class Actor(movable_object.Movable_Object):
         self.state = 'stand'
         self.inventory = Inventory(None, None, None, None, self)
 
+        pix_to_tile = con.pixel_value_to_tiles_value
+        rx, ry = pix_to_tile((cshape.rx, cshape.ry))
+        self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(vertices=[(-rx, ry), (-rx, -ry+0.1),
+                                                                                    (-rx+0.1, -ry), (rx-0.1, -ry),
+                                                                                    (rx, -ry+0.1), (rx, ry)])))
+        self.b2body.fixtures[-1].filterData.categoryBits = con.B2SMTH | con.B2ACTOR
+        self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-rx, -ry), vertex2=(rx, -ry)),
+                                                  isSensor=True))
+        self.b2body.fixtures[-1].filterData.categoryBits = con.B2GNDSENS
+        self.b2body.fixtures[-1].filterData.maskBits = con.B2LEVEL | con.B2ACTOR
+        self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
+        self.ground_count = 0
+        self.on_ground = False
 
         self.recovery = 0.0  # Time before moment when acton can be controlled again
         #self.scale = 0.5
@@ -146,7 +160,9 @@ class Actor(movable_object.Movable_Object):
         if self.on_ground:
             d = horizontal_direction * self.body.speed
             #if abs(self.horizontal_speed + d) > self.body.speed:
-            self.horizontal_speed = d
+            #self.push((d,0))
+            self.b2body.linearVelocity.x = d
+            #self.horizontal_speed = d
             if self.direction != horizontal_direction:
                 self.turn()
 
@@ -155,19 +171,24 @@ class Actor(movable_object.Movable_Object):
         """
         Do not move Actor
         """
-        self.horizontal_speed = 0
+        self.b2body.linearVelocity.x = 0
+        #self.horizontal_speed = 0
 
     @activity
     def sit(self):
-        self.horizontal_speed = 0
+        self.b2body.linearVelocity.x = 0
+        #self.horizontal_speed = 0
 
     def turn(self):
         self.direction = -self.direction
         self.body.turn()
 
     def push(self, v):
-        self.horizontal_speed += v.x
-        self.vertical_speed += v.y
+        self.b2body.linearVelocity += v
+        #self.b2body.awake = True
+        #self.b2body.ApplyLinearImpulse(impulse=v, point=self.b2body.position, wake=False)
+        #self.horizontal_speed += v.x
+        #self.vertical_speed += v.y
 
     #def get_item(self, item):
     #    if item.slot == con.HAND:
@@ -184,7 +205,9 @@ class Actor(movable_object.Movable_Object):
         """
         Actor jump with his body jump speed.
         """
-        self.vertical_speed = consts['params']['human']['jump_speed']
+        #self.push((0,consts['params']['human']['jump_speed']))
+        self.b2body.linearVelocity.y = consts['params']['human']['jump_speed']
+        #self.vertical_speed = consts['params']['human']['jump_speed']
 
     def move_to(self, x, y):
         """
@@ -216,6 +239,15 @@ class Actor(movable_object.Movable_Object):
 
     def push_inst_task(self, task):
         self.actions[0].task_manager.push_instant_task(task)
+
+    def on_ground_begin(self, fixture):
+        self.ground_count += 1
+        self.on_ground = True
+
+    def on_ground_end(self, fixture):
+        self.ground_count -= 1
+        if self.ground_count == 0:
+            self.on_ground = False
 
     def take_hit(self, hit):
         """
