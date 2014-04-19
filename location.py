@@ -240,9 +240,9 @@ class Location_Layer(layer.ScrollableLayer):
     def _create_b2_tile_map(self, rect_map):
 
         def try_create_and_append_block(cells_in_block, mode):
-            num_of_cells = len(cells_in_block)
-            checker = (num_of_cells > 0) if mode else (num_of_cells > 1)
-            if checker:
+            if cells_in_block and mode == 0:
+                cells_in_block.pop()
+            if cells_in_block:
                 height = len(cells_in_block) if not mode else 1
                 width = len(cells_in_block) if mode else 1
                 half_height = height/2.0
