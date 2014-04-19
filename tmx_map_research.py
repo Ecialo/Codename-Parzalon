@@ -31,7 +31,7 @@ from consts import jump_height_to_pixel_speed
 from location import Location_Layer
 from location import b2Listener
 import Box2D as b2
-EPS = 1.0
+EPS = 4.0
 
 
 class Path_Method(object):
@@ -79,6 +79,14 @@ class Jump(Path_Method):
 
     def __call__(self, master, target_cell, dt):
         super(Jump, self).__call__(master, None, dt)
+        master.jump()
+        print master.position[0], target_cell.center[0]
+        if abs(master.position[0] - target_cell.center[0]) > EPS:
+            Animate(master, 'walk')
+            master.walk(master.direction)
+        else:
+            print 2312312312
+            master.stand()
 
 
 class Fall(Path_Method):
@@ -136,7 +144,7 @@ def location_preprocess(rect_map):
             if is_floor(cur_cell) and not is_wall(cur_cell):
                 yield (cur_cell, Move(direction))
             elif is_wall(cur_cell):                     # Ledge
-                print "LEEEEEEEEEEEEEEEEEEEEEEEEEEEEEDGE"
+                #print "LEEEEEEEEEEEEEEEEEEEEEEEEEEEEEDGE"
                 for i in xrange(HEIGHT):
                     cur_cell = rect_map.get_neighbor(cur_cell, UP)
                     if cur_cell and not is_wall(cur_cell) and is_floor(cur_cell) and is_passage(cur_cell):
@@ -147,12 +155,13 @@ def location_preprocess(rect_map):
                 already_closest_for_skip = False
                 already_closest_for_jumpover = False
                 for i in xrange(DISTANCE):
-                    cur_cell = rect_map.get_neighbor(start_cell, direction)
+                    cur_cell = rect_map.get_neighbor(cur_cell, direction)
                     if not cur_cell:
                         break
                     if not already_closest_for_skip and is_floor(cur_cell) and is_passage(cur_cell):
                         already_closest_for_skip = True
                         yield (cur_cell, Jump(i, 0, direction))
+
                     if not already_closet_for_fall:
                         cur_dcell = cur_cell
                         for j in xrange(DEPTH):
@@ -161,12 +170,14 @@ def location_preprocess(rect_map):
                                 already_closet_for_fall = True
                                 yield (cur_dcell, Fall(i, direction))
                                 break
+
                     if not already_closest_for_jumpover:
                         cur_hcell = cur_cell
                         for j in xrange(HEIGHT):
                             cur_hcell = rect_map.get_neighbor(cur_hcell, UP)
                             if cur_hcell and not is_wall(cur_hcell) and is_floor(cur_hcell) and is_passage(cur_hcell):
                                 already_closest_for_jumpover = True
+                                print "SUCSESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
                                 yield (cur_hcell, Jump(i, j, direction))
                                 break
 

@@ -157,14 +157,14 @@ class Actor(movable_object.Movable_Object):
         """
         Move Actor in horizontal_direction with his body speed
         """
-        if self.on_ground:
-            d = horizontal_direction * self.body.speed
-            #if abs(self.horizontal_speed + d) > self.body.speed:
-            #self.push((d,0))
-            self.b2body.linearVelocity.x = d
-            #self.horizontal_speed = d
-            if self.direction != horizontal_direction:
-                self.turn()
+        #if self.on_ground:
+        d = horizontal_direction * self.body.speed
+        #if abs(self.horizontal_speed + d) > self.body.speed:
+        #self.push((d,0))
+        self.b2body.linearVelocity.x = d
+        #self.horizontal_speed = d
+        if self.direction != horizontal_direction:
+            self.turn()
 
     @activity
     def stand(self):
@@ -205,9 +205,10 @@ class Actor(movable_object.Movable_Object):
         """
         Actor jump with his body jump speed.
         """
-        #self.push((0,consts['params']['human']['jump_speed']))
-        self.b2body.linearVelocity.y = consts['params']['human']['jump_speed']
-        #self.vertical_speed = consts['params']['human']['jump_speed']
+        if self.on_ground:
+            #self.push((0,consts['params']['human']['jump_speed']))
+            self.b2body.linearVelocity.y = consts['params']['human']['jump_speed']
+            #self.vertical_speed = consts['params']['human']['jump_speed']
 
     def move_to(self, x, y):
         """
