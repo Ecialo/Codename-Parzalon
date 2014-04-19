@@ -74,7 +74,8 @@ class Jump(Path_Method):
                            'jump_height': height}
 
     def check(self, target):
-        return target.speed >= self.parameters['speed'] and target.jump_height >= self.parameters['jump_height']
+        return True
+        #return target.speed >= self.parameters['speed'] and target.jump_height >= self.parameters['jump_height']
 
     def __call__(self, master, target_cell, dt):
         super(Jump, self).__call__(master, None, dt)
@@ -130,47 +131,57 @@ def location_preprocess(rect_map):
             return True
 
     def check_floor_in_sector(start_cell, direction):   # direction must be LEFT or RIGHT
-        cur_cell = start_cell
-        for i in xrange(DISTANCE):
-            cur_cell = rect_map.get_neighbor(cur_cell, direction)
-            if not cur_cell:
-                break
-            if is_floor(cur_cell) and is_passage(cur_cell):
+        cur_cell = rect_map.get_neighbor(start_cell, direction)
+        if cur_cell:
+            if is_floor(cur_cell) and not is_wall(cur_cell):
                 yield (cur_cell, Move(direction))
-
-            cur_hcell = cur_cell
-            for j in xrange(DEPTH):
-                cur_hcell = rect_map.get_neighbor(cur_hcell, DOWN)
-                if not cur_hcell or not is_passage(cur_hcell):
-                    break
-                if is_floor(cur_hcell):
-                    yield (cur_hcell, Fall(i+1, direction))
-
-            cur_hcell = cur_cell
-            for j in xrange(HEIGHT):
-                cur_hcell = rect_map.get_neighbor(cur_hcell, UP)
-                if not cur_hcell:
-                    break
-                if is_floor(cur_hcell) and is_passage(cur_hcell):
-                    yield (cur_hcell, Jump(i+1, j+1, direction))
+            elif is_wall(cur_cell):                     # Ledge
+                print "LEEEEEEEEEEEEEEEEEEEEEEEEEEEEEDGE"
+                for i in xrange(HEIGHT):
+                    cur_cell = rect_map.get_neighbor(cur_cell, UP)
+                    if cur_cell and not is_wall(cur_cell) and is_floor(cur_cell) and is_passage(cur_cell):
+                        yield (cur_cell, Jump(1, i, direction))
+                        break
+            else:                                       # Hole
+                already_closet_for_fall = False
+                already_closest_for_skip = False
+                already_closest_for_jumpover = False
+                for i in xrange(DISTANCE):
+                    cur_cell = rect_map.get_neighbor(start_cell, direction)
+                    if not cur_cell:
+                        break
+                    if not already_closest_for_skip and is_floor(cur_cell) and is_passage(cur_cell):
+                        already_closest_for_skip = True
+                        yield (cur_cell, Jump(i, 0, direction))
+                    if not already_closet_for_fall:
+                        cur_dcell = cur_cell
+                        for j in xrange(DEPTH):
+                            cur_dcell = rect_map.get_neighbor(cur_dcell, DOWN)
+                            if cur_dcell and is_floor(cur_dcell) and is_passage(cur_dcell):
+                                already_closet_for_fall = True
+                                yield (cur_dcell, Fall(i, direction))
+                                break
+                    if not already_closest_for_jumpover:
+                        cur_hcell = cur_cell
+                        for j in xrange(HEIGHT):
+                            cur_hcell = rect_map.get_neighbor(cur_hcell, UP)
+                            if cur_hcell and not is_wall(cur_hcell) and is_floor(cur_hcell) and is_passage(cur_hcell):
+                                already_closest_for_jumpover = True
+                                yield (cur_hcell, Jump(i, j, direction))
+                                break
 
     def find_and_append_cell_connections(cell, direction):
-        neighbor = rect_map.get_neighbor(cell, direction)
-        if neighbor and not is_wall(neighbor) and is_passage(neighbor):
-            if is_floor(neighbor):
-                cell[connections].append((neighbor, Move(direction)))
-            else:
-                for connection, method in check_floor_in_sector(cell, direction):
-                    #print connection, method
-                    cell[connections].append((connection, method))
-                    #print cell[connections]
+        for connection, method in check_floor_in_sector(cell, direction):
+            print connection, method
+            cell[connections].append((connection, method))
+            #print cell[connections]
 
     for cell_column in cells:
         for cell in cell_column:
             cell[connections] = []
             if is_floor(cell) and is_passage(cell):
                 find_and_append_cell_connections(cell, LEFT)
-                print cell[connections]
+                #print cell[connections]
                 find_and_append_cell_connections(cell, RIGHT)
     #for cell_column in cells:
     #    for cell in cell_column:
