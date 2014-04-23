@@ -8,7 +8,7 @@ import armors
 objs = {'hero':     {'type': con.UNIT,
                      'brain': brains.Controller,
                      'body': bodies.Hero,
-                     'items': [armors.Helmet, weapons.Sword] + [weapons.Knife]*50},
+                     'items': [weapons.Sword] + [weapons.Knife]*50},
         'enemy':    {'type': con.UNIT,
                      'brain': brains.Base_Enemy_Mind,
                      'body': bodies.Human,

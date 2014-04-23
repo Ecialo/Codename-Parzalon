@@ -253,7 +253,7 @@ class Actor(movable_object.Movable_Object):
         """
         Check with every Body_Part is Hit hit or not.
         """
-        self.body.take_hit(hit)
+        self.body.collide(hit)
 
     def touches_point(self, x, y):
         """

@@ -87,10 +87,11 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         self._color_c = 255.0 / time
 
     def on_begin_contact(self, fixture):
-        if fixture.filterData.categoryBits & con.B2ACTOR:
-            self.contacts.append(fixture.body.userData)
-        else:
-            fixture.body.userData.collide(self)
+        fixcat = fixture.filterData.categoryBits
+        if fixcat & con.B2BODYPART:
+            self.contacts.append(fixture.userData)
+        elif fixcat & con.B2SWING:
+            fixture.userData.collide(self)
         #fixcat = fixture.filterData.categoryBits
         # elif fixcat & con.B2ACTOR:
         #     self._collide_actor(fixture.body.userData)
@@ -139,11 +140,11 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         print (vlen, vcent, vangle)
         self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(vlen, 0,
                                                                                                  vcent, vangle)),
-                                                                    isSensor=True))
+                                                                    isSensor=True, userData=self))
         # self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=v1, vertex2=v2),
         #                                                       isSensor=True))
         self.b2fixture.filterData.categoryBits = con.B2SWING
-        self.b2fixture.filterData.maskBits = con.B2ACTOR | con.B2HITZONE | con.B2SWING
+        self.b2fixture.filterData.maskBits = con.B2HITZONE | con.B2SWING | con.B2BODYPART
         actor.world.contactListener.addEventHandler(self.b2fixture, self.on_begin_contact, self.on_end_contact)
         self.schedule(self.update)
 
@@ -159,8 +160,8 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         self.completed = True
         self.unschedule(self.update)
         if not parried:
-            for actor in self.contacts:
-                actor.collide(self)
+            for bodypart in self.contacts:
+                bodypart.collide(self)
         self.fight_group = -1
         self.base_fight_group = -1
         self.master.owner.world.destroy_fixture(self.b2fixture)
@@ -225,15 +226,17 @@ class Hit_Zone(mova.Movable_Object):
         mova.Movable_Object.__init__(self, img, cshape, position, v.y, v.x)
         if hit_shape is con.RECTANGLE:
             rx, ry = con.pix_to_tile((cshape.rx, cshape.ry))
-            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry)), isSensor=True))
+            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry)), isSensor=True,
+                                                      userData=self))
         elif hit_shape is con.LINE:
             r = con.pix_to_tile(img.width/2.0)
             #self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-r, 0), vertex2=(r, 0)),
             self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(r, 0)),
-                                                      isSensor=True))
+                                                      isSensor=True, userData=self))
         self.b2body.gravityScale = 0
         self.b2body.fixtures[-1].filterData.categoryBits = con.B2HITZONE
-        self.b2body.fixtures[-1].filterData.maskBits = con.B2ACTOR | con.B2HITZONE | con.B2SWING | con.B2LEVEL
+        self.b2body.fixtures[-1].filterData.maskBits = con.B2HITZONE | \
+                                                       con.B2SWING | con.B2LEVEL | con.B2BODYPART
         self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.on_begin_contact, self.on_end_contact)
         self.master = master
         self.fight_group = master.owner.fight_group + consts['missile_fight_group']
@@ -273,7 +276,7 @@ class Hit_Zone(mova.Movable_Object):
         if fixcat & con.B2LEVEL:
             self.complete()
         else:
-            fixture.body.userData.collide(self)
+            fixture.userData.collide(self)
         # elif fixcat & con.B2ACTOR:
         #     self._collide_actor(fixture.body.userData)
         # elif fixcat & con.B2HITZONE:

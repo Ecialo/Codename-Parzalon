@@ -37,7 +37,7 @@ def jump_height_to_pixel_speed(height_in_tiles):
 
 
 def binary_list(n):
-    if n >= 32:
+    if n >= 16:
         return []
     return map(lambda x: 2**x, range(n))
 
@@ -118,5 +118,5 @@ CHOP, STAB, CLEAVE, PENETRATE = xrange(4)
 LINE, RECTANGLE = xrange(2)
 UNIT, ITEM = xrange(2)
 EMPTY_LIST = []
-B2SMTH, B2LEVEL, B2GNDSENS, B2HITZONE, B2ACTOR, B2SWING = binary_list(6)
+B2SMTH, B2LEVEL, B2GNDSENS, B2HITZONE, B2ACTOR, B2SWING , B2BODYPART = binary_list(7)
 B2EVERY = 0xFFFF
