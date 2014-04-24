@@ -5,6 +5,7 @@ import json
 import Bone
 import Slot
 import Skin
+from Animation import *
 
 class Skeleton_Data(object):
 
@@ -46,6 +47,14 @@ class Skeleton_Data(object):
     def load_skins(self, skins):
         for skin in skins:
             pass
+
+    def load_animations(self, animations):
+        for animation in animations:
+            loaded_animation = Animation(animation, animations[animation])
+            self.animations[animation] = loaded_animation
+            loaded_animation.apply_bones_and_slots_data(self)
+
+
 
 
 if __name__ == "__main__":
