@@ -22,7 +22,6 @@ class Skeleton_Data(object):
             with open(file) as fp:
                 data = json.load(fp)
                 self.load_bones(data['bones'])
-
         else:
             pass
 
@@ -37,11 +36,13 @@ class Skeleton_Data(object):
             else:
                 self.root_bone = Bone.Bone(**bone)
                 self.bones[bone['name']] = self.root_bone
+            self.bones[bone['name']].apply_bone_data()
 
     def load_slots(self, slots):
         for slot in slots:
             slot['bone'] = self.bones[slot['bone']]
             self.slots[slot['name']] = Slot.Slot(**slot)
+            self.slots[slot['name']].apply_slot_data()
 
     def load_skins(self, skins):
         for skin in skins:
