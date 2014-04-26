@@ -6,6 +6,7 @@ import Bone
 import Slot
 import Skin
 from Animation import *
+import Attachment
 
 class Skeleton_Data(object):
 
@@ -23,6 +24,9 @@ class Skeleton_Data(object):
             with open(file) as fp:
                 data = json.load(fp)
                 self.load_bones(data['bones'])
+                self.load_slots(data['slots'])
+                self.load_skins(data['skins'])
+
         else:
             pass
 
@@ -46,8 +50,15 @@ class Skeleton_Data(object):
             self.slots[slot['name']].apply_slot_data()
 
     def load_skins(self, skins):
-        for skin in skins:
-            pass
+        for skin_name, skin in skins.items():
+            new_skin = Skin.Skin(skin_name)
+            self.skins[skin_name] = new_skin
+            if skin_name == 'default':
+                self.defaultSkin = new_skin
+            for slot_name, attachments in skin.items():
+                for attach_name, attach in attachments.items():
+                    attach_data = Attachment.Attachment(name=attach_name, **attach)
+                    new_skin.add_attachment(slot_name, attach_name, attach_data)
 
     def load_animations(self, animations):
         for animation in animations:
