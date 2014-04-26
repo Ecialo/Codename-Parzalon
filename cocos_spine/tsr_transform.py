@@ -7,8 +7,8 @@ def tsr_transform(par_tsr, child_tsr):
     par_pos, par_scale_x, par_scale_y, par_rot = par_tsr
     cos = math.cos(math.radians(par_rot))
     sin = math.sin(math.radians(par_rot))
-    x = (par_pos[0]*cos*par_scale_x-par_pos[1]*sin*par_scale_y)*scale_x
-    y = (par_pos[0]*sin*par_scale_x+par_pos[1]*cos*par_scale_y)*scale_y
+    x = (pos[0]*cos*par_scale_x - pos[1]*sin*par_scale_y + par_pos[0])*abs(scale_x)
+    y = (pos[0]*sin*par_scale_x + pos[1]*cos*par_scale_y + par_pos[1])*abs(scale_y)
     new_pos = (x, y)
     new_scale_x = scale_x * par_scale_x
     new_scale_y = scale_y * par_scale_y

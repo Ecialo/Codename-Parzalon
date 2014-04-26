@@ -3,6 +3,7 @@ __author__ = 'Ecialo'
 import json
 
 from cocos import batch
+from collections import OrderedDict
 
 import Bone
 import Slot
@@ -24,7 +25,7 @@ class Skeleton_Data(object):
             raise Exception("Invalid atlas")
         self.root_bone = None
         self.bones = {}
-        self.slots = {}
+        self.slots = OrderedDict()
         self.skins = {}
         self.animations = {}
         self.current_skin = None
@@ -45,6 +46,7 @@ class Skeleton_Data(object):
             par_tsr = (bone.position, bone.scale_x, bone.scale_y, bone.rotation)
             child_tsr = (attach_data.position, attach_data.scale_x, attach_data.scale_y, attach.rotation)
             attach.position, attach.scale_x, attach.scale_y, attach.rotation = tsr_transform(par_tsr, child_tsr)
+            attach.rotation *= -1
 
     def set_skin(self, skin_name):
         if self.current_skin.name is not skin_name:
@@ -67,7 +69,7 @@ class Skeleton_Data(object):
                 self.load_bones(data['bones'])
                 self.load_slots(data['slots'])
                 self.load_skins(data['skins'])
-                self.load_animations(data['animations'])
+                #self.load_animations(data['animations'])
 
         else:
             pass
@@ -115,9 +117,12 @@ class Skeleton(batch.BatchNode):
     def __init__(self, skeleton_data):
         super(Skeleton, self).__init__()
         self.skeleton_data = skeleton_data
-        for slot in self.skeleton_data.slots.itervalues():
+        i=1
+        for slot in reversed(self.skeleton_data.slots.values()):
+            i+=1
             #print slot.attachment.position, slot.attachment.attachment_data.position
-            self.add(slot.attachment)
+            print slot.bone.name
+            self.add(slot.attachment, z=i)
 
 
 def main():
@@ -130,7 +135,10 @@ def main():
     class TestLayer(layer.Layer):
         def __init__(self):
             super(TestLayer, self).__init__()
-            sd = Skeleton_Data('./data/dragon.json', './data/dragon.atlas')
+            name = 'skeleton'
+            sd = Skeleton_Data('./data/'+name+'.json', './data/'+name+'.atlas')
+            #sd = Skeleton_Data('./data/dragon.json', './data/dragon.atlas')
+            #sd = Skeleton_Data('./data/skeleton.json', './data/skeleton.atlas')
             skel = Skeleton(sd)
             skel.position = (512, 500)
             self.add(skel)

@@ -7,7 +7,7 @@ Slot_Data = namedtuple("Slot_Data", ['name', 'bone', "attachment"])
 
 class Slot(object):
 
-    def __init__(self, name=None, bone=None, attachment=None):
+    def __init__(self, name=None, bone=None, color=None, attachment=None):
         self.name = name
         self.bone = bone
         self.attachment = attachment
