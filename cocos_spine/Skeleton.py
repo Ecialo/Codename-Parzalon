@@ -5,6 +5,7 @@ import json
 import Bone
 import Slot
 import Skin
+import Attachment
 
 class Skeleton_Data(object):
 
@@ -53,7 +54,8 @@ class Skeleton_Data(object):
                 self.defaultSkin = new_skin
             for slot_name, attachments in skin.items():
                 for attach_name, attach in attachments.items():
-                    new_skin.add_attachment(slot_name, attach_name, attach)
+                    attach_data = Attachment.Attachment(name=attach_name, **attach)
+                    new_skin.add_attachment(slot_name, attach_name, attach_data)
 
 
 if __name__ == "__main__":
