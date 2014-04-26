@@ -189,14 +189,19 @@ class Animation(object):
         self.load_timelines(timelines)
 
     def load_timelines(self, timelines):
-        self.load_bone_timelines(timelines['bone'])
+        #print timelines
+        self.load_bone_timelines(timelines['bones'])
         self.load_slots_timelines(timelines['slots'])
 
     def load_bone_timelines(self, bones):
         for bone in bones:
-            self.timelines.append(Rotate_Timeline(bone, bones[bone]['rotate']))
-            self.timelines.append(Translate_Timeline(bone, bones[bone]['translate']))
-            self.timelines.append(Scale_Timeline(bone, bones[bone]['scale']))
+            bone_data = bones[bone]
+            if 'rotate' in bone_data:
+                self.timelines.append(Rotate_Timeline(bone, bone_data['rotate']))
+            if 'translate' in bone_data:
+                self.timelines.append(Translate_Timeline(bone, bone_data['translate']))
+            if 'scale' in bone_data:
+                self.timelines.append(Scale_Timeline(bone, bone_data['scale']))
 
     def load_slots_timelines(self, slots):
         for slot in slots:

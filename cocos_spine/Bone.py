@@ -19,6 +19,14 @@ class Bone(object):
         self.rotation = rotation
         self.childs = []
 
+    def update_childs(self):
+        data = (self.position, self.scale, self.rotation)
+        reduce(lambda _, child: child.update(data), self.childs, None)
+
+    def update(self, data):
+        self.position, self.scale, self.rotation = data
+        self.update_childs()
+
     def add_bone(self, bone):
         self.childs.append(bone)
 

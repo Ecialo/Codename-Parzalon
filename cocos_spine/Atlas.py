@@ -63,10 +63,15 @@ class Atlas(object):
                         if ':' in value:
                             name, data = map(clean, value.split(':'))
                             #TODO: too bad! do not use eval!
+                            #print "maybe"
                             region_data[name] = eval("("+data+")")
+                            #print "not"
                         else:
+                            #print "start_apply_region"
                             region_data['region'] = self.get_region(image, region_data)
+                            #print "NOW"
                             file_data[region_name] = region_data
+                            #print "NOWW"
                             state = st_name
                             continue
                     break
@@ -86,11 +91,59 @@ class Atlas(object):
         return self.region_lib[name]
 
     def get_region(self, image, region_data):
-        x, y = region_data['xy']
+        x, y = region_data['xy']        # left top
         width, height = region_data['size']
+        h = image.height
+        #w = image.width
+        #x = w - x
+        y = h - height - y
+        #print y, h, h + y
+        #print h - y
+        #x, y = 0, 0
+        #width, height = 672, h/2
         region = image.get_region(x, y, width, height)
-        return self.atlas.add(region)
+        #print region
+        att = self.atlas.add(region)
+        #print att
+        return att
 
+
+def main():
+
+    from cocos import layer
+    from cocos import scene
+    from cocos import sprite
+    from cocos.director import director
+    director.init(1024, 1024)
+
+    class TestLayer(layer.Layer):
+
+        is_event_handler = True
+
+        def __init__(self):
+            super(TestLayer, self).__init__()
+            self.a = Atlas('./data/dragon.atlas')
+            self.names = self.a.region_lib.keys()
+            self.i = 0
+            print self.names[self.i]
+            self.sprite = sprite.Sprite(self.a.get_attachment_region(self.names[self.i]))
+            self.sprite.position = (512, 512)
+            self.add(self.sprite)
+
+        def on_key_press(self, symbol, modifers):
+            self.i += 1
+            print self.names[self.i]
+            self.sprite.image = self.a.get_attachment_region(self.names[self.i])
+
+
+
+
+
+    scene = scene.Scene(TestLayer())
+    director.run(scene)
+
+
+    #sd = Skeleton_Data('./data/dragon.json', './data/dragon.atlas')
 
 if __name__ == "__main__":
-    a = Atlas('./data/dragon.atlas')
+    main()
