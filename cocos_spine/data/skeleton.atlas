@@ -3,14 +3,14 @@ data/skeleton.png
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-skeleton/token
+token
   rotate: false
   xy: 141, 30
   size: 123, 122
   orig: 123, 122
   offset: 0, 0
   index: -1
-skeleton/wing
+wing
   rotate: false
   xy: 2, 2
   size: 137, 150
