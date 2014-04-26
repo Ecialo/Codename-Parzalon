@@ -10,6 +10,7 @@ import Skin
 from Animation import *
 import Attachment
 from Atlas import *
+from tsr_transform import *
 
 
 class Skeleton_Data(object):
@@ -36,10 +37,14 @@ class Skeleton_Data(object):
         for slot in self.slots.itervalues():
             bone = slot.bone
             attach = slot.attachment
-            x, y = attach.position
-            bx, by  = bone.position
-            attach.position = (x+bx, y+by)
-            attach.rotation += bone.rotation
+            attach_data = attach.attachment_data
+            # x, y = attach.position
+            # bx, by  = bone.position
+            # attach.position = (x+bx, y+by)
+            # attach.rotation += bone.rotation
+            par_tsr = (bone.position, bone.scale_x, bone.scale_y, bone.rotation)
+            child_tsr = (attach_data.position, attach_data.scale_x, attach_data.scale_y, attach.rotation)
+            attach.position, attach.scale_x, attach.scale_y, attach.rotation = tsr_transform(par_tsr, child_tsr)
 
     def set_skin(self, skin_name):
         if self.current_skin.name is not skin_name:
@@ -53,6 +58,7 @@ class Skeleton_Data(object):
             attach = self.current_skin.get_attachment(slot.name, slot.attachment)
             image = self.atlas.get_attachment_region(attach.name)
             slot.attachment = Attachment.Sprite_Attachment(image, attach)
+            #print slot.attachment.position
 
     def load_from_json(self, file):
         if file:
@@ -110,7 +116,7 @@ class Skeleton(batch.BatchNode):
         super(Skeleton, self).__init__()
         self.skeleton_data = skeleton_data
         for slot in self.skeleton_data.slots.itervalues():
-            print slot.attachment
+            #print slot.attachment.position, slot.attachment.attachment_data.position
             self.add(slot.attachment)
 
 
