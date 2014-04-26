@@ -3,6 +3,7 @@ __author__ = 'Ecialo'
 import json
 
 from cocos import batch
+import cocos
 from collections import OrderedDict
 
 import Bone
@@ -112,17 +113,17 @@ class Skeleton_Data(object):
             loaded_animation.apply_bones_and_slots_data(self)
 
 
-class Skeleton(batch.BatchNode):
+class Skeleton(batch.BatchableNode):
 
     def __init__(self, skeleton_data):
         super(Skeleton, self).__init__()
         self.skeleton_data = skeleton_data
-        i=1
-        for slot in reversed(self.skeleton_data.slots.values()):
-            i+=1
+        i = 1
+        for slot in self.skeleton_data.slots.values():
             #print slot.attachment.position, slot.attachment.attachment_data.position
             print slot.bone.name
             self.add(slot.attachment, z=i)
+            i += 1
 
 
 def main():
@@ -135,7 +136,7 @@ def main():
     class TestLayer(layer.Layer):
         def __init__(self):
             super(TestLayer, self).__init__()
-            name = 'skeleton'
+            name = 'dragon'
             sd = Skeleton_Data('./data/'+name+'.json', './data/'+name+'.atlas')
             #sd = Skeleton_Data('./data/dragon.json', './data/dragon.atlas')
             #sd = Skeleton_Data('./data/skeleton.json', './data/skeleton.atlas')
