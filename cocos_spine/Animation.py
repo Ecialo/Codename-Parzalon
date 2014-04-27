@@ -190,8 +190,10 @@ class Animation(object):
 
     def load_timelines(self, timelines):
         #print timelines
-        self.load_bone_timelines(timelines['bones'])
-        self.load_slots_timelines(timelines['slots'])
+        if 'bones' in timelines:
+            self.load_bone_timelines(timelines['bones'])
+        if 'slots' in timelines:
+            self.load_slots_timelines(timelines['slots'])
 
     def load_bone_timelines(self, bones):
         for bone in bones:

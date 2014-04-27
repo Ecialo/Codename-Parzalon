@@ -29,29 +29,34 @@ class Skeleton_Data(object):
         self.slots = OrderedDict()
         self.skins = {}
         self.animations = {}
+        self.to_draw = OrderedDict()
         self.current_skin = None
         self.load_from_json(file)
-        self.prepare_to_draw()
-        self.update_transform()
+        if self.current_skin:
+            self.prepare_to_draw()
+            self.update_transform()
 
     def update_transform(self):
         self.root_bone.update_childs()
         for slot in self.slots.itervalues():
-            bone = slot.bone
-            attach = slot.attachment
-            attach_data = attach.attachment_data
-            # x, y = attach.position
-            # bx, by  = bone.position
-            # attach.position = (x+bx, y+by)
-            # attach.rotation += bone.rotation
-            par_tsr = (bone.position, bone.scale_x, bone.scale_y, bone.rotation)
-            child_tsr = (attach_data.position, attach_data.scale_x, attach_data.scale_y, attach.rotation)
-            attach.position, attach.scale_x, attach.scale_y, attach.rotation = tsr_transform(par_tsr, child_tsr)
-            attach.rotation *= -1
+            if slot.name in self.to_draw:
+                bone = slot.bone
+                attach = self.to_draw[slot.name]
+                attach_data = attach.attachment_data
+                # x, y = attach.position
+                # bx, by  = bone.position
+                # attach.position = (x+bx, y+by)
+                # attach.rotation += bone.rotation
+                par_tsr = (bone.position, bone.scale_x, bone.scale_y, bone.rotation)
+                child_tsr = (attach_data.position, attach_data.scale_x, attach_data.scale_y, attach.rotation)
+                attach.position, attach.scale_x, attach.scale_y, attach.rotation = tsr_transform(par_tsr, child_tsr)
+                attach.rotation *= -1
 
     def set_skin(self, skin_name):
-        if self.current_skin.name is not skin_name:
+        if not self.current_skin or self.current_skin.name is not skin_name:
             self.current_skin = self.skins[skin_name]
+            self.prepare_to_draw()
+            self.update_transform()
 
     def set_attachment_to_slot(self, slot, attachment):
         slot.attachment.image = self.atlas.get_attachment_region(attachment)
@@ -59,8 +64,12 @@ class Skeleton_Data(object):
     def prepare_to_draw(self):
         for slot in self.slots.itervalues():
             attach = self.current_skin.get_attachment(slot.name, slot.attachment)
-            image = self.atlas.get_attachment_region(attach.name)
-            slot.attachment = Attachment.Sprite_Attachment(image, attach)
+            if attach:
+                image = self.atlas.get_attachment_region(attach.name)
+                if slot.name in self.to_draw:
+                    self.to_draw[slot.name].set_new_attachment(image, attach)
+                else:
+                    self.to_draw[slot.name] = Attachment.Sprite_Attachment(image, attach)
             #print slot.attachment.position
 
     def load_from_json(self, file):
@@ -103,7 +112,10 @@ class Skeleton_Data(object):
             for slot_name, attachments in skin.items():
                 for attach_name, attach in attachments.items():
                     #attach['image'] = self.atlas.get_attachment_region(attach_name)
-                    attach_data = Attachment.Attachment(name=attach_name, **attach)
+                    if 'name' not in attach:
+                        attach_data = Attachment.Attachment(name=attach_name, **attach)
+                    else:
+                        attach_data = Attachment.Attachment(**attach)
                     new_skin.add_attachment(slot_name, attach_name, attach_data)
 
     def load_animations(self, animations):
@@ -119,11 +131,14 @@ class Skeleton(batch.BatchableNode):
         super(Skeleton, self).__init__()
         self.skeleton_data = skeleton_data
         i = 1
-        for slot in self.skeleton_data.slots.values():
+        for attach in self.skeleton_data.to_draw.values():
             #print slot.attachment.position, slot.attachment.attachment_data.position
-            print slot.bone.name
-            self.add(slot.attachment, z=i)
+            #print slot.bone.name
+            self.add(attach, z=i)
             i += 1
+
+    def set_skin(self, skin_name):
+        self.skeleton_data.set_skin(skin_name)
 
 
 def main():
@@ -141,6 +156,7 @@ def main():
             #sd = Skeleton_Data('./data/dragon.json', './data/dragon.atlas')
             #sd = Skeleton_Data('./data/skeleton.json', './data/skeleton.atlas')
             skel = Skeleton(sd)
+            #skel.set_skin('goblin')
             skel.position = (512, 500)
             self.add(skel)
 
