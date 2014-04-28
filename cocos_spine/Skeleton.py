@@ -62,8 +62,8 @@ class Skeleton_Data(object):
         slot.attachment.image = self.atlas.get_attachment_region(attachment)
 
     def prepare_to_draw(self):
-        for slot in self.slots.itervalues():
-            attach = self.current_skin.get_attachment(slot.name, slot.attachment)
+        for slot_name, slot in self.slots.items():
+            attach = self.current_skin.get_attachment(slot_name, slot.attachment)
             if attach:
                 image = self.atlas.get_attachment_region(attach.name)
                 if slot.name in self.to_draw:
@@ -111,6 +111,7 @@ class Skeleton_Data(object):
                 self.current_skin = new_skin
             for slot_name, attachments in skin.items():
                 for attach_name, attach in attachments.items():
+                    print attach
                     #attach['image'] = self.atlas.get_attachment_region(attach_name)
                     if 'name' not in attach:
                         attach_data = Attachment.Attachment(name=attach_name, **attach)
@@ -130,15 +131,21 @@ class Skeleton(batch.BatchableNode):
     def __init__(self, skeleton_data):
         super(Skeleton, self).__init__()
         self.skeleton_data = skeleton_data
-        i = 1
-        for attach in self.skeleton_data.to_draw.values():
-            #print slot.attachment.position, slot.attachment.attachment_data.position
-            #print slot.bone.name
-            self.add(attach, z=i)
-            i += 1
+        self.render()
 
     def set_skin(self, skin_name):
         self.skeleton_data.set_skin(skin_name)
+        self.render()
+
+    def render(self):
+        i = 0
+        #print self.skeleton_data.to_draw.keys()
+        for slot in self.skeleton_data.slots.keys():
+            if slot in self.skeleton_data.to_draw:
+                attach = self.skeleton_data.to_draw[slot]
+                print attach
+                self.add(attach, z=i, name=attach.name)
+                i += 1
 
 
 def main():
@@ -151,13 +158,16 @@ def main():
     class TestLayer(layer.Layer):
         def __init__(self):
             super(TestLayer, self).__init__()
+            #name = 'goblins'
             name = 'dragon'
+            #TODO Check how scale work with skins
             sd = Skeleton_Data('./data/'+name+'.json', './data/'+name+'.atlas')
             #sd = Skeleton_Data('./data/dragon.json', './data/dragon.atlas')
             #sd = Skeleton_Data('./data/skeleton.json', './data/skeleton.atlas')
             skel = Skeleton(sd)
             #skel.set_skin('goblin')
-            skel.position = (512, 500)
+            #skel.set_skin('goblingirl')
+            skel.position = (512, 200)
             self.add(skel)
 
 

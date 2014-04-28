@@ -20,6 +20,7 @@ class Sprite_Attachment(sprite.Sprite):
 
     def __init__(self, image, attachment):
         self.name = attachment.attachment_name
+        print attachment.name
         self.attachment_data = attachment
         position = attachment.position
         image = image           # We must place here image from atlas
