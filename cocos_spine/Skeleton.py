@@ -40,7 +40,7 @@ class Skeleton_Data(object):
         for slot in self.slots.itervalues():
             bone = slot.bone
             #print bone.name, bone.rotation
-            attach = slot.to_draw
+            attach_to_draw = slot.to_draw
             attach_data = slot.attachment
             if slot.to_draw:
                 #attach_data = attach.attachment_data
@@ -48,10 +48,11 @@ class Skeleton_Data(object):
                 # bx, by  = bone.position
                 # attach.position = (x+bx, y+by)
                 # attach.rotation += bone.rotation
-                par_tsr = (bone.position, bone.scale_x, bone.scale_y, bone.rotation)
+                par_tsr = bone.global_tsr
+                #print bone.global_tsr, bone.name
                 #print attach_data.name, id(attach.attachment_data.rotation), id(attach.rotation)
-                child_tsr = (attach_data.position, attach_data.scale_x, attach_data.scale_y, attach_data.rotation)
-                attach.position, attach.scale_x, attach.scale_y, attach.rotation = tsr_transform(par_tsr, child_tsr)
+                #child_tsr = (attach_data.position, attach_data.scale_x, attach_data.scale_y, attach_data.rotation)
+                attach_to_draw.set_tsr_by_named_pack(attach_data.tsr.tsr_transform(par_tsr))
                 #print attach.attachment_data.name, attach.rotation
                 #attach.rotation *= -1
 

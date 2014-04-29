@@ -131,9 +131,10 @@ class Rotate_Timeline(Curve_Timeline):
         #return
         #print "Translate"
         frame_count = len(self.frames)
+        print self.frames, self.bone.name
         if frame_count > 1:
             index = bisect(self.frames, (time, None))
-            if 0 <= index <= frame_count:
+            if 0 < index <= frame_count:
 
                 bone = self.bone
 
@@ -152,11 +153,11 @@ class Rotate_Timeline(Curve_Timeline):
                 right_frame_rotation = right_frame[ANGLE]
                 left_frame_rotation = left_frame[ANGLE]
 
-                bone_rotation = bone.rotation
-                bone_data_rotation = bone.bone_data.rotation
-                rotation = (bone_rotation + (bone_data_rotation + left_frame_rotation + (right_frame_rotation - left_frame_rotation) * percent - bone_rotation) * alpha) % 360
-                bone.rotation = rotation
-                return
+                bone_rotation = ((bone.local_tsr.rotation % 360) - 180)*-1
+                bone_data_rotation = bone.bone_data.tsr.rotation
+                delta = (right_frame_rotation - left_frame_rotation)
+                rotation = bone_rotation + (bone_data_rotation + left_frame_rotation + delta * percent - bone_rotation)*alpha
+                bone.local_tsr.rotation = rotation % 360
 
 
 class Translate_Timeline(Curve_Timeline):
@@ -181,6 +182,7 @@ class Translate_Timeline(Curve_Timeline):
 
     def apply(self, skeleton, time, alpha):
         #return
+        return
         #print "Translate"
         frame_count = len(self.frames)
         if frame_count > 1:
@@ -206,11 +208,11 @@ class Translate_Timeline(Curve_Timeline):
                 left_frame_x = left_frame[X]
                 left_frame_y = left_frame[Y]
 
-                bone_x, bone_y = bone.position
-                bone_data_x, bone_data_y = bone.bone_data.position
+                bone_x, bone_y = bone.local_tsr.position
+                bone_data_x, bone_data_y = bone.bone_data.tsr.position
                 x = bone_x + (bone_data_x + left_frame_x + (right_frame_x - left_frame_x) * percent - bone_x) * alpha
                 y = bone_y + (bone_data_y + left_frame_y + (right_frame_y - left_frame_x) * percent - bone_y) * alpha
-                bone.position = (x, y)
+                bone.local_tsr.position = (x, y)
                 return
 
 
@@ -253,6 +255,7 @@ class Attachment_Timeline(Timeline):
         self.slot = skeleton_data.slots[self.slot]
 
     def apply(self, skeleton, time, alpha):
+        return
         #print time
         #print "Attach"
         index = bisect(self.frames, (time, None))
