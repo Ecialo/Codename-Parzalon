@@ -1,6 +1,10 @@
 __author__ = 'Pavgran'
 
 from cocos import sprite
+from collections import namedtuple
+
+Attachment_Data = namedtuple("Attachment_Data", ['name', 'position', 'scale_x', 'scale_y',
+                                                 'rotation', 'width', 'height'])
 
 
 class Attachment(object):
@@ -27,6 +31,10 @@ class Sprite_Attachment(sprite.Sprite):
         super(Sprite_Attachment, self).__init__(image, position, attachment.rotation)
         self.scale_x = attachment.scale_x
         self.scale_y = attachment.scale_y
+
+    def _set_rotation(self, a):
+        #print a
+        super(Sprite_Attachment, self)._set_rotation(a)
 
     def set_new_attachment(self, image, attachment):
         self.name = attachment.attachment_name

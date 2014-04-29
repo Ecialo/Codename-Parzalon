@@ -9,6 +9,8 @@ BEZIER_SEGMENTS = 10.0
 FRAME_SPACING = 6
 LAST_FRAME = -1
 TIME = 0
+ANGLE = 1
+ATTACHMENT_NAME = 1
 
 # JSON: [name->{slots->[name->attachment->[data]],
 #               bones->[{rotate->[data], translate->[data], scale->[data]}]]
@@ -22,7 +24,7 @@ class Timeline(object):
     def get_keyframe_count(self):
         pass
 
-    def apply(self, time, alpha):
+    def apply(self, skeleton, time, alpha):
         pass
 
     def apply_data(self, skeleton_data):
@@ -123,6 +125,37 @@ class Rotate_Timeline(Curve_Timeline):
     def apply_data(self, skeleton_data):
         self.bone = skeleton_data.bones[self.bone]
 
+    def apply(self, skeleton, time, alpha):
+        return
+        print "Rotate"
+        if time < self.frames[0]:
+            return
+
+        bone = self.bone
+
+        if time >= self.frames[LAST_FRAME][TIME]:   # Time is after last frame
+            amount = bone.data.rotation + self.frames[LAST_FRAME][ANGLE] - bone.rotation
+            bone.rotation += amount * alpha
+
+        # Interpolate between the last frame and the current frame
+
+        frameIndex = bisect(self.frames, (time, None))
+        lastFrameValue = self.frames[frameIndex - 1]
+        frameTime = self.frames[frameIndex]
+        percent = 1.0 - (time - frameTime) / (self.frames[frameIndex - 1][TIME] - frameTime)
+        if percent < 0.0:
+            percent = 0.0
+        elif percent > 1.0:
+            percent = 1.0
+        percent = self.get_curve_percent(frameIndex - 1, percent)
+
+        amount = self.frames[frameIndex][ANGLE] - lastFrameValue
+        amount %= 360
+        amount = bone.data.rotation + (lastFrameValue + amount * percent) - bone.rotation
+        amount %= 360
+        bone.rotation += amount * alpha
+        return
+
 
 class Translate_Timeline(Curve_Timeline):
 
@@ -144,11 +177,45 @@ class Translate_Timeline(Curve_Timeline):
     def apply_data(self, skeleton_data):
         self.bone = skeleton_data.bones[self.bone]
 
+    def apply(self, skeleton, time, alpha):
+        return
+        print "Translate"
+        if time < self.frames[0]: # Time is before the first frame
+            return
+
+        bone = self.bone
+
+        if time >= self.frames[LAST_FRAME][TIME]:    # Time is after the last frame.
+            x = bone.x + (bone.data.x + self.frames[LAST_FRAME][1] - bone.x) * alpha
+            y = bone.y + (bone.data.y + self.frames[LAST_FRAME][2] - bone.y) * alpha
+            bone.position = (x, y)
+            return
+
+        # Interpolate between the last frame and the current frame
+        frameIndex = bisect(self.frames, (time, None))
+        lastFrameX = self.frames[frameIndex - 2]
+        lastFrameY = self.frames[frameIndex - 1]
+        frameTime = self.frames[frameIndex]
+        percent = 1.0 - (time - frameTime) / (self.frames[frameIndex - 1][TIME] - frameTime)
+        if percent < 0.0:
+            percent = 0.0
+        if percent > 1.0:
+            percent = 1.0
+        percent = self.get_curve_percent(frameIndex - 1, percent)
+
+        x = bone.x + (bone.data.x + lastFrameX + (self.frames[frameIndex + self.FRAME_X] - lastFrameX) * percent - bone.x) * alpha
+        y = bone.y + (bone.data.y + lastFrameY + (self.frames[frameIndex + self.FRAME_Y] - lastFrameY) * percent - bone.y) * alpha
+        bone.position = (x, y)
+        return
+
 
 class Scale_Timeline(Translate_Timeline):
 
     def apply_data(self, skeleton_data):
         self.bone = skeleton_data.bones[self.bone]
+
+    def apply(self, skeleton, time, alpha):
+        return
 
 
 class Color_Timeline(Curve_Timeline):
@@ -180,6 +247,15 @@ class Attachment_Timeline(Timeline):
     def apply_data(self, skeleton_data):
         self.slot = skeleton_data.slots[self.slot]
 
+    def apply(self, skeleton, time, alpha):
+        #print time
+        #print "Attach"
+        index = bisect(self.frames, (time, None))
+        #print index
+        request_attach_name = self.frames[index - 1][ATTACHMENT_NAME]
+        if index:
+            skeleton.set_attachment(self.slot, request_attach_name)
+
 
 class Animation(object):
 
@@ -187,6 +263,7 @@ class Animation(object):
         self.name = name
         self.timelines = []
         self.load_timelines(timelines)
+        self.duration = max(map(lambda timeline: timeline.frames[-1][0], self.timelines))
 
     def load_timelines(self, timelines):
         #print timelines
@@ -194,6 +271,13 @@ class Animation(object):
             self.load_bone_timelines(timelines['bones'])
         if 'slots' in timelines:
             self.load_slots_timelines(timelines['slots'])
+
+    def apply(self, time, skeleton, loop):
+        skeleton_data = skeleton.skeleton_data
+        if loop and self.duration:
+            time %= self.duration
+        for timeline in self.timelines:
+            timeline.apply(skeleton_data, time, 1)
 
     def load_bone_timelines(self, bones):
         for bone in bones:
