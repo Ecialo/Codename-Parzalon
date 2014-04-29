@@ -11,6 +11,8 @@ LAST_FRAME = -1
 TIME = 0
 ANGLE = 1
 ATTACHMENT_NAME = 1
+X = 1
+Y = 2
 
 # JSON: [name->{slots->[name->attachment->[data]],
 #               bones->[{rotate->[data], translate->[data], scale->[data]}]]
@@ -96,7 +98,7 @@ class Curve_Timeline(Timeline):
             ddfy += dddfy
             x += dfx
             y += dfy
-        return y + (1 - y) * (percent - x) / (1 - x) # Last point is 1,1
+        return y + (1 - y) * (percent - x) / (1 - x)    # Last point is 1,1
 
     def get_duration(self):
         return self.frames[LAST_FRAME][TIME]
@@ -126,35 +128,35 @@ class Rotate_Timeline(Curve_Timeline):
         self.bone = skeleton_data.bones[self.bone]
 
     def apply(self, skeleton, time, alpha):
-        return
-        print "Rotate"
-        if time < self.frames[0]:
-            return
+        #return
+        #print "Translate"
+        frame_count = len(self.frames)
+        if frame_count > 1:
+            index = bisect(self.frames, (time, None))
+            if 0 <= index <= frame_count:
 
-        bone = self.bone
+                bone = self.bone
 
-        if time >= self.frames[LAST_FRAME][TIME]:   # Time is after last frame
-            amount = bone.data.rotation + self.frames[LAST_FRAME][ANGLE] - bone.rotation
-            bone.rotation += amount * alpha
+                left_frame = self.frames[index - 1]
+                right_frame = self.frames[index]
 
-        # Interpolate between the last frame and the current frame
+                # Interpolate between the last frame and the current frame
+                right_frame_time = right_frame[TIME]
+                left_frame_time = left_frame[TIME]
+                #print self.frames, self.bone.name, index
+                time_percent = 1.0 - (time - right_frame_time) / (left_frame_time - right_frame_time)
+                time_percent = min(time_percent, 1.0)
+                time_percent = max(time_percent, 0.0)
+                percent = self.get_curve_percent(index-1, time_percent)
 
-        frameIndex = bisect(self.frames, (time, None))
-        lastFrameValue = self.frames[frameIndex - 1]
-        frameTime = self.frames[frameIndex]
-        percent = 1.0 - (time - frameTime) / (self.frames[frameIndex - 1][TIME] - frameTime)
-        if percent < 0.0:
-            percent = 0.0
-        elif percent > 1.0:
-            percent = 1.0
-        percent = self.get_curve_percent(frameIndex - 1, percent)
+                right_frame_rotation = right_frame[ANGLE]
+                left_frame_rotation = left_frame[ANGLE]
 
-        amount = self.frames[frameIndex][ANGLE] - lastFrameValue
-        amount %= 360
-        amount = bone.data.rotation + (lastFrameValue + amount * percent) - bone.rotation
-        amount %= 360
-        bone.rotation += amount * alpha
-        return
+                bone_rotation = bone.rotation
+                bone_data_rotation = bone.bone_data.rotation
+                rotation = (bone_rotation + (bone_data_rotation + left_frame_rotation + (right_frame_rotation - left_frame_rotation) * percent - bone_rotation) * alpha) % 360
+                bone.rotation = rotation
+                return
 
 
 class Translate_Timeline(Curve_Timeline):
@@ -178,35 +180,38 @@ class Translate_Timeline(Curve_Timeline):
         self.bone = skeleton_data.bones[self.bone]
 
     def apply(self, skeleton, time, alpha):
-        return
-        print "Translate"
-        if time < self.frames[0]: # Time is before the first frame
-            return
+        #return
+        #print "Translate"
+        frame_count = len(self.frames)
+        if frame_count > 1:
+            index = bisect(self.frames, (time, None))
+            if 0 <= index <= frame_count:
 
-        bone = self.bone
+                bone = self.bone
 
-        if time >= self.frames[LAST_FRAME][TIME]:    # Time is after the last frame.
-            x = bone.x + (bone.data.x + self.frames[LAST_FRAME][1] - bone.x) * alpha
-            y = bone.y + (bone.data.y + self.frames[LAST_FRAME][2] - bone.y) * alpha
-            bone.position = (x, y)
-            return
+                left_frame = self.frames[index - 1]
+                right_frame = self.frames[index]
 
-        # Interpolate between the last frame and the current frame
-        frameIndex = bisect(self.frames, (time, None))
-        lastFrameX = self.frames[frameIndex - 2]
-        lastFrameY = self.frames[frameIndex - 1]
-        frameTime = self.frames[frameIndex]
-        percent = 1.0 - (time - frameTime) / (self.frames[frameIndex - 1][TIME] - frameTime)
-        if percent < 0.0:
-            percent = 0.0
-        if percent > 1.0:
-            percent = 1.0
-        percent = self.get_curve_percent(frameIndex - 1, percent)
+                # Interpolate between the last frame and the current frame
+                right_frame_time = right_frame[TIME]
+                left_frame_time = left_frame[TIME]
+                #print self.frames, self.bone.name, index
+                time_percent = 1.0 - (time - right_frame_time) / (left_frame_time - right_frame_time)
+                time_percent = min(time_percent, 1.0)
+                time_percent = max(time_percent, 0.0)
+                percent = self.get_curve_percent(index-1, time_percent)
 
-        x = bone.x + (bone.data.x + lastFrameX + (self.frames[frameIndex + self.FRAME_X] - lastFrameX) * percent - bone.x) * alpha
-        y = bone.y + (bone.data.y + lastFrameY + (self.frames[frameIndex + self.FRAME_Y] - lastFrameY) * percent - bone.y) * alpha
-        bone.position = (x, y)
-        return
+                right_frame_x = right_frame[X]
+                right_frame_y = right_frame[Y]
+                left_frame_x = left_frame[X]
+                left_frame_y = left_frame[Y]
+
+                bone_x, bone_y = bone.position
+                bone_data_x, bone_data_y = bone.bone_data.position
+                x = bone_x + (bone_data_x + left_frame_x + (right_frame_x - left_frame_x) * percent - bone_x) * alpha
+                y = bone_y + (bone_data_y + left_frame_y + (right_frame_y - left_frame_x) * percent - bone_y) * alpha
+                bone.position = (x, y)
+                return
 
 
 class Scale_Timeline(Translate_Timeline):

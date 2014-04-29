@@ -49,7 +49,7 @@ class Skeleton_Data(object):
                 # attach.position = (x+bx, y+by)
                 # attach.rotation += bone.rotation
                 par_tsr = (bone.position, bone.scale_x, bone.scale_y, bone.rotation)
-                print attach_data.name, id(attach.attachment_data.rotation), id(attach.rotation)
+                #print attach_data.name, id(attach.attachment_data.rotation), id(attach.rotation)
                 child_tsr = (attach_data.position, attach_data.scale_x, attach_data.scale_y, attach_data.rotation)
                 attach.position, attach.scale_x, attach.scale_y, attach.rotation = tsr_transform(par_tsr, child_tsr)
                 #print attach.attachment_data.name, attach.rotation
@@ -121,7 +121,7 @@ class Skeleton_Data(object):
 
     def set_attachment(self, slot, attachment_name):
         attach = self.current_skin.get_attachment(slot.name, attachment_name)
-        print attachment_name
+        #print attachment_name
         image = self.atlas.get_attachment_region(attach.name)
         slot.to_draw.set_new_attachment(image, attach)
 
@@ -154,7 +154,7 @@ class Skeleton(batch.BatchableNode):
                 i += 1
 
     def visit(self):
-        self.skeleton_data.update_transform()
+        #self.skeleton_data.update_transform()
         super(Skeleton, self).visit()
 
 
@@ -186,10 +186,10 @@ def main():
 
         def update(self, dt):
             self.time += dt
+            self.skel.skeleton_data.update_transform()
             self.animation.apply(skeleton=self.skel,
                                  time=self.time,
                                  loop=True)
-            #self.skel.skeleton_data.update_transform()
 
 
 
