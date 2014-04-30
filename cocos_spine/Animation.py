@@ -131,7 +131,7 @@ class Rotate_Timeline(Curve_Timeline):
         #return
         #print "Translate"
         frame_count = len(self.frames)
-        print self.frames, self.bone.name
+        #print self.frames, self.bone.name
         if frame_count > 1:
             index = bisect(self.frames, (time, None))
             if 0 < index <= frame_count:
@@ -156,6 +156,10 @@ class Rotate_Timeline(Curve_Timeline):
                 bone_rotation = ((bone.local_tsr.rotation % 360) - 180)*-1
                 bone_data_rotation = bone.bone_data.tsr.rotation
                 delta = (right_frame_rotation - left_frame_rotation)
+                if delta > 180:
+                    delta -= 360
+                if delta < -180:
+                    delta += 360
                 rotation = bone_rotation + (bone_data_rotation + left_frame_rotation + delta * percent - bone_rotation)*alpha
                 bone.local_tsr.rotation = rotation % 360
 
