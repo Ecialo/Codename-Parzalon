@@ -128,7 +128,7 @@ class Rotate_Timeline(Curve_Timeline):
         self.bone = skeleton_data.bones[self.bone]
 
     def apply(self, skeleton, time, alpha):
-        return
+        #return
         #print "Translate"
         frame_count = len(self.frames)
         #print self.frames, self.bone.name
@@ -186,7 +186,7 @@ class Translate_Timeline(Curve_Timeline):
 
     def apply(self, skeleton, time, alpha):
         #return
-        return
+        #return
         #print "Translate"
         frame_count = len(self.frames)
         if frame_count > 1:
@@ -226,7 +226,7 @@ class Scale_Timeline(Translate_Timeline):
         self.bone = skeleton_data.bones[self.bone]
 
     def apply(self, skeleton, time, alpha):
-        return
+        #return
         #return
         #print "Translate"
         frame_count = len(self.frames)
@@ -253,10 +253,10 @@ class Scale_Timeline(Translate_Timeline):
                 left_frame_x = left_frame[X]
                 left_frame_y = left_frame[Y]
 
-                bone_x, bone_y = bone.local_tsr.position
-                bone_data_x, bone_data_y = bone.bone_data.tsr.position
-                bone.local_tsr.scale_x *= (bone_data_x - 1 + left_frame_x + (right_frame_x - left_frame_x) * percent - bone_x) * alpha
-                bone.local_tsr.scale_y *= (bone_data_y - 1 + left_frame_y + (right_frame_y - left_frame_y) * percent - bone_y) * alpha
+                bone_x, bone_y = bone.local_tsr.scale_x, bone.local_tsr.scale_y
+                bone_data_x, bone_data_y = bone.bone_data.tsr.scale_x, bone.bone_data.tsr.scale_y
+                bone.local_tsr.scale_x += (bone_data_x - 1 + left_frame_x + (right_frame_x - left_frame_x) * percent - bone_x) * alpha
+                bone.local_tsr.scale_y += (bone_data_y - 1 + left_frame_y + (right_frame_y - left_frame_y) * percent - bone_y) * alpha
                 return
 
 

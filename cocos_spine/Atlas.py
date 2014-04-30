@@ -114,27 +114,48 @@ def main():
     from cocos import scene
     from cocos import sprite
     from cocos.director import director
-    director.init(1024, 1024)
+    from Attachment import Box
+    from cocos.rect import Rect
 
+    director.init(1024, 1024)
+    red = (255, 0, 0, 255)
     class TestLayer(layer.Layer):
 
         is_event_handler = True
 
         def __init__(self):
+            c = Rect(0, 0, 10,10)
+            b = Box(c, red)
             super(TestLayer, self).__init__()
             self.a = Atlas('./data/dragon.atlas')
             self.names = sorted(self.a.region_lib.keys())
-            self.i = 0
+            self.i = 17
             print self.names[self.i]
             self.sprite = sprite.Sprite(self.a.get_attachment_region(self.names[self.i]))
+            self.sprite.scale_x = 0.5
+            self.sprite.scale_y = 0.25
+            self.b = Box(self.sprite.get_rect(), red)
+            self.sprite.add(self.b)
             self.sprite.position = (512, 512)
-            self.add(self.sprite)
+            self.add(self.sprite, z=1)
+            self.add(b, z=1)
 
         def on_key_press(self, symbol, modifers):
             self.i += 1
             self.i %= len(self.names)
+            image = self.a.get_attachment_region(self.names[self.i])
             print self.names[self.i]
-            self.sprite.image = self.a.get_attachment_region(self.names[self.i])
+            self.sprite.image_anchor = (image.width/2, image.height/2)
+            self.sprite.image = image
+            #self.sprite.position = (512, 512)
+            #self.sprite.anchor = (self.sprite.image.width/2, self.sprite.image.height/2)
+            self.b.kill()
+            #self.sprite.kill()
+            #self.sprite = sprite.Sprite(self.a.get_attachment_region(self.names[self.i]))
+            #self.add(self.sprite)
+            #self.sprite.position = (512, 512)
+            self.b = Box(self.sprite.get_rect(), red)
+            self.sprite.add(self.b, z=5)
 
 
 

@@ -43,7 +43,7 @@ class Skeleton_Data(object):
             attach_to_draw = slot.to_draw
             attach_data = slot.attachment
             if slot.to_draw:
-                slot.to_draw.debug = True
+                #slot.to_draw.debug = True
                 #attach_data = attach.attachment_data
                 # x, y = attach.position
                 # bx, by  = bone.position
@@ -194,7 +194,7 @@ def main():
             self.schedule(self.update)
 
         def update(self, dt):
-            self.time += dt/10
+            self.time += dt/20
             self.animation.apply(skeleton=self.skel,
                                  time=self.time,
                                  loop=True)

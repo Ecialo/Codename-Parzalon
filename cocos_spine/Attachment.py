@@ -80,12 +80,19 @@ class Sprite_Attachment(sprite.Sprite):
             self.add(self.b)
 
     def _set_rotation(self, a):
-        a *= -1
-        super(Sprite_Attachment, self)._set_rotation(a)
+        #a *= -1
+        super(Sprite_Attachment, self)._set_rotation(-a)
+
+    # def _set_image(self, img):
+    #     print "BABAIKA"
+    #     self.image_anchor = (img.width/2, img.height/2)
+    #     super(Sprite_Attachment, self)._set_image(img)
 
     def set_new_attachment(self, image, attachment):
         self.name = attachment.name
         #self.attachment_data = attachment
+        #print "BABAIKA007"
+        self.image_anchor = (image.width/2, image.height/2)
         self.image = image
         if self.debug:
             if self.b:
