@@ -125,6 +125,7 @@ class Skeleton_Data(object):
         #print attachment_name
         image = self.atlas.get_attachment_region(attach.name)
         slot.to_draw.set_new_attachment(image, attach)
+        slot.attachment = attach
 
     def find_animation(self, animation_name):
         return self.animations[animation_name]
@@ -187,10 +188,10 @@ def main():
 
         def update(self, dt):
             self.time += dt
-            self.skel.skeleton_data.update_transform()
             self.animation.apply(skeleton=self.skel,
                                  time=self.time,
                                  loop=True)
+            self.skel.skeleton_data.update_transform()
 
 
 

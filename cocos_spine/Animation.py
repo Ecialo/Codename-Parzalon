@@ -186,7 +186,7 @@ class Translate_Timeline(Curve_Timeline):
 
     def apply(self, skeleton, time, alpha):
         #return
-        return
+        #return
         #print "Translate"
         frame_count = len(self.frames)
         if frame_count > 1:
@@ -215,7 +215,7 @@ class Translate_Timeline(Curve_Timeline):
                 bone_x, bone_y = bone.local_tsr.position
                 bone_data_x, bone_data_y = bone.bone_data.tsr.position
                 x = bone_x + (bone_data_x + left_frame_x + (right_frame_x - left_frame_x) * percent - bone_x) * alpha
-                y = bone_y + (bone_data_y + left_frame_y + (right_frame_y - left_frame_x) * percent - bone_y) * alpha
+                y = bone_y + (bone_data_y + left_frame_y + (right_frame_y - left_frame_y) * percent - bone_y) * alpha
                 bone.local_tsr.position = (x, y)
                 return
 
@@ -259,7 +259,7 @@ class Attachment_Timeline(Timeline):
         self.slot = skeleton_data.slots[self.slot]
 
     def apply(self, skeleton, time, alpha):
-        return
+        #return
         #print time
         #print "Attach"
         index = bisect(self.frames, (time, None))
