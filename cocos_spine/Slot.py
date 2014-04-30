@@ -20,7 +20,7 @@ class Slot(object):
         self.slot_data = Slot_Data(self.name, self.bone, self.attachment)
 
     def set_attachment(self, image, attachment):
-        self.attachment = attachment
+        self.attachment = attachment.name
         if self.to_draw:
             self.to_draw.set_new_attachment(image, attachment)
         else:

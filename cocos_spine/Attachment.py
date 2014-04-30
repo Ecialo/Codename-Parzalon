@@ -52,9 +52,9 @@ class Box(Canvas):
 
 class Attachment(object):
 
-    def __init__(self, attachment_name=None, name=None, x=0, y=0, scaleX=1, scaleY=1, rotation=0, width=0, height=0):
+    def __init__(self, texture_name=None, name=None, x=0, y=0, scaleX=1, scaleY=1, rotation=0, width=0, height=0):
         self.name = name
-        self.attachment_name = attachment_name
+        self.texture_name = texture_name
         self.tsr = TSR((x, y), scaleX, scaleY, rotation)
         self.width = width
         self.height = height

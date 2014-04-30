@@ -127,13 +127,13 @@ def main():
             c = Rect(0, 0, 10,10)
             b = Box(c, red)
             super(TestLayer, self).__init__()
-            self.a = Atlas('./data/dragon.atlas')
+            self.a = Atlas('./data/goblins.atlas')
             self.names = sorted(self.a.region_lib.keys())
             self.i = 17
             print self.names[self.i]
             self.sprite = sprite.Sprite(self.a.get_attachment_region(self.names[self.i]))
-            self.sprite.scale_x = 0.5
-            self.sprite.scale_y = 0.25
+            #self.sprite.scale_x = 0.5
+            #self.sprite.scale_y = 0.25
             self.b = Box(self.sprite.get_rect(), red)
             self.sprite.add(self.b)
             self.sprite.position = (512, 512)
