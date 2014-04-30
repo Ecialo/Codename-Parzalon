@@ -43,6 +43,7 @@ class Skeleton_Data(object):
             attach_to_draw = slot.to_draw
             attach_data = slot.attachment
             if slot.to_draw:
+                slot.to_draw.debug = True
                 #attach_data = attach.attachment_data
                 # x, y = attach.position
                 # bx, by  = bone.position
@@ -50,9 +51,14 @@ class Skeleton_Data(object):
                 # attach.rotation += bone.rotation
                 par_tsr = bone.global_tsr
                 #print bone.global_tsr, bone.name
-                #print attach_data.name, id(attach.attachment_data.rotation), id(attach.rotation)
+                new_tsr = attach_data.tsr.tsr_transform(par_tsr)
+                #if slot.name == "R_wing":
+                    #print attach_data.name, attach_data.tsr
+                    #print slot.bone.global_tsr
+                    #print new_tsr
+                    #print attach_to_draw.get_rect()
                 #child_tsr = (attach_data.position, attach_data.scale_x, attach_data.scale_y, attach_data.rotation)
-                attach_to_draw.set_tsr_by_named_pack(attach_data.tsr.tsr_transform(par_tsr))
+                attach_to_draw.set_tsr_by_named_pack(new_tsr)
                 #print attach.attachment_data.name, attach.rotation
                 #attach.rotation *= -1
 
@@ -124,8 +130,8 @@ class Skeleton_Data(object):
         attach = self.current_skin.get_attachment(slot.name, attachment_name)
         #print attachment_name
         image = self.atlas.get_attachment_region(attach.name)
-        slot.to_draw.set_new_attachment(image, attach)
         slot.attachment = attach
+        slot.to_draw.set_new_attachment(image, attach)
 
     def find_animation(self, animation_name):
         return self.animations[animation_name]
@@ -152,7 +158,7 @@ class Skeleton(batch.BatchableNode):
             if slot.to_draw:
                 attach = slot.to_draw
                 #print attach
-                self.add(attach, z=i, name=attach.name)
+                self.add(attach, z=i, name=slot.name)
                 i += 1
 
     def visit(self):
@@ -183,11 +189,12 @@ def main():
             self.skel = skel
             self.animation = skel.find_animation('flying')
             skel.position = (512, 200)
+            self.skel.skeleton_data.update_transform()
             self.add(skel)
             self.schedule(self.update)
 
         def update(self, dt):
-            self.time += dt
+            self.time += dt/10
             self.animation.apply(skeleton=self.skel,
                                  time=self.time,
                                  loop=True)

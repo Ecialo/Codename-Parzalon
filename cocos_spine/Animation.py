@@ -128,7 +128,7 @@ class Rotate_Timeline(Curve_Timeline):
         self.bone = skeleton_data.bones[self.bone]
 
     def apply(self, skeleton, time, alpha):
-        #return
+        return
         #print "Translate"
         frame_count = len(self.frames)
         #print self.frames, self.bone.name
@@ -186,7 +186,7 @@ class Translate_Timeline(Curve_Timeline):
 
     def apply(self, skeleton, time, alpha):
         #return
-        #return
+        return
         #print "Translate"
         frame_count = len(self.frames)
         if frame_count > 1:
@@ -227,6 +227,37 @@ class Scale_Timeline(Translate_Timeline):
 
     def apply(self, skeleton, time, alpha):
         return
+        #return
+        #print "Translate"
+        frame_count = len(self.frames)
+        if frame_count > 1:
+            index = bisect(self.frames, (time, None))
+            if 0 <= index <= frame_count:
+
+                bone = self.bone
+
+                left_frame = self.frames[index - 1]
+                right_frame = self.frames[index]
+
+                # Interpolate between the last frame and the current frame
+                right_frame_time = right_frame[TIME]
+                left_frame_time = left_frame[TIME]
+                #print self.frames, self.bone.name, index
+                time_percent = 1.0 - (time - right_frame_time) / (left_frame_time - right_frame_time)
+                time_percent = min(time_percent, 1.0)
+                time_percent = max(time_percent, 0.0)
+                percent = self.get_curve_percent(index-1, time_percent)
+
+                right_frame_x = right_frame[X]
+                right_frame_y = right_frame[Y]
+                left_frame_x = left_frame[X]
+                left_frame_y = left_frame[Y]
+
+                bone_x, bone_y = bone.local_tsr.position
+                bone_data_x, bone_data_y = bone.bone_data.tsr.position
+                bone.local_tsr.scale_x *= (bone_data_x - 1 + left_frame_x + (right_frame_x - left_frame_x) * percent - bone_x) * alpha
+                bone.local_tsr.scale_y *= (bone_data_y - 1 + left_frame_y + (right_frame_y - left_frame_y) * percent - bone_y) * alpha
+                return
 
 
 class Color_Timeline(Curve_Timeline):

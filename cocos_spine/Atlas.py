@@ -123,7 +123,7 @@ def main():
         def __init__(self):
             super(TestLayer, self).__init__()
             self.a = Atlas('./data/dragon.atlas')
-            self.names = self.a.region_lib.keys()
+            self.names = sorted(self.a.region_lib.keys())
             self.i = 0
             print self.names[self.i]
             self.sprite = sprite.Sprite(self.a.get_attachment_region(self.names[self.i]))
@@ -132,6 +132,7 @@ def main():
 
         def on_key_press(self, symbol, modifers):
             self.i += 1
+            self.i %= len(self.names)
             print self.names[self.i]
             self.sprite.image = self.a.get_attachment_region(self.names[self.i])
 
