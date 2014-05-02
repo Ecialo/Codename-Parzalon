@@ -153,15 +153,17 @@ class Rotate_Timeline(Curve_Timeline):
                 right_frame_rotation = right_frame[ANGLE]
                 left_frame_rotation = left_frame[ANGLE]
 
-                bone_rotation = ((bone.local_tsr.rotation % 360) - 180)*-1
+                bone_rotation = bone.local_tsr.rotation
                 bone_data_rotation = bone.bone_data.tsr.rotation
-                delta = (right_frame_rotation - left_frame_rotation)
-                if delta > 180:
-                    delta -= 360
-                if delta < -180:
-                    delta += 360
-                rotation = bone_rotation + (bone_data_rotation + left_frame_rotation + delta * percent - bone_rotation)*alpha
-                bone.local_tsr.rotation = rotation % 360
+                delta = right_frame_rotation - left_frame_rotation
+                delta = ((delta - 180) % 360) - 180
+                # if delta > 180:
+                #     delta -= 360
+                # if delta < -180:
+                #     delta += 360
+                rotation = bone_data_rotation + (left_frame_rotation + delta * percent) - bone_rotation
+                rotation = (rotation - 180) % 360 - 180
+                bone.local_tsr.rotation = bone_rotation + rotation*alpha
 
 
 class Translate_Timeline(Curve_Timeline):
@@ -297,6 +299,7 @@ class Attachment_Timeline(Timeline):
         #print index
         request_attach_name = self.frames[index - 1][ATTACHMENT_NAME]
         if index:
+            #print "trouble"
             skeleton.set_attachment(self.slot, request_attach_name)
 
 
@@ -321,6 +324,13 @@ class Animation(object):
             time %= self.duration
         for timeline in self.timelines:
             timeline.apply(skeleton_data, time, 1)
+
+    def mix(self, time, skeleton, loop, alpha):
+        skeleton_data = skeleton.skeleton_data
+        if loop and self.duration:
+            time %= self.duration
+        for timeline in self.timelines:
+            timeline.apply(skeleton_data, time, alpha)
 
     def load_bone_timelines(self, bones):
         for bone in bones:

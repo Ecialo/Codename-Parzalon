@@ -155,14 +155,16 @@ class Skeleton_Data(object):
         for skin_name, skin in skins.items():
             new_skin = Skin.Skin(skin_name)
             self.skins[skin_name] = new_skin
-            if skin_name == 'default':
-                self.current_skin = new_skin
+            #if skin_name == 'default':
+            #    self.current_skin = new_skin
             for slot_name, attachments in skin.items():
                 for attach_name, attach in attachments.items():
                     #attach['image'] = self.atlas.get_attachment_region(attach_name)
                     if 'name' not in attach:
                         attach['name'] = attach_name
                         attach['texture_name'] = attach_name
+                        attach_data = Attachment.Attachment(**attach)
+                        new_skin.add_attachment(slot_name, attach_name, attach_data)
                     else:
                         data_attach_name = attach['name']
                         attach['texture_name'] = data_attach_name
@@ -178,6 +180,8 @@ class Skeleton_Data(object):
             loaded_animation.apply_bones_and_slots_data(self)
 
     def set_attachment(self, slot, attachment_name):
+        #print attachment_name
+        #print self.current_skin.attachments
         attach = self.current_skin.get_attachment(slot.name, attachment_name)
         #print attachment_name
         image = self.atlas.get_attachment_region(attach.texture_name)
@@ -234,7 +238,7 @@ def main():
     from cocos import scene
     from cocos.director import director
     #import json
-    director.init(1024, 768)
+    director.init(1024, 768, do_not_scale=True)
 
     class TestLayer(layer.Layer):
 
@@ -243,8 +247,9 @@ def main():
         def __init__(self):
             super(TestLayer, self).__init__()
             self.time = 0.0
-            #self.name = 'dragon'
-            self.name = 'goblins'
+            self.name = 'dragon'
+            #self.name = 'goblins'
+            #self.name = 'spineboy'
             name = self.name
             if name == 'dragon':
                 sd = Skeleton_Data('./data/'+name+'.json', './data/'+name+'.atlas')
@@ -260,6 +265,15 @@ def main():
                 #self.skel.set_skin('goblin')
                 self.add(skel)
                 self.schedule(self.update)
+            elif name == 'spineboy':
+                sd = Skeleton_Data('./data/'+name+'.json', './data/'+name+'.atlas')
+                skel = Skeleton(sd)
+                self.skel = skel
+                self.anim1 = skel.find_animation('walk')
+                self.anim2 = skel.find_animation('jump')
+                skel.position = (512, 200)
+                self.add(skel)
+                self.schedule(self.update)
             else:
                 jd = json_data_loader('./data/'+name+'.json')
                 print jd
@@ -271,10 +285,15 @@ def main():
                 #sd = Skeleton_Data('./data/skeleton.json', './data/skeleton.atlas')
                 skel = Skeleton(sd)
                 self.skel = skel
+                self.anim1 = self.skel.find_animation('walk')
                 skel2 = Skeleton(sd2)
                 self.skel2 = skel2
+                self.anim2 = self.skel2.find_animation('walk')
+                self.batch = batch.BatchNode()
+                self.batch.position = (220, 200)
                 #self.animation = skel.find_animation('flying')
                 skel.position = (312, 200)
+                skel.scale = 2
                 skel2.position = (612, 200)
                 self.skel.set_skin('goblingirl')
                 self.skel2.set_skin('goblingirl')
@@ -282,8 +301,10 @@ def main():
                 print skel.get('right hand item 2')
                 self.skel.skeleton_data.update_transform()
                 self.skel2.skeleton_data.update_transform()
-                self.add(skel)
-                self.add(skel2)
+                self.batch.add(skel)
+                #self.batch.add(skel2)
+                #skel2.position = (500, 220)
+                self.add(self.batch)
                 self.schedule(self.update)
 
         def update(self, dt):
@@ -293,10 +314,26 @@ def main():
                                      time=self.time,
                                      loop=True)
                 self.skel.skeleton_data.update_transform()
+            elif self.name == 'spineboy':
+                self.time += dt
+                self.anim2.apply(skeleton=self.skel,
+                                     time=self.time,
+                                     loop=True)
+                self.anim1.mix(skeleton=self.skel,
+                               time=self.time,
+                               loop=True,
+                               alpha=0.5)
+                self.skel.skeleton_data.update_transform()
             else:
                 self.time += dt/20
-                #self.skel.skeleton_data.update_transform()
-                #self.skel2.skeleton_data.update_transform()
+                self.anim1.apply(skeleton=self.skel,
+                                 time=self.time,
+                                 loop=True)
+                # self.anim2.apply(skeleton=self.skel2,
+                #                  time=self.time,
+                #                  loop=True)
+                self.skel.skeleton_data.update_transform()
+                self.skel2.skeleton_data.update_transform()
 
 
 
