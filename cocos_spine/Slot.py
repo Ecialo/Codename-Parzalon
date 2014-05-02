@@ -3,7 +3,7 @@ __author__ = 'Ecialo'
 from collections import namedtuple
 import Attachment
 
-Slot_Data = namedtuple("Slot_Data", ['name', 'bone', "attachment"])
+Slot_Data = namedtuple("Slot_Data", ['name', 'bone', 'color', 'attachment'])
 
 
 class Slot(object):
@@ -12,12 +12,13 @@ class Slot(object):
         self.name = name
         self.bone = bone
         self.attachment = attachment
+        self.color = color
 
         self.slot_data = None
         self.to_draw = None
 
     def apply_slot_data(self):
-        self.slot_data = Slot_Data(self.name, self.bone, self.attachment)
+        self.slot_data = Slot_Data(self.name, self.bone, self.color, self.attachment)
 
     def set_attachment(self, image, attachment):
         self.attachment = attachment.name

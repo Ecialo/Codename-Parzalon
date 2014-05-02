@@ -317,6 +317,10 @@ class Animation(object):
             self.load_bone_timelines(timelines['bones'])
         if 'slots' in timelines:
             self.load_slots_timelines(timelines['slots'])
+        if 'events' in timelines:
+            print "Warning: unsupported timeline: events"
+        if 'draworder' in timelines:
+            print "Warning: unsupported timeline: draworder"
 
     def apply(self, time, skeleton, loop):
         skeleton_data = skeleton.skeleton_data
@@ -343,8 +347,11 @@ class Animation(object):
                 self.timelines.append(Scale_Timeline(bone, bone_data['scale']))
 
     def load_slots_timelines(self, slots):
-        for slot in slots:
-            self.timelines.append(Attachment_Timeline(slot, slots[slot]['attachment']))
+        for slot_name, slot in slots:
+            if 'attachment' in slot:
+                self.timelines.append(Attachment_Timeline(slot_name, slot['attachment']))
+            if 'color' in slot:
+                print "Warning: unsupported slot timeline type: color"
 
     def apply_bones_and_slots_data(self, skeleton_data):
         reduce(lambda _, timeline: timeline.apply_data(skeleton_data), self.timelines, None)

@@ -4,7 +4,7 @@ import json
 
 from cocos import batch
 import cocos
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 import Bone
 import Slot
@@ -21,6 +21,7 @@ def json_data_loader(filename):
     f.close()
     return data
 
+Event = namedtuple("Event", ['int', 'float', 'string'])
 
 class Skeleton_Data(object):
 
@@ -30,6 +31,7 @@ class Skeleton_Data(object):
         self.slots = OrderedDict()
         self.skins = {}
         self.animations = {}
+        self.events = {}
         #self.to_draw = OrderedDict()
         self.current_skin = None
 
@@ -116,9 +118,14 @@ class Skeleton_Data(object):
             with open(file) as fp:
                 data = json.load(fp)
                 self.load_bones(data['bones'])
-                self.load_slots(data['slots'])
-                self.load_skins(data['skins'])
-                self.load_animations(data['animations'])
+                if 'slots' in data:
+                    self.load_slots(data['slots'])
+                if 'skins' in data:
+                    self.load_skins(data['skins'])
+                if 'events' in data:
+                    self.load_events(data['events'])
+                if 'animations' in data:
+                    self.load_animations(data['animations'])
 
         else:
             pass
@@ -160,18 +167,36 @@ class Skeleton_Data(object):
             for slot_name, attachments in skin.items():
                 for attach_name, attach in attachments.items():
                     #attach['image'] = self.atlas.get_attachment_region(attach_name)
-                    if 'name' not in attach:
-                        attach['name'] = attach_name
-                        attach['texture_name'] = attach_name
-                        attach_data = Attachment.Attachment(**attach)
-                        new_skin.add_attachment(slot_name, attach_name, attach_data)
+                    if 'type' not in attach:
+                        attach_type = 'region'
                     else:
-                        data_attach_name = attach['name']
-                        attach['texture_name'] = data_attach_name
-                        attach['name'] = attach_name
-                        attach_data = Attachment.Attachment(**attach)
-                        new_skin.add_attachment(slot_name, attach_name, attach_data)
-                        attach['name'] = data_attach_name
+                        attach_type = attach['type']
+                    if attach_type == 'region':
+                        if 'name' not in attach:
+                            attach['name'] = attach_name
+                            attach['texture_name'] = attach_name
+                            attach_data = Attachment.Attachment(**attach)
+                            new_skin.add_attachment(slot_name, attach_name, attach_data)
+                        else:
+                            data_attach_name = attach['name']
+                            attach['texture_name'] = data_attach_name
+                            attach['name'] = attach_name
+                            attach_data = Attachment.Attachment(**attach)
+                            new_skin.add_attachment(slot_name, attach_name, attach_data)
+                            attach['name'] = data_attach_name
+                    elif attach_type == 'regionsequence':
+                        print "Warning: unsupported attachment type regionsequence"
+                    elif attach_type == 'boundingbox':
+                        print "Warning: unsupported attachment type boundingbox"
+                    else:
+                        print "Error: unknown attachment type"
+
+    def load_events(self, events):
+        for event_name, event in events:
+            event_int = event['int'] if 'int' in event else 0
+            event_float = event['float'] if 'float' in event else 0
+            event_string = event['string'] if 'string' in event else ""
+            self.events[event_name] = Event(event_int, event_float, event_string)
 
     def load_animations(self, animations):
         for animation in animations:
@@ -247,7 +272,7 @@ def main():
         def __init__(self):
             super(TestLayer, self).__init__()
             self.time = 0.0
-            self.name = 'dragon'
+            self.name = 'spineboy'
             #self.name = 'goblins'
             #self.name = 'spineboy'
             name = self.name
