@@ -129,6 +129,10 @@ class Actor(movable_object.Movable_Object):
     def close(self):
         self.inventory.close()
 
+    def drop(self):
+        self.hands[-1].drop()
+        self.hands.pop()
+
     def change_weapon(self):
         self.inventory.change_weapon()
 

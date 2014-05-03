@@ -276,6 +276,7 @@ class Location_Layer(layer.ScrollableLayer):
                 shape.SetAsBox(half_width, half_height, (cx, cy), NO_ROTATION)
                 self.b2level.CreateFixture(shape=shape, userData=cell)
                 self.b2level.fixtures[-1].filterData.categoryBits = con.B2SMTH | con.B2LEVEL
+                self.b2level.fixtures[-1].filterData.maskBits = con.B2EVERY
 
         # WIDTH, HEIGHT = con.TILE_SIZE/2, con.TILE_SIZE/2
         cells = rect_map.cells
