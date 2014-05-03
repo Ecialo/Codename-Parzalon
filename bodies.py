@@ -27,8 +27,8 @@ class Body_Part(object):
                  stab_priority, chop_priority,
                  on_destroy_effects=con.EMPTY_LIST):
         self.master = master
-        print master, "BODU PART BODU"
-        print master.master, "DOBY PART Actor"
+        #print master, "BODU PART BODU"
+        #print master.master, "DOBY PART Actor"
 
         self.health = self.max_health
         self.armor = self.max_armor
@@ -138,10 +138,10 @@ class Body(object):
     def __init__(self, master, body_parts, body_name, on_collide_effects=con.EMPTY_LIST):
         self.master = master
         self.speed = self.base_speed
-        print self.master, "PRE BODY"
-        print body_parts
+        #print self.master, "PRE BODY"
+        #print body_parts
         self.body_parts = map(lambda x: x(self), body_parts)
-        print self.master, "PAST, BODY"
+        #print self.master, "PAST, BODY"
         self.on_collide_effects = map(lambda x: x(self.master), on_collide_effects)
         self.max_health = sum(map(lambda x: x.max_health, filter(lambda x: x.slot < 100, body_parts)))/2
         self.health = self.max_health

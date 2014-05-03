@@ -38,6 +38,7 @@ def _spawn_unit(level, name, pos):
 
 def _spawn_prepared_unit(level, unit, pos):
     print "spawn_prepared"
+    unit.transfer()
     unit.move_to(*pos)
     unit.launcher.push_handlers(level)
     level.actors.append(unit)
@@ -151,12 +152,24 @@ class b2Listener(b2.b2ContactListener):
         del self.beginHandlers[listener]
         del self.endHandlers[listener]
 
+    def getHandlers(self, listener):
+        if listener in self.beginHandlers:
+            return (self.beginHandlers[listener], self.endHandlers[listener])
+        else:
+            return None
+
 class Cool_B2_World(b2.b2World):
 
     def __init__(self, *args, **kwargs):
-        super(Cool_B2_World, self).__init__(*args, ** kwargs)
+        self.true_listener = kwargs['contactListener']
+        super(Cool_B2_World, self).__init__(*args, **kwargs)
         self.fixtures_to_destroy = []
         self.bodies_to_destroy = []
+
+    def CreateBody(self, defn=None, **kwargs):
+        body = super(Cool_B2_World, self).CreateBody(defn, **kwargs)
+        body.cool_world = self
+        return body
 
     def destroy_fixture(self, fixture):
         self.fixtures_to_destroy.append(fixture)
@@ -193,7 +206,7 @@ class Location_Layer(layer.ScrollableLayer):
 
         #Box2D world
         self.b2world = Cool_B2_World(gravity=(0, -con.GRAVITY),
-                                  contactListener=b2Listener())
+                                     contactListener=b2Listener())
         self.b2level = self.b2world.CreateStaticBody()
         self._create_b2_tile_map(force_ground)
         #print self.b2world
@@ -230,6 +243,7 @@ class Location_Layer(layer.ScrollableLayer):
         #print spawn_point, hero
         movable_object.Movable_Object.tilemap = self.force_ground
         movable_object.Movable_Object.world = self.b2world
+        self.b2world.contactListener = self.b2world.true_listener
         #print "ZEBRA"
         br.Task.environment = self.force_ground
         eff.Advanced_Emitter.surface = self  # This bad

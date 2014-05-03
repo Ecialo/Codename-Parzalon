@@ -150,6 +150,15 @@ class Actor(movable_object.Movable_Object):
             self.kill()
             self.dispatch_event('on_death', self)
 
+    def transfer(self):
+        #print "SMTHSSDAS", self.b2body.cool_world.contactListener.beginHandlers
+        #print "SMTHING", self.b2body.cool_world.contactListener.getHandlers(self.b2body.fixtures[-1])
+        for item in self.hands:
+            item.transfer()
+        super(Actor, self).transfer()
+        self.ground_count = 0
+        self.on_ground = True
+
     def _move(self, dx, dy):
         old = self.cshape.center.copy()
         super(Actor, self)._move(dx, dy)
