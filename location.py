@@ -214,10 +214,10 @@ class Cool_B2_World(b2.b2World):
         self.bodies_to_create = deque()
         self.to_listener = deque()
 
-    def _CreateBody(self, defn=None, **kwargs):
-        body = super(Cool_B2_World, self).CreateBody(defn, **kwargs)
-        body.cool_world = self
-        return body
+    # def _CreateBody(self, defn=None, **kwargs):
+    #     body = super(Cool_B2_World, self).CreateBody(defn, **kwargs)
+    #     body.cool_world = self
+    #     return body
 
     def CreateDynamicBody(self, **kwargs):
         fake_body = Fake_Dynamic_Body(**kwargs)
@@ -226,6 +226,7 @@ class Cool_B2_World(b2.b2World):
 
     def _create_dynamic_body(self, fake_body):
         body = super(Cool_B2_World, self).CreateDynamicBody(**fake_body.kwargs)
+        body.cool_world = self
         for attr_name, attr_value in fake_body._data.iteritems():
             print attr_name
             body.__setattr__(attr_name, attr_value)
