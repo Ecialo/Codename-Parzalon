@@ -76,11 +76,11 @@ class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
             transfer_dict[new_name] = eval('self.b2body.'+old_name)
         new_b2body = self.world.CreateDynamicBody(**transfer_dict)
         for fixture in self.b2body.fixtures:
-            to_transfer = {'filterData' : 'filter',
-                           'friction' : 'friction',
-                           'sensor' : 'isSensor',
-                           'userData' : 'userData',
-                           'shape' : 'shape'}
+            to_transfer = {'filterData': 'filter',
+                           'friction': 'friction',
+                           'sensor': 'isSensor',
+                           'userData': 'userData',
+                           'shape': 'shape'}
             transfer_dict = {}
             for old_name, new_name in to_transfer.items():
                 transfer_dict[new_name] = eval('fixture.'+old_name)
@@ -89,7 +89,7 @@ class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
             handlers = self.b2body.cool_world.true_listener.getHandlers(fixture)
             if handlers:
                 self.b2body.cool_world.true_listener.removeEventHandler(fixture)
-                self.world.contactListener.addEventHandler(new_fixture, *handlers)
+                self.world.addEventHandler(new_fixture, *handlers)
         self.b2body.cool_world.destroy_body(self.b2body)
         self.b2body = new_b2body
 

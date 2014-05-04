@@ -145,7 +145,7 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         #                                                       isSensor=True))
         self.b2fixture.filterData.categoryBits = con.B2SWING
         self.b2fixture.filterData.maskBits = con.B2HITZONE | con.B2SWING | con.B2BODYPART
-        actor.world.contactListener.addEventHandler(self.b2fixture, self.on_begin_contact, self.on_end_contact)
+        actor.world.addEventHandler(self.b2fixture, self.on_begin_contact, self.on_end_contact)
         self.schedule(self.update)
 
     def set_batch(self, _):
@@ -237,7 +237,7 @@ class Hit_Zone(mova.Movable_Object):
         self.b2body.fixtures[-1].filterData.categoryBits = con.B2HITZONE
         self.b2body.fixtures[-1].filterData.maskBits = con.B2HITZONE | \
                                                        con.B2SWING | con.B2LEVEL | con.B2BODYPART
-        self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.on_begin_contact, self.on_end_contact)
+        self.world.addEventHandler(self.b2body.fixtures[-1], self.on_begin_contact, self.on_end_contact)
         self.master = master
         self.fight_group = master.owner.fight_group + consts['missile_fight_group']
         self.base_fight_group = master.owner.fight_group

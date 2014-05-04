@@ -1,5 +1,7 @@
 __author__ = 'Ecialo'
 
+from collections import deque
+
 from pyglet import event
 
 from cocos import collision_model as cm
@@ -108,6 +110,7 @@ Script_Manager.register_event_type('win')
 #     def PostSolve(self, contact, impulse):
 #         pass
 
+
 class b2Listener(b2.b2ContactListener):
     def __init__(self):
         b2.b2ContactListener.__init__(self)
@@ -158,18 +161,81 @@ class b2Listener(b2.b2ContactListener):
         else:
             return None
 
+
+class Fake_Filter_Data(object):
+
+    def __init__(self):
+        self._data = {}
+        del self._data['_data']
+
+    def __setattr__(self, key, value):
+        super(Fake_Filter_Data, self).__setattr__(key, value)
+        self._data[key] = value
+
+    # def __getattr__(self, item):
+    #     return self._data[item]
+
+
+class Fake_Fixture(object):
+
+    def __init__(self, fixture_def):
+        self.fixture_def = fixture_def
+        self.filterData = Fake_Filter_Data()
+        self.true_fixture = None
+
+
+class Fake_Dynamic_Body(object):
+
+    def __init__(self, **kwargs):
+        self._data = {}
+        self.kwargs = kwargs
+        self.fixtures = []
+        for key, value in kwargs.iteritems():
+            self.__setattr__(key, value)
+        del self._data['_data']
+        del self._data['kwargs']
+        del self._data['fixtures']
+
+    def CreateFixture(self, fixture_def):
+        self.fixtures.append(Fake_Fixture(fixture_def))
+
+    def __setattr__(self, key, value):
+        super(Fake_Dynamic_Body, self).__setattr__(key, value)
+        self._data[key] = value
+
+
 class Cool_B2_World(b2.b2World):
 
     def __init__(self, *args, **kwargs):
         self.true_listener = kwargs['contactListener']
         super(Cool_B2_World, self).__init__(*args, **kwargs)
-        self.fixtures_to_destroy = []
-        self.bodies_to_destroy = []
+        self.fixtures_to_destroy = deque()
+        self.bodies_to_destroy = deque()
+        self.bodies_to_create = deque()
+        self.to_listener = deque()
 
-    def CreateBody(self, defn=None, **kwargs):
+    def _CreateBody(self, defn=None, **kwargs):
         body = super(Cool_B2_World, self).CreateBody(defn, **kwargs)
         body.cool_world = self
         return body
+
+    def CreateDynamicBody(self, **kwargs):
+        fake_body = Fake_Dynamic_Body(**kwargs)
+        self.bodies_to_create.append(fake_body)
+        return fake_body
+
+    def _create_dynamic_body(self, fake_body):
+        body = super(Cool_B2_World, self).CreateDynamicBody(**fake_body.kwargs)
+        for attr_name, attr_value in fake_body._data.iteritems():
+            print attr_name
+            body.__setattr__(attr_name, attr_value)
+        for fake_fixture in fake_body.fixtures:
+            body.CreateFixture(fake_fixture.fixture_def)
+            for attr_name, attr_value in fake_fixture.filterData._data.iteritems():
+                body.fixtures[-1].filterData.__setattr__(attr_name, attr_value)
+            fake_fixture.true_fixture = body.fixtures[-1]
+        user = fake_body.userData
+        user.b2body = body
 
     def destroy_fixture(self, fixture):
         self.fixtures_to_destroy.append(fixture)
@@ -177,13 +243,41 @@ class Cool_B2_World(b2.b2World):
     def destroy_body(self, body):
         self.bodies_to_destroy.append(body)
 
+    def addEventHandler(self, listener, beginHandler, endHandler):
+        if isinstance(listener, Fake_Fixture):
+            self.to_listener.append((listener, beginHandler, endHandler))
+        else:
+            self.contactListener.addEventHandler(listener, beginHandler, endHandler)
+
     def Step(self, *args, **kwargs):
-        for fixture in self.fixtures_to_destroy:
+        # for fixture in self.fixtures_to_destroy:
+        fixtures_to_destroy = self.fixtures_to_destroy
+        while fixtures_to_destroy:
+            fixture = fixtures_to_destroy.popleft()
             fixture.body.DestroyFixture(fixture)
-        self.fixtures_to_destroy = []
-        for body in self.bodies_to_destroy:
+
+        # for body in self.bodies_to_destroy:
+        bodies_to_destroy = self.bodies_to_destroy
+        while bodies_to_destroy:
+            body = bodies_to_destroy.popleft()
             self.DestroyBody(body)
-        self.bodies_to_destroy = []
+
+        # for fake_body in self.bodies_to_create:
+        bodies_to_create = self.bodies_to_create
+        while bodies_to_create:
+            fake_body = bodies_to_create.popleft()
+            self._create_dynamic_body(fake_body)
+
+        rest = []
+        to_listener = self.to_listener
+        while to_listener:
+            handler = to_listener.popleft()
+            true_fixture = handler[0].true_fixture
+            if true_fixture:
+                self.contactListener.addEventHandler(true_fixture, handler[1], handler[2])
+            else:
+                rest.append(handler)
+        self.to_listener.extend(rest)
         super(Cool_B2_World, self).Step(*args, **kwargs)
 
 

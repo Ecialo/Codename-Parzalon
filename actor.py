@@ -83,7 +83,7 @@ class Actor(movable_object.Movable_Object):
                                                   isSensor=True))
         self.b2body.fixtures[-1].filterData.categoryBits = con.B2GNDSENS
         self.b2body.fixtures[-1].filterData.maskBits = con.B2LEVEL | con.B2ACTOR
-        self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
+        self.world.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
         self.ground_count = 0
         self.on_ground = False
 
