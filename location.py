@@ -358,13 +358,17 @@ class Location_Layer(layer.ScrollableLayer):
         self.hero.push_handlers(self)
         self.hero.refresh_environment(self)
         self.hero.show_hitboxes()
-        print self.scroller
+        #print self.scroller
+        to_remove = []
         for sc in self.scripts.known_objs():
             if 'spawn' in sc.properties:
                 #r = self.opponent.get_rect()
                 #r.midbottom = sc.midbottom
                 dx, dy = sc.center
                 self.spawn(sc.properties['spawn'], (dx, dy))
+                to_remove.append(sc)
+        for it in to_remove:
+            self.scripts.remove_tricky(it)
         self.run()
         #self.scroller.set_focus(*self.hero.position)
 
