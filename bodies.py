@@ -67,6 +67,9 @@ class Body_Part(object):
             self.attached.shell.shape.pc = self.shape.pc
         #print 11
 
+    def transfer(self):
+        pass
+
     def collide(self, hit):
         """
         Body Part receive all effects from Hit

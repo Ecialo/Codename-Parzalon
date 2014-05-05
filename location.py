@@ -197,7 +197,9 @@ class Fake_Dynamic_Body(object):
         del self._data['fixtures']
 
     def CreateFixture(self, fixture_def):
-        self.fixtures.append(Fake_Fixture(fixture_def))
+        fixture = Fake_Fixture(fixture_def)
+        self.fixtures.append(fixture)
+        return fixture
 
     def __setattr__(self, key, value):
         super(Fake_Dynamic_Body, self).__setattr__(key, value)
@@ -228,13 +230,16 @@ class Cool_B2_World(b2.b2World):
         body = super(Cool_B2_World, self).CreateDynamicBody(**fake_body.kwargs)
         body.cool_world = self
         for attr_name, attr_value in fake_body._data.iteritems():
-            print attr_name
+            #print attr_name
             body.__setattr__(attr_name, attr_value)
         for fake_fixture in fake_body.fixtures:
-            body.CreateFixture(fake_fixture.fixture_def)
+            new_fixture = body.CreateFixture(fake_fixture.fixture_def)
             for attr_name, attr_value in fake_fixture.filterData._data.iteritems():
-                body.fixtures[-1].filterData.__setattr__(attr_name, attr_value)
-            fake_fixture.true_fixture = body.fixtures[-1]
+                new_fixture.filterData.__setattr__(attr_name, attr_value)
+            fake_fixture.true_fixture = new_fixture
+            user = new_fixture.userData
+            if hasattr(user, "b2fixture"):
+                user.b2fixture = new_fixture
         user = fake_body.userData
         user.b2body = body
 

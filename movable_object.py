@@ -86,6 +86,10 @@ class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
                 transfer_dict[new_name] = eval('fixture.'+old_name)
             def_fix = b2.b2FixtureDef(**transfer_dict)
             new_fixture = new_b2body.CreateFixture(def_fix)
+            # if hasattr(fixture.userData, 'b2fixture'):
+            #     #print fixture.userData, fixture.shape, new_fixture
+            #     #print new_fixture.userData
+            #     fixture.userData.b2fixture = new_fixture
             #print fixture.shape, new_fixture.shape
             handlers = self.b2body.cool_world.true_listener.getHandlers(fixture)
             if handlers:
