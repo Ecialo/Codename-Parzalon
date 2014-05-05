@@ -68,8 +68,18 @@ class Item(mova.Movable_Object):
             self.master.stop_interact_with_item(self)
         #print self.position
         self.cshape.center = eu.Vector2(self.position[0], self.position[1])
-        self.horizontal_speed = self.master.horizontal_speed + randint(-500, 500)
-        self.vertical_speed = self.master.vertical_speed + randint(-100, 100)
+        rx, ry = con.pix_to_tile((self.cshape.rx, self.cshape.ry))
+        self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry)), userData=self))
+        self.b2body.fixtures[-1].filterData.categoryBits = con.B2ITEM
+        self.b2body.fixtures[-1].filterData.maskBits = con.B2LEVEL
+        self.b2body.fixtures[-1].friction = 10
+        x, y = con.pix_to_tile((self.cshape.center.x, self.cshape.center.y))
+        self.b2body.position = (x, y)
+        print x, y, self.master.b2body.position
+        self.b2body.linearVelocity.x = self.master.b2body.linearVelocity.x + con.pix_to_tile(randint(-500, 500))
+        self.b2body.linearVelocity.y = self.master.b2body.linearVelocity.y + con.pix_to_tile(randint(-100, 100))
+        #self.horizontal_speed = self.master.horizontal_speed + randint(-500, 500)
+        #self.vertical_speed = self.master.vertical_speed + randint(-100, 100)
         self.dispatch_event('on_drop_item', self)
         self.master = None
         #print 123412421
@@ -78,15 +88,11 @@ class Item(mova.Movable_Object):
     def get_up(self):
         self.dispatch_event('on_get_up_item', self)
 
-    def update(self, dt):
-        mova.Movable_Object.update(self, dt)
-        if self.wall & con.DOWN:
-            self.dispatch_event('on_lay_item', self)
-            self.unschedule(self.update)
-
     def set_master(self, master):
         self.master = master
 
+    # def update(self, dt):
+    #     mova.Movable_Object.update(self, dt)
 Item.register_event_type('on_drop_item')
 Item.register_event_type('on_get_up_item')
 Item.register_event_type('on_lay_item')

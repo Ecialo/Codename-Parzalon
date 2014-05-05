@@ -91,7 +91,6 @@ class Swing(Usage):
             stp = start_point.copy()
         else:
             stp = eu.Vector2(*start_point)
-        print "!!!!!", self.master
         stp = self.owner.from_global_to_self(stp)
         stp.x = stp.x/abs(stp.x) if stp.x != 0 else 0
         stp.x *= self.owner.width/2
@@ -103,13 +102,15 @@ class Swing(Usage):
         end = stp + vec.normalize()*self.length
         #Send line to holder in weapon for update end point and to screen for draw
         self.actual_hit = hit.Swing(stp, end, self)
-        self.master.dispatch_event('on_do_hit', self.actual_hit)
+        #self.master.dispatch_event('on_do_hit', self.actual_hit)
+        print "!232312", self.owner
+        self.owner.add(self.actual_hit, z=100)
 
     def continue_use(self, *args):
         """
         Define new end point
         """
-        end_point = args[0]
+        end_point = self.owner.from_global_to_self(eu.Vector2(*args[0]))
         start_point = self.actual_hit.start
         vec = end_point - start_point
         end = start_point + vec.normalize()*self.length
@@ -126,7 +127,7 @@ class Swing(Usage):
     def complete(self):
         if self.actual_hit is not None:
             print "send to remove", self.actual_hit
-            self.master.dispatch_event('on_remove_hit', self.actual_hit)
+            #self.master.dispatch_event('on_remove_hit', self.actual_hit)
             print "removed"
             self.actual_hit = None
             self.master.available = True
@@ -167,10 +168,6 @@ class Shoot(Usage):
     # def start_use(self, *args):
     #     print 99999999999
     #     self.master.available = False
-
-    # def continue_use(self, *args):
-    #     super(Shoot, self).continue_use(*args)
-    #     print 23123213
 
     def end_use(self, *args):
         if self.master.ammo:
