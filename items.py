@@ -5,6 +5,7 @@ from cocos import euclid as eu
 from cocos.tiles import Tile
 import movable_object as mova
 import consts as con
+import Box2D as b2
 
 SMALL, LARGE = xrange(2)
 
