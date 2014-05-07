@@ -321,15 +321,15 @@ class Controlling(Task):
             second_item_trigger = self.mouse[self.bind['second_hand']]
             self.master.use_item(SECONDARY, second_item_trigger, [pos, alt])
 
-        # action = self.key[self.bind['action']]
-        # if action:
-        #     #print "CONTROLLER", self.key
-        #     self.key[self.bind['action']] = False
-        #     triggers = filter(lambda sc: 'trigger' in sc.properties,
-        #                       self.triggers.iter_colliding(self.master))
-        #     #print list(triggers)
-        #     for tr in triggers:
-        #         self.master.activate_trigger(tr)
+        action = self.key[self.bind['action']]
+        if action:
+            #print "CONTROLLER", self.key
+            self.key[self.bind['action']] = False
+            triggers = filter(lambda sc: 'trigger' in sc.properties,
+                              self.triggers.iter_colliding(self.master))
+            #print list(triggers)
+            for tr in triggers:
+                self.master.activate_trigger(tr)
         #
         # change = self.key[self.bind['change_weapon']]
         # if change:
@@ -552,8 +552,9 @@ class Primitive_AI(Enemy_Brain):
 class Base_Enemy_Mind(Primitive_AI):
 
     def start(self):
-        Primitive_AI.start(self)
-        self.eff_dst = self.master.hands[0].length * consts['effective_dst']
+        # Primitive_AI.start(self)
+        # self.eff_dst = self.master.hands[0].length * consts['effective_dst']
+        pass
         #self.task_manager.push_task()
 
 

@@ -59,20 +59,5 @@
     <property name="win" value=""/>
    </properties>
   </object>
-  <object name="opponent" type="Position" x="1074" y="1902" width="161" height="99">
-   <properties>
-    <property name="spawn" value="enemy"/>
-   </properties>
-  </object>
-  <object name="opponent" type="Position" x="1721" y="1125" width="201" height="79">
-   <properties>
-    <property name="spawn" value="enemy"/>
-   </properties>
-  </object>
-  <object name="opponent" type="Position" x="2773" y="1559" width="191" height="101">
-   <properties>
-    <property name="spawn" value="twister"/>
-   </properties>
-  </object>
  </objectgroup>
 </map>
