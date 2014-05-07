@@ -109,7 +109,6 @@ consts = {'window': {'width': 800,
           'missile_fight_group': 1000,
           'animation_frames': {'walk': ('2.png', '3.png')}
           }
-
 LEFT, UP, RIGHT, DOWN, NO_TR = 0b1000, 0b0100, 0b0010, 0b0001, 0b0000
 FIRST_HAND, SECOND_HAND = xrange(2)
 FIRST, SECOND = xrange(2)

@@ -15,6 +15,7 @@ from inventory import Inventory
 
 consts = con.consts
 
+SECONDARY, MAIN = xrange(2)
 
 def animate(func):
     def decorate(*args, **kwargs):
@@ -71,7 +72,8 @@ class Actor(movable_object.Movable_Object):
         self.body = body(self)
         self.launcher = Launcher(self)
         self.state = 'stand'
-        self.inventory = Inventory(None, None, None, None, self)
+        self.inventory = Inventory(self)
+        
 
         pix_to_tile = con.pixel_value_to_tiles_value
         rx, ry = pix_to_tile((cshape.rx, cshape.ry))
@@ -90,17 +92,39 @@ class Actor(movable_object.Movable_Object):
         self.recovery = 0.0  # Time before moment when acton can be controlled again
         #self.scale = 0.5
 
-        self.schedule(self.item_update)
+        #self.schedule(self.item_update)
 
     height = property(lambda self: self.body.img.height)
     width = property(lambda self: self.body.img.width)
     #attack_perform = property(lambda self: self.hands[0].attack_perform)
 
-    def current_main_item(self):
-        return self.inventory.main_item
+    def use_item(self, item_type, trigger, args):       # MAIN or SECONDARY
+        if item_type is MAIN:
+            item = self.inventory.main_item
+        else:
+            item = self.inventory.secondary_item
 
-    def item_update(self, dt):
-        map(lambda x: x.item_update(dt), self.hands)
+        if not item:
+            return
+        #if item_type is not MAIN:
+            #print trigger, item.on_use, item.available
+        if trigger and not item.on_use and item.available:
+            item.start_use(*args)
+        elif trigger and item.on_use and item.available:
+            item.continue_use(*args)
+        elif not trigger and item.on_use and item.available:
+            item.end_use(*args)
+
+    #def item_update(self, dt):
+    #    map(lambda x: x.item_update(dt), self.hands)
+
+    def start_interact_with_item(self, item):
+        if item and item.item_update:
+            self.schedule(item.item_update)
+
+    def stop_interact_with_item(self, item):
+        if item and item.item_update:
+            self.unschedule(item.item_update)
 
     def collide(self, other):
         other._collide_actor(self)
@@ -131,13 +155,6 @@ class Actor(movable_object.Movable_Object):
 
     def close(self):
         self.inventory.close()
-
-    def drop(self):
-        self.hands[-1].drop()
-        self.hands.pop()
-
-    def change_weapon(self):
-        self.inventory.change_weapon()
 
     def destroy(self):
         """
@@ -173,14 +190,14 @@ class Actor(movable_object.Movable_Object):
         """
         Move Actor in horizontal_direction with his body speed
         """
-        #if self.on_ground:
-        d = horizontal_direction * self.body.speed
-        #if abs(self.horizontal_speed + d) > self.body.speed:
-        #self.push((d,0))
-        self.b2body.linearVelocity.x = d
-        #self.horizontal_speed = d
-        if self.direction != horizontal_direction:
-            self.turn()
+        if self.on_ground:
+            d = horizontal_direction * self.body.speed
+            #if abs(self.horizontal_speed + d) > self.body.speed:
+            #self.push((d,0))
+            self.b2body.linearVelocity.x = d
+            #self.horizontal_speed = d
+            if self.direction != horizontal_direction:
+                self.turn()
 
     @activity
     def stand(self):
@@ -234,6 +251,7 @@ class Actor(movable_object.Movable_Object):
         vec = eu.Vector2(int(x), int(y))
         self.position = vec
         self.cshape.center = vec
+        self.b2body.position = con.pixel_value_to_tiles_value((vec.x, vec.y))
         map(lambda hand: hand.attached_move(vec - old), self.hands)
 
     def choose_free_hand(self):

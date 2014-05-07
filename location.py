@@ -1,10 +1,10 @@
 __author__ = 'Ecialo'
 
-from collections import deque
-
 #import pyglet
 from pyglet.window import key
 from pyglet.window import mouse
+from collections import deque
+
 from pyglet import event
 
 import cocos
@@ -30,15 +30,17 @@ from cocos.actions.grid3d_actions import FlipY3D
 
 consts = con.consts
 
+
 from collides import cross_angle
+
 NO_ROTATION = 0
 
 
 def _spawn_unit(level, name, pos):
     un_par = db.objs[name]
     unit = ac.Actor(un_par['body'])
-    map(lambda x: unit.get_item(x()(level)), un_par['items'])
-    #map(lambda x: unit.put_item(x()(level)), un_par['items'])
+    #map(lambda x: unit.get_item(x()(level)), un_par['items'])
+    map(lambda x: unit.put_item(x()(level)), un_par['items'])
     unit.move_to(*pos)
     if un_par['brain'].fight_group is consts['group']['hero'] and level.hero is None:
         level.hero = unit
@@ -365,13 +367,10 @@ class Location_Layer(layer.ScrollableLayer):
             if spawn_point in sc.properties:
                 #r = self.hero.get_rect()
                 #r.midbottom = sc.midbottom
-                print hero
                 dx, dy = sc.center
                 self.spawn(hero, (dx, dy))
-                #print "LOSHADKA"
         if hero is not 'hero':
             self.hero = hero
-        print "Prepared"
         #print self.hero._event_stack
         self.hero.push_handlers(self)
         self.hero.refresh_environment(self)
@@ -510,10 +509,8 @@ class Location_Layer(layer.ScrollableLayer):
 
     def spawn(self, obj, pos):
         if obj in db.objs:
-            #print "SLONIK"
             self._spawn[db.objs[obj]['type']](self, obj, pos)
         elif isinstance(obj, ac.Actor):
-            #print "ZIRAFIK"
             _spawn_prepared_unit(self, obj, pos)
 
     def on_launch_missile(self, missile):

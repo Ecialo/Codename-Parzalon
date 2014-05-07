@@ -26,7 +26,8 @@ def ammo(value):
 def fire_rate(time_between_shots):
     def add_fire_rate(master):
         def reload_weapon(dt):
-            if master.cur_reload != 0.0:
+            #print master
+            if master.cur_reload > 0.0:
                 master.cur_reload -= dt
                 if master.cur_reload <= 0.0:
                     master.cur_reload = 0.0
@@ -49,7 +50,7 @@ class Item(mova.Movable_Object):
         self.master = None
 
         self.inventory_representation = Tile(1, {'item': self}, img)
-        self.item_update = lambda dt: None
+        self.item_update = None
 
     def __call__(self, environment):
         try:
@@ -64,6 +65,8 @@ class Item(mova.Movable_Object):
 
     def drop(self):
         self.position = self.master.position
+        if self.item_update:
+            self.master.stop_interact_with_item(self)
         #print self.position
         self.cshape.center = eu.Vector2(self.position[0], self.position[1])
         rx, ry = con.pix_to_tile((self.cshape.rx, self.cshape.ry))
@@ -86,6 +89,9 @@ class Item(mova.Movable_Object):
     def get_up(self):
         self.dispatch_event('on_get_up_item', self)
 
+    def set_master(self, master):
+        self.master = master
+
     # def update(self, dt):
     #     mova.Movable_Object.update(self, dt)
 Item.register_event_type('on_drop_item')
@@ -96,6 +102,7 @@ Item.register_event_type('on_lay_item')
 class Usage_Item(Item):
 
     slot = con.HAND
+    size = LARGE
 
     def __init__(self, img, first_usage, second_usage,
                  mutators=con.EMPTY_LIST):

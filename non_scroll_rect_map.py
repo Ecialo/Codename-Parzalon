@@ -83,8 +83,10 @@ class No_Scroll_Map_Layer(Layer):
 
     def update_cell(self, cell):
         cx, cy = key = cell.origin[:2:]
-        self._sprites[key].delete()
-        self._sprites[key] = pyglet.sprite.Sprite(cell.tile.image, x=cx, y=cy, batch=self.batch)
+        if key in self._sprites:
+            self._sprites[key].delete()
+        if cell.tile:
+            self._sprites[key] = pyglet.sprite.Sprite(cell.tile.image, x=cx, y=cy, batch=self.batch)
 
     def find_cells(self, **requirements):
         '''Find all cells that match the properties specified.

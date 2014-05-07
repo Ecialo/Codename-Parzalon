@@ -38,6 +38,7 @@ class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
 
     def __init__(self, img, cshape=None, position=(0, 0), vertical_speed=0, horizontal_speed=0):
         cocos.sprite.Sprite.__init__(self, img, position)
+        #print self.world is None
         self.image = img
         #self.vertical_speed = vertical_speed
         #self.horizontal_speed = horizontal_speed
