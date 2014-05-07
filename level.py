@@ -12,7 +12,7 @@ import hud
 
 from location import Location_Layer
 
-
+import actor as ac
 class Keyboard_Handler(object):
 
     def __init__(self):
@@ -46,7 +46,7 @@ class Level(object):
     def __init__(self, start_position, locations):
         self.locations = locations
         self.x, self.y = start_position
-        self.spawn_point = 'start'
+        self.spawn_point = 'right'
         self.hero = 'hero'
         self.keyboard = Keyboard_Handler()
         self.mouse = Mouse_Handler()

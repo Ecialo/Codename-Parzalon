@@ -374,16 +374,19 @@ class Controlling(Task):
         #         item.get_up()
 
         inv = self.key[self.bind['inventory']]
-        if inv and not self.pressed:
-            self.key[self.bind['inventory']] = False
-            self.master.open()
-            self.pressed = True
-        elif inv and self.pressed:
-            self.key[self.bind['inventory']] = False
-            self.master.close()
-            self.pressed = False
-        else:
-            pass
+        if inv:
+            self.master.drop()
+        self.key[self.bind['inventory']] = False
+        # if inv and not self.pressed:
+        #     self.key[self.bind['inventory']] = False
+        #     self.master.open()
+        #     self.pressed = True
+        # elif inv and self.pressed:
+        #     self.key[self.bind['inventory']] = False
+        #     self.master.close()
+        #     self.pressed = False
+        # else:
+        #     pass
 
         #cx, cy = self.master.position
         #print cx, cy
