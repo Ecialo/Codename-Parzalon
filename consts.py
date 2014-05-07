@@ -1,7 +1,4 @@
-# To change this license header, choose License Headers in Project Properties.
-# To change this template file, choose Tools | Templates
-# and open the template in the editor.
-
+# -*- coding: utf-8 -*-
 __author__ = "Ecialo"
 __date__ = "$24.08.2013 12:54:13$"
 from os import path

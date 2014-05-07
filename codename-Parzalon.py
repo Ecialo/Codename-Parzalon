@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 __author__ = "Ecialo"
-#######
 from cocos.director import director
 from menu import GameMenu
 
