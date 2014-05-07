@@ -132,9 +132,13 @@ class Bag(No_Scroll_Rect_Map_Layer):
     def drop_item(self, cell):
         i, j = cell.i, cell.j
         item = cell.get('item')
+        is_belt = cell.get('is_belt')
         if item:
             item.drop()
-            self.cells[i][j] = Inventory_Cell(i, j)
+            if is_belt:
+                self.cells[i][j] = Belt_Cell(i, j)
+            else:
+                self.cells[i][j] = Inventory_Cell(i, j)
             self.update_cell(self.cells[i][j])
 
     def set_new_belt_item(self, cell):
@@ -186,11 +190,14 @@ class Inventory(layer.Layer):
         self.selected_cell = None
         self.prev_cell = None
 
-        buddy = sprite.Sprite('inventory.png')
-        buddy.position = (400, 400)
+        #buddy = sprite.Sprite('inventory.png')
+        #buddy.position = (400, 400)
+        self.main_item_representation = sprite.Sprite(empty)
+        self.main_item_representation.position = (200, 400)
         self.bag.position = (400, 0)
 
         #self.add(buddy)
+        self.add(self.main_item_representation, z=1)
         self.add(self.bag, z=1)
 
     def put_item(self, item):
@@ -215,11 +222,18 @@ class Inventory(layer.Layer):
         self.secondary_item = self.bag.select_secondary_item(scroll)
         self.master.start_interact_with_item(self.secondary_item)
 
+    def set_new_main_item(self, item):
+        self.main_item = item
+        item_image = item.image
+        width, height = item_image.width, item_image.height
+        self.main_item_representation.image = item.image
+        self.main_item_representation.image_anchor = (width/2, height/2)
+
     def change_item(self, item):
         self.master.start_interact_with_item(item)
         if item.slot is consts.HAND:
             item_to_drop = self.main_item
-            self.main_item = item
+            self.set_new_main_item(item)
         else:
             item_to_drop = self.armor[item.slot]
             self.armor[item.slot] = item
