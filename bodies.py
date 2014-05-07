@@ -4,6 +4,7 @@
 __author__ = "Ecialo"
 
 from cocos import euclid as eu
+import Box2D as b2
 import geometry as gm
 import consts as con
 import effects as eff
@@ -26,11 +27,22 @@ class Body_Part(object):
                  stab_priority, chop_priority,
                  on_destroy_effects=con.EMPTY_LIST):
         self.master = master
+        #print master, "BODU PART BODU"
+        #print master.master, "DOBY PART Actor"
 
         self.health = self.max_health
         self.armor = self.max_armor
 
         self.on_destroy_effects = on_destroy_effects
+
+        #box2d
+        actor = master.master
+        x, y = center
+        box = con.pix_to_tile((h_width, h_height, (x, y), 0))
+        self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=box),
+                                                                    isSensor=True, userData=self))
+        actor.b2body.fixtures[-1].filterData.categoryBits = con.B2BODYPART
+        actor.b2body.fixtures[-1].filterData.maskBits = con.B2HITZONE | con.B2SWING
 
         # Center relatively body
         p = gm.Point2(center.x - h_width, center.y - h_height)
@@ -55,17 +67,24 @@ class Body_Part(object):
             self.attached.shell.shape.pc = self.shape.pc
         #print 11
 
-    def take_hit(self, hit):
+    def transfer(self):
+        pass
+
+    def collide(self, hit):
         """
         Body Part receive all effects from Hit
         and apply them to self
         """
-        for effect in hit.effects:
-            effect(self)
-        if self.health <= 0:
-            self.destroy()
-        elif self.master.health <= 0:
-            self.master.destroy()
+        if self.master.master.fight_group != hit.base_fight_group:
+            for effect in hit.effects:
+                effect(self)
+            if self.health <= 0:
+                self.destroy()
+            elif self.master.health <= 0:
+                self.master.destroy()
+            p = con.tile_to_pix(self.master.master.b2body.GetWorldPoint(self.b2fixture.shape.centroid))
+            eff.Blood().add_to_surface(p)
+            hit.complete()
         #print self.health, self.armor
 
     def get_on(self, item):
@@ -122,7 +141,10 @@ class Body(object):
     def __init__(self, master, body_parts, body_name, on_collide_effects=con.EMPTY_LIST):
         self.master = master
         self.speed = self.base_speed
+        #print self.master, "PRE BODY"
+        #print body_parts
         self.body_parts = map(lambda x: x(self), body_parts)
+        #print self.master, "PAST, BODY"
         self.on_collide_effects = map(lambda x: x(self.master), on_collide_effects)
         self.max_health = sum(map(lambda x: x.max_health, filter(lambda x: x.slot < 100, body_parts)))/2
         self.health = self.max_health
@@ -176,7 +198,7 @@ class Body(object):
             if in_p is not None:
                 p = self.master.from_self_to_global(part.shape.pc)
                 eff.Blood().add_to_surface(p)
-                part.take_hit(hit)
+                part.collide(hit)
                 #print hit.features, con.CLEAVE not in hit.features
                 if con.CLEAVE not in hit.features:
                     break
@@ -257,6 +279,7 @@ class Hero(Body):
     base_speed = consts['params']['human']['speed']
 
     def __init__(self, master):
+        #print "HERO"
         Body.__init__(self, master, [Chest, Head, Legs], 'Hero')
         self.make_animation(self.anim, 'Hero')
 

@@ -83,7 +83,7 @@ class Actor(movable_object.Movable_Object):
                                                   isSensor=True))
         self.b2body.fixtures[-1].filterData.categoryBits = con.B2GNDSENS
         self.b2body.fixtures[-1].filterData.maskBits = con.B2LEVEL | con.B2ACTOR
-        self.world.contactListener.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
+        self.world.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
         self.ground_count = 0
         self.on_ground = False
 
@@ -129,6 +129,10 @@ class Actor(movable_object.Movable_Object):
     def close(self):
         self.inventory.close()
 
+    def drop(self):
+        self.hands[-1].drop()
+        self.hands.pop()
+
     def change_weapon(self):
         self.inventory.change_weapon()
 
@@ -145,6 +149,15 @@ class Actor(movable_object.Movable_Object):
             self.remove_action(self.actions[0])
             self.kill()
             self.dispatch_event('on_death', self)
+
+    def transfer(self):
+        #print "SMTHSSDAS", self.b2body.cool_world.contactListener.beginHandlers
+        #print "SMTHING", self.b2body.cool_world.contactListener.getHandlers(self.b2body.fixtures[-1])
+        for item in self.hands:
+            item.transfer()
+        super(Actor, self).transfer()
+        self.ground_count = 0
+        self.on_ground = True
 
     def _move(self, dx, dy):
         old = self.cshape.center.copy()
@@ -254,7 +267,7 @@ class Actor(movable_object.Movable_Object):
         """
         Check with every Body_Part is Hit hit or not.
         """
-        self.body.take_hit(hit)
+        self.body.collide(hit)
 
     def touches_point(self, x, y):
         """

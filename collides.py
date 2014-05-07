@@ -26,7 +26,7 @@ def collide_actor_actor(actor1, actor2):
 def collide_actor_hit_zone(actor, hit_zone):
     if actor.fight_group != hit_zone.base_fight_group:
         #print hit_zone
-        actor.take_hit(hit_zone)
+        actor.collide(hit_zone)
 
 
 def collide_actor_slash(actor, slash):
@@ -38,7 +38,7 @@ def collide_actor_slash(actor, slash):
         x, y = slash.end.x, slash.end.y
         #print x, y
         if actor.touches_point(x, y):
-            actor.take_hit(slash)
+            actor.collide(slash)
 
 
 def collide_slash_slash(slash1, slash2):

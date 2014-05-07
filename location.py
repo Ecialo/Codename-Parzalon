@@ -1,5 +1,7 @@
 __author__ = 'Ecialo'
 
+from collections import deque
+
 from pyglet import event
 
 from cocos import collision_model as cm
@@ -16,6 +18,7 @@ import brains as br
 
 consts = con.consts
 
+NO_ROTATION = 0
 
 def _spawn_unit(level, name, pos):
     #print "LOLOLO"
@@ -37,6 +40,7 @@ def _spawn_unit(level, name, pos):
 
 def _spawn_prepared_unit(level, unit, pos):
     print "spawn_prepared"
+    unit.transfer()
     unit.move_to(*pos)
     unit.launcher.push_handlers(level)
     level.actors.append(unit)
@@ -106,6 +110,7 @@ Script_Manager.register_event_type('win')
 #     def PostSolve(self, contact, impulse):
 #         pass
 
+
 class b2Listener(b2.b2ContactListener):
     def __init__(self):
         b2.b2ContactListener.__init__(self)
@@ -150,12 +155,93 @@ class b2Listener(b2.b2ContactListener):
         del self.beginHandlers[listener]
         del self.endHandlers[listener]
 
+    def getHandlers(self, listener):
+        if listener in self.beginHandlers:
+            return (self.beginHandlers[listener], self.endHandlers[listener])
+        else:
+            return None
+
+
+class Fake_Filter_Data(object):
+
+    def __init__(self):
+        self._data = {}
+        del self._data['_data']
+
+    def __setattr__(self, key, value):
+        super(Fake_Filter_Data, self).__setattr__(key, value)
+        self._data[key] = value
+
+    # def __getattr__(self, item):
+    #     return self._data[item]
+
+
+class Fake_Fixture(object):
+
+    def __init__(self, fixture_def):
+        self.fixture_def = fixture_def
+        self.filterData = Fake_Filter_Data()
+        self.true_fixture = None
+
+
+class Fake_Dynamic_Body(object):
+
+    def __init__(self, **kwargs):
+        self._data = {}
+        self.kwargs = kwargs
+        self.fixtures = []
+        for key, value in kwargs.iteritems():
+            self.__setattr__(key, value)
+        del self._data['_data']
+        del self._data['kwargs']
+        del self._data['fixtures']
+
+    def CreateFixture(self, fixture_def):
+        fixture = Fake_Fixture(fixture_def)
+        self.fixtures.append(fixture)
+        return fixture
+
+    def __setattr__(self, key, value):
+        super(Fake_Dynamic_Body, self).__setattr__(key, value)
+        self._data[key] = value
+
+
 class Cool_B2_World(b2.b2World):
 
     def __init__(self, *args, **kwargs):
-        super(Cool_B2_World, self).__init__(*args, ** kwargs)
-        self.fixtures_to_destroy = []
-        self.bodies_to_destroy = []
+        self.true_listener = kwargs['contactListener']
+        super(Cool_B2_World, self).__init__(*args, **kwargs)
+        self.fixtures_to_destroy = deque()
+        self.bodies_to_destroy = deque()
+        self.bodies_to_create = deque()
+        self.to_listener = deque()
+
+    # def _CreateBody(self, defn=None, **kwargs):
+    #     body = super(Cool_B2_World, self).CreateBody(defn, **kwargs)
+    #     body.cool_world = self
+    #     return body
+
+    def CreateDynamicBody(self, **kwargs):
+        fake_body = Fake_Dynamic_Body(**kwargs)
+        self.bodies_to_create.append(fake_body)
+        return fake_body
+
+    def _create_dynamic_body(self, fake_body):
+        body = super(Cool_B2_World, self).CreateDynamicBody(**fake_body.kwargs)
+        body.cool_world = self
+        for attr_name, attr_value in fake_body._data.iteritems():
+            #print attr_name
+            body.__setattr__(attr_name, attr_value)
+        for fake_fixture in fake_body.fixtures:
+            new_fixture = body.CreateFixture(fake_fixture.fixture_def)
+            for attr_name, attr_value in fake_fixture.filterData._data.iteritems():
+                new_fixture.filterData.__setattr__(attr_name, attr_value)
+            fake_fixture.true_fixture = new_fixture
+            user = new_fixture.userData
+            if hasattr(user, "b2fixture"):
+                user.b2fixture = new_fixture
+        user = fake_body.userData
+        user.b2body = body
 
     def destroy_fixture(self, fixture):
         self.fixtures_to_destroy.append(fixture)
@@ -163,13 +249,41 @@ class Cool_B2_World(b2.b2World):
     def destroy_body(self, body):
         self.bodies_to_destroy.append(body)
 
+    def addEventHandler(self, listener, beginHandler, endHandler):
+        if isinstance(listener, Fake_Fixture):
+            self.to_listener.append((listener, beginHandler, endHandler))
+        else:
+            self.contactListener.addEventHandler(listener, beginHandler, endHandler)
+
     def Step(self, *args, **kwargs):
-        for fixture in self.fixtures_to_destroy:
+        # for fixture in self.fixtures_to_destroy:
+        fixtures_to_destroy = self.fixtures_to_destroy
+        while fixtures_to_destroy:
+            fixture = fixtures_to_destroy.popleft()
             fixture.body.DestroyFixture(fixture)
-        self.fixtures_to_destroy = []
-        for body in self.bodies_to_destroy:
+
+        # for body in self.bodies_to_destroy:
+        bodies_to_destroy = self.bodies_to_destroy
+        while bodies_to_destroy:
+            body = bodies_to_destroy.popleft()
             self.DestroyBody(body)
-        self.bodies_to_destroy = []
+
+        # for fake_body in self.bodies_to_create:
+        bodies_to_create = self.bodies_to_create
+        while bodies_to_create:
+            fake_body = bodies_to_create.popleft()
+            self._create_dynamic_body(fake_body)
+
+        rest = []
+        to_listener = self.to_listener
+        while to_listener:
+            handler = to_listener.popleft()
+            true_fixture = handler[0].true_fixture
+            if true_fixture:
+                self.contactListener.addEventHandler(true_fixture, handler[1], handler[2])
+            else:
+                rest.append(handler)
+        self.to_listener.extend(rest)
         super(Cool_B2_World, self).Step(*args, **kwargs)
 
 
@@ -192,7 +306,7 @@ class Location_Layer(layer.ScrollableLayer):
 
         #Box2D world
         self.b2world = Cool_B2_World(gravity=(0, -con.GRAVITY),
-                                  contactListener=b2Listener())
+                                     contactListener=b2Listener())
         self.b2level = self.b2world.CreateStaticBody()
         self._create_b2_tile_map(force_ground)
         #print self.b2world
@@ -229,6 +343,7 @@ class Location_Layer(layer.ScrollableLayer):
         #print spawn_point, hero
         movable_object.Movable_Object.tilemap = self.force_ground
         movable_object.Movable_Object.world = self.b2world
+        self.b2world.contactListener = self.b2world.true_listener
         #print "ZEBRA"
         br.Task.environment = self.force_ground
         eff.Advanced_Emitter.surface = self  # This bad
@@ -248,35 +363,77 @@ class Location_Layer(layer.ScrollableLayer):
         self.hero.push_handlers(self)
         self.hero.refresh_environment(self)
         self.hero.show_hitboxes()
-        print self.scroller
+        #print self.scroller
+        to_remove = []
         for sc in self.scripts.known_objs():
             if 'spawn' in sc.properties:
                 #r = self.opponent.get_rect()
                 #r.midbottom = sc.midbottom
                 dx, dy = sc.center
                 self.spawn(sc.properties['spawn'], (dx, dy))
+                to_remove.append(sc)
+        for it in to_remove:
+            self.scripts.remove_tricky(it)
         self.run()
         #self.scroller.set_focus(*self.hero.position)
 
     def _create_b2_tile_map(self, rect_map):
+
+        def try_create_and_append_block(cells_in_block, mode):
+            if cells_in_block and mode == 0:
+                cells_in_block.pop()
+            if cells_in_block:
+                height = len(cells_in_block) if not mode else 1
+                width = len(cells_in_block) if mode else 1
+                half_height = height/2.0
+                half_width = width/2.0
+                #highest_cell = cells_in_block[-1]
+                lowest_cell = cells_in_block[0]
+                cx = lowest_cell.i + half_width
+                cy = lowest_cell.j + half_height
+                shape.SetAsBox(half_width, half_height, (cx, cy), NO_ROTATION)
+                self.b2level.CreateFixture(shape=shape, userData=cell)
+                self.b2level.fixtures[-1].filterData.categoryBits = con.B2SMTH | con.B2LEVEL
+                self.b2level.fixtures[-1].filterData.maskBits = con.B2EVERY
+
         # WIDTH, HEIGHT = con.TILE_SIZE/2, con.TILE_SIZE/2
         cells = rect_map.cells
+        m = len(cells)
+        n = len(cells[0])
 
         shape = b2.b2PolygonShape()
         #print "TEST"
-        i = 0
+        #i = 0
         for cell_column in cells:
+            cells_in_vertical_block = []
             for cell in cell_column:
                 if cell.get('top'):
                     #print i
-                    i += 1
+                    cells_in_vertical_block.append(cell)
                     #print self.b2world
-                    shape.SetAsBox(0.5, 0.5, con.pixel_value_to_tiles_value(cell.center), 0)
-                    self.b2level.CreateFixture(shape=shape, userData=cell)
-                    self.b2level.fixtures[-1].filterData.categoryBits = con.B2SMTH | con.B2LEVEL
                     #self.b2level.fixtures[-1].maskBits = con.B2EVERY
                     #if i>9990:
                     #   temp = self.b2world
+                else:
+                    #print len(cells_in_block)
+                    try_create_and_append_block(cells_in_vertical_block, 0)
+                    cells_in_vertical_block = []
+            try_create_and_append_block(cells_in_vertical_block, 0)
+
+        for j in xrange(n):
+            cells_in_horizontal_block = []
+            for i in xrange(m):
+                cell = cells[i][j]
+                if cell.get('top'):
+                    cells_in_horizontal_block.append(cell)
+                else:
+                    try_create_and_append_block(cells_in_horizontal_block, 1)
+                    cells_in_horizontal_block = []
+            try_create_and_append_block(cells_in_horizontal_block, 1)
+
+
+
+                    #pass
         #print "TEST21"
 
     def run(self):
