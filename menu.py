@@ -36,7 +36,7 @@ class MainMenu(Menu):
         self.create_menu(self.items, shake(), shake_back())
 
     def on_new_game(self):
-        lvl = Level((0, 0), [['tst_map.tmx']])
+        lvl = Level((0, 0), [['map01.tmx'], ['map02.tmx']])
         lvl.run()
 
     def on_options_enter(self):

@@ -51,7 +51,7 @@
     <property name="start_entry" value="yes"/>
    </properties>
   </object>
-  <object name="right_entry" type="Position" x="2987" y="2544" width="208" height="140">
+  <object name="right_entry" type="Position" x="2694" y="2527" width="496" height="154">
    <properties>
     <property name="change_location" value="right"/>
     <property name="right_entry" value="yes"/>
