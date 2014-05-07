@@ -10,6 +10,7 @@ import items
 import cocos
 import pyglet
 from pyglet.window import mouse
+
 empty = pyglet.image.SolidColorImagePattern((255, 255, 255, 255)).create_image(32, 32)
 
 MAX_INVENTORY_SIZE = 5
@@ -21,7 +22,6 @@ NO_SCROLL = 0
 
 
 class Item_Context_Menu(menu.Menu):
-
     def __init__(self, item, item_drop_method):
         super(Item_Context_Menu, self).__init__()
         self.item = item
@@ -45,28 +45,24 @@ class Item_Context_Menu(menu.Menu):
 
 
 class Belt_Cell(tiles.RectCell):
-
     def __init__(self, i):
         j = MAX_INVENTORY_SIZE + SEPARATE_ROW
         super(Belt_Cell, self).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
-                                  {'is_belt': True}, tiles.Tile(-1, {}, empty))
+                                        {'is_belt': True}, tiles.Tile(-1, {}, empty))
 
 
 class Inventory_Cell(tiles.RectCell):
-
     def __init__(self, i, j):
         super(Inventory_Cell, self).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
-                                       {'is_inventory': False}, tiles.Tile(-1, {}, empty))
+                                             {'is_inventory': False}, tiles.Tile(-1, {}, empty))
 
 
 class Locked_Cell(tiles.RectCell):
-
     def __init__(self, i, j):
         super(Locked_Cell, self).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE, {}, None)
 
 
 class Belt(object):
-
     def __init__(self, size):
         self.size = size
         self.items = [None for i in xrange(MAX_INVENTORY_SIZE)]
@@ -86,7 +82,6 @@ class Belt(object):
 
 
 class Bag(No_Scroll_Rect_Map_Layer):
-
     is_event_handler = False
 
     def __init__(self, master):
@@ -175,7 +170,6 @@ class Bag(No_Scroll_Rect_Map_Layer):
 
 
 class Inventory(layer.Layer):
-
     is_event_handler = True
 
     def __init__(self, master):
@@ -195,6 +189,7 @@ class Inventory(layer.Layer):
         self.main_item_representation = sprite.Sprite(empty)
         self.main_item_representation.position = (200, 400)
         self.bag.position = (400, 0)
+        self.active_zones = [(self.main_item_representation.get_rect(), "main_item")]
 
         #self.add(buddy)
         self.add(self.main_item_representation, z=1)
@@ -227,7 +222,7 @@ class Inventory(layer.Layer):
         item_image = item.image
         width, height = item_image.width, item_image.height
         self.main_item_representation.image = item.image
-        self.main_item_representation.image_anchor = (width/2, height/2)
+        self.main_item_representation.image_anchor = (width / 2, height / 2)
 
     def change_item(self, item):
         self.master.start_interact_with_item(item)
@@ -246,10 +241,20 @@ class Inventory(layer.Layer):
             self.bag.set_new_belt_item(item_cell)
             self.select_secondary_item()
 
+    def get_item_outside_bag(self, x, y):
+        for item_zone, item_slot in self.active_zones:
+            if item_zone.contains(x, y):
+                return self.get_item_from_slot(item_slot)
+
+    def get_item_from_slot(self, slot):
+        if slot == 'main_item':
+            return self.main_item
+
     def item_dropper(self, item_cell):
 
         def dropper():
             self.drop_item(item_cell)
+
         return dropper
 
     def lock(self):
@@ -279,11 +284,16 @@ class Inventory(layer.Layer):
     def on_mouse_press(self, x, y, buttons, modifers):
         if not self._locked:
             if buttons & mouse.RIGHT:
-                    cell = self.bag.get_at_pixel(x, y)
+                cell = self.bag.get_at_pixel(x, y)
+                if cell:
                     item = cell.get('item')
-                    print item
                     if item:
                         self.add(Item_Context_Menu(item, self.item_dropper(cell)), z=2)
+                        print item
+                else:
+                    item = self.get_item_outside_bag(x, y)
+                    if item:
+                        self.add(Item_Context_Menu(item, None), z=2)
             elif not self.selected_cell:
                 self.selected_cell = self.bag.get_at_pixel(x, y)
             else:
@@ -295,5 +305,3 @@ class Inventory(layer.Layer):
                     self.bag.set_new_belt_item(self.selected_cell)
                 self.select_secondary_item()
                 self.selected_cell = None
-
-
