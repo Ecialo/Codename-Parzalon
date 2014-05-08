@@ -13,12 +13,9 @@ from cocos import layer
 from collections import deque
 
 import consts as con
-
+from consts import SECONDARY, MAIN
+from consts import COMPLETE
 consts = con.consts
-
-COMPLETE = True
-TASK_CHANGE_TIME = 0.1
-SECONDARY, MAIN = xrange(2)
 
 
 def cross_hit_trace(hit):

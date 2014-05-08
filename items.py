@@ -5,9 +5,8 @@ from cocos import euclid as eu
 from cocos.tiles import Tile
 import Box2D as b2
 import movable_object as mova
+from consts import SMALL, LARGE
 import consts as con
-
-SMALL, LARGE = xrange(2)
 
 
 def length(value):

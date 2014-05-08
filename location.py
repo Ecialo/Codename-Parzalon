@@ -27,13 +27,8 @@ from vertex_research import TestLayer
 from inventory import Inventory
 
 from cocos.actions.grid3d_actions import FlipY3D
-
+from consts import NO_ROTATION
 consts = con.consts
-
-
-from collides import cross_angle
-
-NO_ROTATION = 0
 
 
 def _spawn_unit(level, name, pos):

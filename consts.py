@@ -11,7 +11,7 @@
 
 Все данные разбиты по блокам
 
-Постоянные нельзя объявлять где-либо, кроме этого файла. Исключение: самодостаточные модули
+Постоянные нельзя объявлять где-либо, кроме этого реестра. Исключение: самодостаточные модули
 коими должны вскоре стать монстры, предметы и прочий контент.
 
 Любое магическое число, если сходу не понятно его назначение, должно быть заменено
@@ -20,7 +20,6 @@
 
 __author__ = "Ecialo"
 
-from os import path
 import pyglet
 from pyglet.window import key
 from pyglet.window import mouse
@@ -78,6 +77,9 @@ B2EVERY = 0xFFFF
 # Постоянные мира
 GRAVITY = 50
 
+# Вращение тела
+NO_ROTATION = 0
+
 
 ### Управление
 bindings = {'left': key.A,
@@ -125,7 +127,7 @@ body = {'back': {'head': pyglet.resource.image('ui_head_back.png'),
 status = {'health_icon': pyglet.resource.image('ui_health_icon.png')}
 
 
-### Images
+### Изображения
 img = {'hero': pyglet.resource.image('stand.png'),
        'hero_sit': pyglet.resource.image('stand.png'),
        'human': pyglet.resource.image('stand.png'),
@@ -139,6 +141,45 @@ img = {'hero': pyglet.resource.image('stand.png'),
        'inventory': pyglet.resource.image('inventory.png'),
        'skull': pyglet.resource.image('skull.png'),
        'shard': pyglet.resource.image('twister_shard.png')}
+
+
+### Предметы
+# Слот в котором находится активный предмет
+SECONDARY, MAIN = xrange(2)
+# Размер предмета
+SMALL, LARGE = xrange(2)
+
+
+### Задачи
+# Код возврата
+COMPLETE = True         # ИСпользуется так же в диалогах
+
+
+### Диалоги
+# Состояния автомата чтения из файла
+NAME, LINE = xrange(2)
+
+# Размеры окна c текстом и отступ от портрета
+DIALOG_WIDTH = 300          # По хорошему должны считаться динамически
+DIALOG_HEIGHT = 128
+STEP = 50
+
+# Скорость показа текста
+CHARS_PER_MINUTE = 10.0
+
+
+### Инвентарь
+# Размеры
+MAX_INVENTORY_SIZE = 5
+SEPARATE_ROW_SIZE = 1
+BELT_ROW_SIZE = 1
+INVENTORY_CELL_SIZE = 32        # В пикселях
+
+# Индекс клеток пояса
+BELT_CELL = -1
+
+# Направление прокрутки пояса
+NO_SCROLL = 0
 
 consts = {'color': {'white': (255, 255, 255, 255)},
           'group': {'hero': 1,

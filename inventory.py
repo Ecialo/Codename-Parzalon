@@ -13,12 +13,12 @@ from pyglet.window import mouse
 
 empty = pyglet.image.SolidColorImagePattern((255, 255, 255, 255)).create_image(32, 32)
 
-MAX_INVENTORY_SIZE = 5
-INVENTORY_CELL_SIZE = 32
-SEPARATE_ROW = 1
-BELT_ROW = 1
-BELT_CELL = -1
-NO_SCROLL = 0
+from consts import MAX_INVENTORY_SIZE
+from consts import INVENTORY_CELL_SIZE
+from consts import SEPARATE_ROW_SIZE
+from consts import BELT_ROW_SIZE
+from consts import BELT_CELL
+#from consts import NO_SCROLL
 
 
 class Item_Context_Menu(menu.Menu):
@@ -46,7 +46,7 @@ class Item_Context_Menu(menu.Menu):
 
 class Belt_Cell(tiles.RectCell):
     def __init__(self, i):
-        j = MAX_INVENTORY_SIZE + SEPARATE_ROW
+        j = MAX_INVENTORY_SIZE + SEPARATE_ROW_SIZE
         super(Belt_Cell, self).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
                                         {'is_belt': True}, tiles.Tile(-1, {}, empty))
 
@@ -89,7 +89,7 @@ class Bag(No_Scroll_Rect_Map_Layer):
         cells = []
         for i in xrange(MAX_INVENTORY_SIZE):
             column = []
-            for j in xrange(MAX_INVENTORY_SIZE + SEPARATE_ROW + BELT_ROW):
+            for j in xrange(MAX_INVENTORY_SIZE + SEPARATE_ROW_SIZE + BELT_ROW_SIZE):
                 if j < MAX_INVENTORY_SIZE:
                     column.append(Inventory_Cell(i, j))
                 else:

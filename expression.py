@@ -5,6 +5,12 @@ from collections import namedtuple
 from collections import deque
 from cocos.text import Label
 import consts as con
+from consts import NAME, LINE
+from consts import COMPLETE
+from consts import DIALOG_WIDTH, DIALOG_HEIGHT
+from consts import CHARS_PER_MINUTE
+from consts import STEP
+
 
 consts = con.consts
 
@@ -13,12 +19,6 @@ Person = namedtuple('Person', ['name', 'portrait', 'text_color'])
 persons_db = {'Parzalon': Person("Parzalon", consts['portrait']['parzalon'], (0, 0, 0, 255)),
               'Enemy': Person("Enemy", consts['portrait']['enemy'], (255, 0, 0, 255))}
 
-NAME, LINE = xrange(2)
-COMPLETE = xrange(1)
-CHARS_PER_MINUTE = 10.0
-DIALOG_WIDTH = 300
-DIALOG_HEIGHT = 128
-STEP = 50
 fone = SolidColorImagePattern((0, 128, 128, 200)).create_image(DIALOG_WIDTH+STEP, DIALOG_HEIGHT)
 
 

@@ -10,12 +10,11 @@ import Box2D as b2
 import movable_object
 import consts as con
 from consts import TILE_SIZE_IN_PIXELS
+from consts import MAIN
 import collides as coll
 from inventory import Inventory
 
 consts = con.consts
-
-SECONDARY, MAIN = xrange(2)
 
 def animate(func):
     def decorate(*args, **kwargs):
@@ -240,7 +239,7 @@ class Actor(movable_object.Movable_Object):
         """
         if self.on_ground:
             #self.push((0,consts['params']['human']['jump_speed']))
-            self.b2body.linearVelocity.y = consts['params']['human']['jump_speed']
+            self.b2body.linearVelocity.y = con.human['jump_speed']
             #self.vertical_speed = consts['params']['human']['jump_speed']
 
     def move_to(self, x, y):
