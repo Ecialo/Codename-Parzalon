@@ -9,7 +9,7 @@ import Box2D as b2
 
 import movable_object
 import consts as con
-from consts import TILE_SIZE
+from consts import TILE_SIZE_IN_PIXELS
 import collides as coll
 from inventory import Inventory
 
@@ -60,7 +60,7 @@ class Actor(movable_object.Movable_Object):
     is_event_handler = True
 
     def __init__(self, body):
-        cshape = cm.AARectShape(eu.Vector2(0, 0), TILE_SIZE/2, body.img.height/2)
+        cshape = cm.AARectShape(eu.Vector2(0, 0), TILE_SIZE_IN_PIXELS/2, body.img.height/2)
         super(Actor, self).__init__(body.img, cshape=cshape)
 
         self.fight_group = -1
@@ -75,7 +75,7 @@ class Actor(movable_object.Movable_Object):
         self.inventory = Inventory(self)
         
 
-        pix_to_tile = con.pixel_value_to_tiles_value
+        pix_to_tile = con.pixels_to_tiles
         rx, ry = pix_to_tile((cshape.rx, cshape.ry))
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(vertices=[(-rx, ry), (-rx, -ry+0.1),
                                                                                     (-rx+0.1, -ry), (rx-0.1, -ry),
@@ -251,7 +251,7 @@ class Actor(movable_object.Movable_Object):
         vec = eu.Vector2(int(x), int(y))
         self.position = vec
         self.cshape.center = vec
-        self.b2body.position = con.pixel_value_to_tiles_value((vec.x, vec.y))
+        self.b2body.position = con.pixels_to_tiles((vec.x, vec.y))
         map(lambda hand: hand.attached_move(vec - old), self.hands)
 
     def choose_free_hand(self):

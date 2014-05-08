@@ -42,7 +42,7 @@ class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
         self.image = img
         #self.vertical_speed = vertical_speed
         #self.horizontal_speed = horizontal_speed
-        pix_to_tile = con.pixel_value_to_tiles_value
+        pix_to_tile = con.pixels_to_tiles
         self.b2body = self.world.CreateDynamicBody(position=pix_to_tile(position), fixedRotation=True,
                                                    userData=self, allowSleep=False)
         self.b2body.linearVelocity = pix_to_tile((horizontal_speed, vertical_speed))
@@ -55,7 +55,7 @@ class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
         self.cshape = cshape
         if cshape:
             self.cshape.center = eu.Vector2(*position)
-        self.wall = con.NO_TR
+        #self.wall = con.NO_TR
         self.ground_count = 0
         self.on_ground = False
 
@@ -65,7 +65,7 @@ class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
     #     self._move(*(vec-old))
 
     def set_position(self, x):
-        val = con.tiles_value_to_pixel_value(x)
+        val = con.tiles_to_pixels(x)
         self.position = val
         self.cshape.center = val
 

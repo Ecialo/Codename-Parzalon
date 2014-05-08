@@ -26,8 +26,8 @@ from brains import Brain
 from brains import Animate
 import movable_object
 import consts as con
-from consts import tiles_value_to_pixel_value
-from consts import jump_height_to_pixel_speed
+from consts import tiles_to_pixels
+from consts import jump_height_to_jump_speed
 from location import Location_Layer
 from location import b2Listener
 import Box2D as b2
@@ -68,8 +68,8 @@ class Jump(Path_Method):
 
     def __init__(self, speed, height, direction):
         super(Jump, self).__init__(direction)
-        speed = tiles_value_to_pixel_value(speed)
-        height = jump_height_to_pixel_speed(height)
+        speed = tiles_to_pixels(speed)
+        height = jump_height_to_jump_speed(height)
         self.parameters = {'speed': speed,
                            'jump_height': height}
 
@@ -93,7 +93,7 @@ class Fall(Path_Method):
 
     def __init__(self, speed, direction):
         super(Fall, self).__init__(direction)
-        speed = tiles_value_to_pixel_value(speed)
+        speed = tiles_to_pixels(speed)
         self.parameters = {'speed': speed}
 
     def check(self, target):

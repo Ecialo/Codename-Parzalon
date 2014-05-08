@@ -47,15 +47,15 @@ class Skull(bodies.Body_Part):
 
 class Twister_Body(bodies.Body):
 
-    anim = {'windwalk': Animation.from_image_sequence([consts['img']['twister']], 0.0),
-            'stand': Animation.from_image_sequence([consts['img']['twister']], 0.0),
-            'jump': Animation.from_image_sequence([consts['img']['twister']], 0.0)}
+    anim = {'windwalk': Animation.from_image_sequence([con.img['twister']], 0.0),
+            'stand': Animation.from_image_sequence([con.img['twister']], 0.0),
+            'jump': Animation.from_image_sequence([con.img['twister']], 0.0)}
 
     parts_pos = {'walk': [(con.HEAD, (0, 0))],
                  'stand': [(con.HEAD, (0, 0))],
                  'jump': [(con.HEAD, (0, 0))]}
-    img = consts['img']['twister']
-    base_speed = consts['params']['human']['speed']
+    img = con.img['twister']
+    base_speed = con.human['speed']
 
     def __init__(self, master):
         bodies.Body.__init__(self, master,
@@ -148,7 +148,7 @@ class Twister_Mind(brains.Primitive_AI):
 class Twister_Shard(items.Usage_Item):
 
     def __init__(self):
-        img = consts['img']['shard']
+        img = con.img['shard']
         first_usage = usages.Shoot([on_h.damage(1)], img)
         second_usage = None
         items.Usage_Item.__init__(self, img, first_usage, second_usage,

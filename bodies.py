@@ -38,7 +38,7 @@ class Body_Part(object):
         #box2d
         actor = master.master
         x, y = center
-        box = con.pix_to_tile((h_width, h_height, (x, y), 0))
+        box = con.pixels_to_tiles((h_width, h_height, (x, y), 0))
         self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=box),
                                                                     isSensor=True, userData=self))
         actor.b2body.fixtures[-1].filterData.categoryBits = con.B2BODYPART
@@ -82,7 +82,7 @@ class Body_Part(object):
                 self.destroy()
             elif self.master.health <= 0:
                 self.master.destroy()
-            p = con.tile_to_pix(self.master.master.b2body.GetWorldPoint(self.b2fixture.shape.centroid))
+            p = con.tiles_to_pixels(self.master.master.b2body.GetWorldPoint(self.b2fixture.shape.centroid))
             eff.Blood().add_to_surface(p)
             hit.complete()
         #print self.health, self.armor
@@ -265,10 +265,10 @@ class Body(object):
 
 
 class Hero(Body):
-    anim = {'walk': consts['img']['hero'],
-            'stand': consts['img']['hero'],
-            'jump': consts['img']['hero'],
-            'sit': consts['img']['hero_sit']}
+    anim = {'walk': con.img['hero'],
+            'stand': con.img['hero'],
+            'jump': con.img['hero'],
+            'sit': con.img['hero_sit']}
 
     parts_pos = {'walk': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'stand': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
@@ -276,7 +276,7 @@ class Hero(Body):
                  'sit': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 17))]}
 
     img = anim['stand']
-    base_speed = consts['params']['human']['speed']
+    base_speed = con.human['speed']
 
     def __init__(self, master):
         #print "HERO"
@@ -286,17 +286,17 @@ class Hero(Body):
 
 class Human(Body):
     
-    anim = {'walk': consts['img']['human'],
-            'stand': consts['img']['human'],
-            'jump': consts['img']['human'],
-            'sit': consts['img']['human_sit']}
+    anim = {'walk': con.img['human'],
+            'stand': con.img['human'],
+            'jump': con.img['human'],
+            'sit': con.img['human_sit']}
 
     parts_pos = {'walk': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'stand': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'jump': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
                  'sit': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 17))]}
     img = anim['stand']
-    base_speed = consts['params']['human']['speed']
+    base_speed = con.human['speed']
 
     def __init__(self, master):
         Body.__init__(self, master, [Chest, Head, Legs], 'Human')

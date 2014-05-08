@@ -281,7 +281,7 @@ class Turn(Task):
 
 class Controlling(Task):
 
-    bind = consts['bindings']
+    bind = con.bindings
     pressed = False
 
     def __init__(self, master):
@@ -433,7 +433,7 @@ class Brain(ac.Action):
 
 class Controller(Brain):
     
-    bind = consts['bindings']
+    bind = con.bindings
     fight_group = consts['group']['hero']
     
     def start(self):
@@ -448,7 +448,7 @@ class Enemy_Brain(Brain):
 
 class Dummy(Enemy_Brain):
 
-    range_of_vision = consts['params']['primitive']['range_of_vision']
+    range_of_vision = con.primitive['range_of_vision']
 
     def start(self):
         Brain.start(self)
@@ -499,9 +499,9 @@ class Dummy(Enemy_Brain):
 
 class Primitive_AI(Enemy_Brain):
 
-    mastery = consts['params']['primitive']['mastery']
-    range_of_vision = consts['params']['primitive']['range_of_vision']
-    closest = consts['params']['primitive']['closest']
+    mastery = con.primitive['mastery']
+    range_of_vision = con.primitive['range_of_vision']
+    closest = con.primitive['closest']
     
     def start(self):
         Brain.start(self)

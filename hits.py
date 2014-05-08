@@ -125,8 +125,8 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         """
         #Define geometry and time data
         actor = self.master.owner
-        v1 = actor.b2body.GetLocalPoint(con.pix_to_tile((self.start.x, self.start.y)))
-        v2 = actor.b2body.GetLocalPoint(con.pix_to_tile((self.end.x, self.end.y)))
+        v1 = actor.b2body.GetLocalPoint(con.pixels_to_tiles((self.start.x, self.start.y)))
+        v2 = actor.b2body.GetLocalPoint(con.pixels_to_tiles((self.end.x, self.end.y)))
         if v2.x <= v1.x:
             v1, v2 = v2, v1
         vlen = math.sqrt((v2.x-v1.x)*(v2.x-v1.x)+(v2.y-v1.y)*(v2.y-v1.y))
@@ -179,15 +179,15 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
             self.cshape.center += vec
 
 
-def on_level_collide_destroy(update_fun):
-
-    def dec_update(self, dt):
-        #print self.wall
-        update_fun(self, dt)
-        if self.wall is not con.NO_TR:
-            print self.wall
-            self.complete()
-    return dec_update
+# def on_level_collide_destroy(update_fun):
+#
+#     def dec_update(self, dt):
+#         #print self.wall
+#         update_fun(self, dt)
+#         if self.wall is not con.NO_TR:
+#             print self.wall
+#             self.complete()
+#     return dec_update
 
 
 def non_gravity_update(self, dt):
@@ -225,11 +225,11 @@ class Hit_Zone(mova.Movable_Object):
         v *= speed
         mova.Movable_Object.__init__(self, img, cshape, position, v.y, v.x)
         if hit_shape is con.RECTANGLE:
-            rx, ry = con.pix_to_tile((cshape.rx, cshape.ry))
+            rx, ry = con.pixels_to_tiles((cshape.rx, cshape.ry))
             self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry)), isSensor=True,
                                                       userData=self))
         elif hit_shape is con.LINE:
-            r = con.pix_to_tile(img.width/2.0)
+            r = con.pixels_to_tiles(img.width/2.0)
             #self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-r, 0), vertex2=(r, 0)),
             self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(r, 0)),
                                                       isSensor=True, userData=self))
@@ -313,7 +313,7 @@ class Invisible_Hit_Zone(Hit_Zone):
 #TODO: move to box2d
 class Missile(Hit_Zone):
 
-    update = on_level_collide_destroy(non_gravity_update)
+    update = non_gravity_update
 
     def uncompleteness(self):
         return 0.5
