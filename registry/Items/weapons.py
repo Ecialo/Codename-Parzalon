@@ -1,13 +1,13 @@
 # To change this license header, choose License Headers in Project Properties.
 # To change this template file, choose Tools | Templates
 # and open the template in the editor.
+from registry.Effects import on_hit_effects as onh
+from registry.Items import items
+from registry.Usages import usages
 
 __author__ = "Ecialo"
 
-import items
-import usages
 import consts as con
-import on_hit_effects as onh
 
 consts = con.consts
 

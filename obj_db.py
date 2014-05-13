@@ -1,11 +1,11 @@
+from registry.Bodies import bodies
+from registry.Brains import brains
+from registry.Items import weapons
+
 __author__ = 'Ecialo'
 import consts as con
-import brains
-import bodies
-import weapons
 import twister
-import armors
-import junk
+
 objs = {'hero':     {'type': con.UNIT,
                      'brain': brains.Controller,
                      'body': bodies.Hero,

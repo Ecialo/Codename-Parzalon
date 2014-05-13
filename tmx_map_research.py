@@ -12,25 +12,28 @@ from itertools import ifilter
 from math import sqrt
 from time import clock
 from heapq import *
+
 from cocos import scene
 from cocos.director import *
 from cocos import tiles
 from cocos import layer
 from cocos import draw
 from pyglet.window import key
+import Box2D as b2
+
 from actor import Actor
-from bodies import Human
-from brains import Task
-from brains import COMPLETE
-from brains import Brain
-from brains import Animate
+from registry.Bodies.bodies import Human
+from registry.Brains.brains import Task
+from registry.Brains.brains import COMPLETE
+from registry.Brains.brains import Brain
+from registry.Brains.brains import Animate
 import movable_object
 import consts as con
 from consts import tiles_to_pixels
 from consts import jump_height_to_jump_speed
 from location import Location_Layer
 from location import b2Listener
-import Box2D as b2
+
 EPS = 4.0
 
 

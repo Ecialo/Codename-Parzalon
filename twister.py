@@ -1,14 +1,14 @@
+from registry.Bodies import bodies
+from registry.Brains import brains
+from registry.Effects import on_hit_effects as on_h
+from registry.Items import items
+from registry.Usages import usages
+
 __author__ = 'Ecialo'
 
 from pyglet.image import Animation
 from cocos import euclid as eu
-from cocos import sprite
-from brains import Animate
-import bodies
-import brains
-import items
-import usages
-import on_hit_effects as on_h
+from registry.Brains.brains import Animate
 import consts as con
 import hits
 

@@ -1,13 +1,14 @@
 # To change this license header, choose License Headers in Project Properties.
 # To change this template file, choose Tools | Templates
 # and open the template in the editor.
+import effects as eff
+
 __author__ = "Ecialo"
 
 from cocos import euclid as eu
 import Box2D as b2
 import geometry as gm
 import consts as con
-import effects as eff
 import box
 import pyglet
 

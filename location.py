@@ -1,32 +1,23 @@
+import effects as eff
+from registry.Brains import brains as br
+
 __author__ = 'Ecialo'
 
 #import pyglet
-from pyglet.window import key
-from pyglet.window import mouse
 from collections import deque
 
 from pyglet import event
 
-import cocos
-from cocos.director import director
 from cocos import collision_model as cm
 from cocos import layer
-from cocos import tiles
 
 import Box2D as b2
 
 import movable_object
-import effects as eff
 import actor as ac
 import obj_db as db
 import consts as con
-import brains as br
-import cocos.euclid as eu
-import math
-from vertex_research import TestLayer
-from inventory import Inventory
 
-from cocos.actions.grid3d_actions import FlipY3D
 from consts import NO_ROTATION
 consts = con.consts
 

@@ -1,8 +1,9 @@
+from registry.Effects import on_hit_effects as on_h
+
 __author__ = 'Ecialo'
 from cocos import euclid as eu
 import hits as hit
 import consts as con
-import on_hit_effects as on_h
 
 
 def interval_proection(point, interval):

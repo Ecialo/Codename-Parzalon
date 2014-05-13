@@ -1,15 +1,17 @@
 from itertools import chain
-import consts
+
 from cocos import layer
 from cocos.scene import Scene
 from cocos import tiles
 from cocos import sprite
 from cocos import menu
-from non_scroll_rect_map import No_Scroll_Rect_Map_Layer
-import items
-import cocos
 import pyglet
 from pyglet.window import mouse
+
+import consts
+from non_scroll_rect_map import No_Scroll_Rect_Map_Layer
+from registry.Items import items
+
 
 empty = pyglet.image.SolidColorImagePattern((255, 255, 255, 255)).create_image(32, 32)
 

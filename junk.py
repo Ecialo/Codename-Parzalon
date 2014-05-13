@@ -1,6 +1,7 @@
+from registry.Items import items
+
 __author__ = 'Ecialo'
 import pyglet
-import items
 
 money = pyglet.image.load('money.png')
 apple = pyglet.image.load('apple.jpg')

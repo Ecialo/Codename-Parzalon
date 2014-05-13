@@ -1,5 +1,6 @@
-__author__ = 'Ecialo'
 import effects as eff
+
+__author__ = 'Ecialo'
 import consts as con
 
 consts = con.consts

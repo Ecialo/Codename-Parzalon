@@ -1,8 +1,9 @@
+from registry.Items import items
+
 __author__ = 'Ecialo'
 from cocos import euclid as eu
 
-import items
-from bodies import Body_Part
+from registry.Bodies.bodies import Body_Part
 import consts as con
 consts = con.consts
 
