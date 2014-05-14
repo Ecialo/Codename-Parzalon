@@ -3,26 +3,26 @@ __author__ = 'Ecialo'
 import consts as con
 
 
-def damage(value):
-    def mast_damage(master):
-        def fab_damage(body_part):
-            if body_part.armor > value:
-                body_part.armor -= value
-            else:
-                body_part.health -= value
-                body_part.master.health -= value
-            body_part.master.master.dispatch_event("on_take_damage", body_part)
-        return fab_damage
-    return mast_damage
+# def damage(value):
+#     def mast_damage(master):
+#         def fab_damage(body_part):
+#             if body_part.armor > value:
+#                 body_part.armor -= value
+#             else:
+#                 body_part.health -= value
+#                 body_part.master.health -= value
+#             body_part.master.master.dispatch_event("on_take_damage", body_part)
+#         return fab_damage
+#     return mast_damage
 
 
-def knock_back(value):
-    def mast_knock_back(master):
-        def fab_knock_back(body_part):
-            v = master.trace.v.normalized() * value
-            body_part.master.master.push(v)
-        return fab_knock_back
-    return mast_knock_back
+# def knock_back(value):
+#     def mast_knock_back(master):
+#         def fab_knock_back(body_part):
+#             v = master.trace.v.normalized() * value
+#             body_part.master.master.push(v)
+#         return fab_knock_back
+#     return mast_knock_back
 
 
 def stun(value):
@@ -41,15 +41,15 @@ def tough_touch(hit_zone):
     return mast_tough_touch
 
 
-def cleave(master):
-    master.features.add(con.CLEAVE)
+# def cleave(master):
+#     master.features.add(con.CLEAVE)
 
 
-def penetrate(master):
-    master.features.add(con.PENETRATE)
+# def penetrate(master):
+#     master.features.add(con.PENETRATE)
 
-def chop(master):
-    master.features.add(con.CHOP)
+# def chop(master):
+#     master.features.add(con.CHOP)
 
-def stab(master):
-    master.features.add(con.STAB)
+# def stab(master):
+#     master.features.add(con.STAB)
