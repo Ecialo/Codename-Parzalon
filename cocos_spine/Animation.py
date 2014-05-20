@@ -347,7 +347,7 @@ class Animation(object):
                 self.timelines.append(Scale_Timeline(bone, bone_data['scale']))
 
     def load_slots_timelines(self, slots):
-        for slot_name, slot in slots:
+        for slot_name, slot in slots.items():
             if 'attachment' in slot:
                 self.timelines.append(Attachment_Timeline(slot_name, slot['attachment']))
             if 'color' in slot:

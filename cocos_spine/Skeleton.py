@@ -272,9 +272,9 @@ def main():
         def __init__(self):
             super(TestLayer, self).__init__()
             self.time = 0.0
-            self.name = 'spineboy'
-            #self.name = 'goblins'
             #self.name = 'spineboy'
+            #self.name = 'goblins'
+            self.name = 'dragon'
             name = self.name
             if name == 'dragon':
                 sd = Skeleton_Data('./data/'+name+'.json', './data/'+name+'.atlas')
@@ -334,13 +334,13 @@ def main():
 
         def update(self, dt):
             if self.name == 'dragon':
-                self.time += dt/20
+                self.time += dt
                 self.animation.apply(skeleton=self.skel,
                                      time=self.time,
                                      loop=True)
                 self.skel.skeleton_data.update_transform()
             elif self.name == 'spineboy':
-                self.time += dt
+                self.time += dt/20
                 self.anim2.apply(skeleton=self.skel,
                                      time=self.time,
                                      loop=True)
@@ -350,7 +350,7 @@ def main():
                                alpha=0.5)
                 self.skel.skeleton_data.update_transform()
             else:
-                self.time += dt/20
+                self.time += dt
                 self.anim1.apply(skeleton=self.skel,
                                  time=self.time,
                                  loop=True)
