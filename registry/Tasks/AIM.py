@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
+from cocos import euclid as eu
+from ..utility import COMPLETE
+from .Task import *
+from .Shoot import *
 
 
 class Aim(Task):
 
     def __init__(self, master,  weapon, target):
-        Task.__init__(self, master)
+        super(Aim, self).__init__(master)
         self.weapon = weapon
         self.target = target
 

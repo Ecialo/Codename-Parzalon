@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
+import random as rnd
+from ..utility import COMPLETE
+from .Task import *
+from .Random_Attack import *
+from .Turn import *
+from .Walk import *
+from .Move_Back import *
+
 
 class Close_Combat(Task):
 
@@ -21,6 +29,6 @@ class Close_Combat(Task):
             if mv < 0.05:
                 self.master.push_inst_task(Walk(self.master, 0.1))
             elif mv < 0.01:
-                self.master.push_inst_task(MoveBack(self.master, 0.1))
+                self.master.push_inst_task(Move_Back(self.master, 0.1))
         else:
             return COMPLETE

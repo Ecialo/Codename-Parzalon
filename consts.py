@@ -128,19 +128,19 @@ status = {'health_icon': pyglet.resource.image('ui_health_icon.png')}
 
 
 ### Изображения
-img = {'hero': pyglet.resource.image('stand.png'),
-       'hero_sit': pyglet.resource.image('stand.png'),
-       'human': pyglet.resource.image('stand.png'),
-       'human_sit': pyglet.resource.image('sit.png'),
-       'weapon': pyglet.resource.image('sword.png'),
-       'knife': pyglet.resource.image('knife.png'),
-       'bullet': pyglet.resource.image('bullet.png'),
-       'rifle': pyglet.resource.image('fuzeja.png'),
-       'helmet': pyglet.resource.image('helm.png'),
-       'twister': pyglet.resource.image('twister.png'),
-       'inventory': pyglet.resource.image('inventory.png'),
-       'skull': pyglet.resource.image('skull.png'),
-       'shard': pyglet.resource.image('twister_shard.png')}
+# img = {'hero': pyglet.resource.image('stand.png'),
+#        'hero_sit': pyglet.resource.image('stand.png'),
+#        'human': pyglet.resource.image('stand.png'),
+#        'human_sit': pyglet.resource.image('sit.png'),
+#        'weapon': pyglet.resource.image('sword.png'),
+#        'knife': pyglet.resource.image('knife.png'),
+#        'bullet': pyglet.resource.image('bullet.png'),
+#        'rifle': pyglet.resource.image('fuzeja.png'),
+#        'helmet': pyglet.resource.image('helm.png'),
+#        'twister': pyglet.resource.image('twister.png'),
+#        'inventory': pyglet.resource.image('inventory.png'),
+#        'skull': pyglet.resource.image('skull.png'),
+#        'shard': pyglet.resource.image('twister_shard.png')}
 
 
 ### Предметы
@@ -198,7 +198,6 @@ consts = {'color': {'white': (255, 255, 255, 255)},
 #LEFT, UP, RIGHT, DOWN, NO_TR = 0b1000, 0b0100, 0b0010, 0b0001, 0b0000
 FIRST_HAND, SECOND_HAND = xrange(2)
 FIRST, SECOND = xrange(2)
-HAND, HEAD, CHEST, LEGS = xrange(4)
 ARMOR = 100
 CHOP, STAB, CLEAVE, PENETRATE = xrange(4)
 LINE, RECTANGLE = xrange(2)

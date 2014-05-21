@@ -247,18 +247,18 @@ def _set_rec(self, value):
 #                 return COMPLETE
 
 
-class Body_Part_Move_On(Task):
-
-    def __init__(self, master, v, slot):
-        Task.__init__(self, master)
-        self.v = v
-        self.slot = slot
-
-    def __call__(self, dt):
-        for body_part in self.master.body_parts:
-            if body_part.slot is self.slot:
-                body_part.set_pos(body_part.shape.pc + self.v)
-                return COMPLETE
+# class Body_Part_Move_On(Task):
+#
+#     def __init__(self, master, v, slot):
+#         Task.__init__(self, master)
+#         self.v = v
+#         self.slot = slot
+#
+#     def __call__(self, dt):
+#         for body_part in self.master.body_parts:
+#             if body_part.slot is self.slot:
+#                 body_part.set_pos(body_part.shape.pc + self.v)
+#                 return COMPLETE
 
 
 # class Stand(Task):

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
+from ..utility import COMPLETE
+from .Task import Task
 
 class Body_Part_Move_To(Task):
 

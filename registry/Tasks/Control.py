@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
+from .Animate import *
+from .Task import *
+
+
 
 class Control(Task):
 
