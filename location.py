@@ -15,7 +15,8 @@ import Box2D as b2
 
 import movable_object
 import actor as ac
-from registry import Units
+from registry.Units import units_base
+from registry.Tasks import Task
 import consts as con
 
 from consts import NO_ROTATION
@@ -23,7 +24,7 @@ consts = con.consts
 
 
 def _spawn_unit(level, name, pos):
-    un_par = db.objs[name]
+    un_par = units_base[name]
     unit = ac.Actor(un_par['body'])
     #map(lambda x: unit.get_item(x()(level)), un_par['items'])
     map(lambda x: unit.put_item(x()(level)), un_par['items'])
@@ -346,7 +347,7 @@ class Location_Layer(layer.ScrollableLayer):
         movable_object.Movable_Object.world = self.b2world
         self.b2world.contactListener = self.b2world.true_listener
         #print "ZEBRA"
-        br.Task.environment = self.force_ground
+        Task.environment = self.force_ground
         eff.Advanced_Emitter.surface = self  # This bad
         #self.loc_key_handler
         for sc in self.scripts.known_objs():
@@ -355,7 +356,7 @@ class Location_Layer(layer.ScrollableLayer):
                 #r.midbottom = sc.midbottom
                 dx, dy = sc.center
                 self.spawn(hero, (dx, dy))
-        if hero is not 'hero':
+        if hero is not 'Parzalon':
             self.hero = hero
         #print self.hero._event_stack
         self.hero.push_handlers(self)
@@ -494,8 +495,9 @@ class Location_Layer(layer.ScrollableLayer):
         #    obj1.collide(obj2)
 
     def spawn(self, obj, pos):
-        if obj in db.objs:
-            self._spawn[db.objs[obj]['type']](self, obj, pos)
+        print obj, "LOLLO"
+        if obj in units_base:
+            self._spawn[0](self, obj, pos)
         elif isinstance(obj, ac.Actor):
             _spawn_prepared_unit(self, obj, pos)
 

@@ -55,7 +55,7 @@ class Level(object):
         self.locations = map(lambda nab: map(lambda location: path + location, nab), locations)
         self.x, self.y = start_position
         self.spawn_point = 'right'
-        self.hero = 'hero'
+        self.hero = 'Parzalon'
         self.keyboard = Keyboard_Handler()
         self.mouse = Mouse_Handler()
         self.scroller = layer.ScrollingManager()

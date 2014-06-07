@@ -15,8 +15,10 @@ class Lazy_Resource_Registry(object):
         self.resource_name = resource_name
         self._data = None
         self.index()
+        print self._data
 
     def __getitem__(self, item):
+        print item
         if type(self._data[item]) is not str:
             return self._data[item]
         else:
@@ -25,6 +27,9 @@ class Lazy_Resource_Registry(object):
 
     def __setitem__(self, key, value):
         self._data[key] = value
+
+    def __contains__(self, item):
+        return item in self._data
 
     def load_then_apply(self, item):
         tmp = None
