@@ -15,7 +15,7 @@ import Box2D as b2
 
 import movable_object
 import actor as ac
-import obj_db as db
+from registry import Units
 import consts as con
 
 from consts import NO_ROTATION

@@ -4,15 +4,19 @@ from cocos.director import director
 from menu import GameMenu
 
 import consts
-import cProfile
+#from level import Level
+from registry.Levels import levels_base
+#import cProfile
 
 #consts = con.consts
 
 
 def main():
     director.init(**consts.window)
-    menu = GameMenu()
-    menu.start_game()
+    lvl = levels_base['Test_Level']
+    lvl.run()
+    # menu = GameMenu()
+    # menu.start_game()
 
 if __name__ == "__main__":
     main()

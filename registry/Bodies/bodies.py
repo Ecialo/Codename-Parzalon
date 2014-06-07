@@ -12,7 +12,7 @@ import consts as con
 import box
 import pyglet
 
-consts = con.consts
+from registry.bodypart import *
 
 
 def death(body_part):
@@ -107,7 +107,7 @@ class Body_Part(object):
 
 class Chest(Body_Part):
 
-    slot = con.CHEST
+    slot = CHEST
 
     def __init__(self, master):
         Body_Part.__init__(self, master, eu.Vector2(0, 0), 40, 25, 2, 2,
@@ -116,7 +116,7 @@ class Chest(Body_Part):
 
 class Head(Body_Part):
 
-    slot = con.HEAD
+    slot = HEAD
 
     def __init__(self, master):
         Body_Part.__init__(self, master, eu.Vector2(0, 57), 15, 20, 2, 2,
@@ -125,7 +125,7 @@ class Head(Body_Part):
 
 class Legs(Body_Part):
 
-    slot = con.LEGS
+    slot = LEGS
 
     def __init__(self, master):
         Body_Part.__init__(self, master, eu.Vector2(0, -77), 33, 25, 2, 2,
@@ -263,42 +263,3 @@ class Body(object):
             anim[name[0:len(name)-4]] = pyg_anim
             f.readline()
         f.close()
-
-
-class Hero(Body):
-    anim = {'walk': con.img['hero'],
-            'stand': con.img['hero'],
-            'jump': con.img['hero'],
-            'sit': con.img['hero_sit']}
-
-    parts_pos = {'walk': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
-                 'stand': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
-                 'jump': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
-                 'sit': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 17))]}
-
-    img = anim['stand']
-    base_speed = con.human['speed']
-
-    def __init__(self, master):
-        #print "HERO"
-        Body.__init__(self, master, [Chest, Head, Legs], 'Hero')
-        self.make_animation(self.anim, 'Hero')
-
-
-class Human(Body):
-    
-    anim = {'walk': con.img['human'],
-            'stand': con.img['human'],
-            'jump': con.img['human'],
-            'sit': con.img['human_sit']}
-
-    parts_pos = {'walk': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
-                 'stand': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
-                 'jump': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 57))],
-                 'sit': [(con.LEGS, (0, -77)), (con.CHEST, (0, 0)), (con.HEAD, (0, 17))]}
-    img = anim['stand']
-    base_speed = con.human['speed']
-
-    def __init__(self, master):
-        Body.__init__(self, master, [Chest, Head, Legs], 'Human')
-        self.make_animation(self.anim, 'Human')

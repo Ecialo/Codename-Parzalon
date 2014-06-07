@@ -13,6 +13,11 @@ import hud
 from location import Location_Layer
 
 import actor as ac
+
+from registry.utility import module_path_to_os_path
+from registry.utility import include
+
+
 class Keyboard_Handler(object):
 
     def __init__(self):
@@ -43,8 +48,11 @@ class Mouse_Handler(object):
 
 class Level(object):
 
-    def __init__(self, start_position, locations):
-        self.locations = locations
+    def __init__(self, start_position, locations, path):
+        path = module_path_to_os_path(path)
+        path = path[:include(path.rfind("/", 0, -1)):]
+        #print path
+        self.locations = map(lambda nab: map(lambda location: path + location, nab), locations)
         self.x, self.y = start_position
         self.spawn_point = 'right'
         self.hero = 'hero'

@@ -11,10 +11,10 @@ __author__ = 'Ecialo'
 
 class Human(Body):
 
-    anim = {'walk': image("walk"),
-            'stand': image("stand"),
-            'jump': image("stand"),
-            'sit': image("sit")}
+    anim = {'walk': image("walk.png"),
+            'stand': image("stand.png"),
+            'jump': image("stand.png"),
+            'sit': image("sit.png")}
 
     parts_pos = {'walk': [(LEGS, (0, -77)), (CHEST, (0, 0)), (HEAD, (0, 57))],
                  'stand': [(LEGS, (0, -77)), (CHEST, (0, 0)), (HEAD, (0, 57))],

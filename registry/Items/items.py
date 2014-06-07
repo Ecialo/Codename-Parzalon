@@ -6,7 +6,9 @@ from cocos.tiles import Tile
 import Box2D as b2
 import movable_object as mova
 from consts import SMALL, LARGE
-import consts as con
+
+from registry.inventory import HAND
+from registry.utility import EMPTY_LIST
 
 
 def length(value):
@@ -100,11 +102,11 @@ Item.register_event_type('on_lay_item')
 
 class Usage_Item(Item):
 
-    slot = con.HAND
+    slot = HAND
     size = LARGE
 
     def __init__(self, img, first_usage, second_usage,
-                 mutators=con.EMPTY_LIST):
+                 mutators=EMPTY_LIST):
         Item.__init__(self, img)
         self.first_usage = first_usage(self)
         self.second_usage = second_usage(self) if second_usage is not None else self.first_usage

@@ -6,11 +6,14 @@
 """
 __author__ = 'Ecialo'
 
+from registry.utility import module_path_to_os_path
+
 
 class Lazy_Resource_Registry(object):
 
-    def __init__(self):
-        self._data = {}
+    def __init__(self, resource_name):
+        self.resource_name = resource_name
+        self._data = None
         self.index()
 
     def __getitem__(self, item):
@@ -25,13 +28,23 @@ class Lazy_Resource_Registry(object):
 
     def load_then_apply(self, item):
         tmp = None
-        querry = "from .%s import *" % item
+        querry = "from %s.%s import *" % (self.resource_name, item)
+        print querry
         exec querry
+        print item
         exec "tmp = %s" % item
         self[item] = tmp
 
     def index(self):
         import os
+        resource_name = self.resource_name
+        resource_path = module_path_to_os_path(resource_name)
+        all_items = (item.split(".")[0] for item in os.listdir(resource_path))
+        valid_items = filter(lambda x: "__" not in x, all_items)
+        self._data = dict(zip(valid_items, valid_items))
+        print self._data
+
+
 
 
 

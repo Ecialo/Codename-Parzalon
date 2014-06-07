@@ -154,12 +154,6 @@ def interval_proection(point, interval):
 #         Swing.__init__(self, effects)
 
 
-class Punch(Swing):
-
-    def __init__(self, effects):
-        Swing.__init__(self, effects)
-
-
 # class Shoot(Usage):
 #
 #     def __init__(self, effects, bullet_image):
