@@ -14,34 +14,6 @@ from registry.metric import pixels_to_tiles
 from registry.box2d import *
 
 
-def length(value):
-    def add_length(master):
-        master.length = value
-    return add_length
-
-
-def ammo(value):
-    def add_ammo(master):
-        master.max_ammo = value
-        master.ammo = value
-    return add_ammo
-
-
-def fire_rate(time_between_shots):
-    def add_fire_rate(master):
-        def reload_weapon(dt):
-            #print master
-            if master.cur_reload > 0.0:
-                master.cur_reload -= dt
-                if master.cur_reload <= 0.0:
-                    master.cur_reload = 0.0
-                    master.available = True
-        master.reload_time = time_between_shots
-        master.cur_reload = 0.0
-        master.item_update = reload_weapon
-    return add_fire_rate
-
-
 class Item(mova.Movable_Object):
 
     slot = None
@@ -109,7 +81,7 @@ class Usage_Item(Item):
     size = LARGE
 
     def __init__(self, img, first_usage, second_usage,
-                 mutators=EMPTY_LIST):
+                 attributes=EMPTY_LIST):
         Item.__init__(self, img)
         self.first_usage = first_usage(self)
         self.second_usage = second_usage(self) if second_usage is not None else self.first_usage
@@ -118,7 +90,7 @@ class Usage_Item(Item):
         self.on_use = False
         self.available = True
 
-        map(lambda prop: prop(self), mutators)
+        map(lambda prop: prop(self), attributes)
 
     def start_use(self, *args):
         alt = args[-1]

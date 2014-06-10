@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
 
+from task import Task
+from registry.utility import COMPLETE
 
 class Shoot(Task):
 

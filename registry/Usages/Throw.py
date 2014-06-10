@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
+from usage import Usage
+import cocos.euclid as eu
+import hit
+
 
 class Throw(Usage):
 

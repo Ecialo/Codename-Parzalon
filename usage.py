@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
 
+
 class Usage(object):
 
     owner = property(lambda self: self.master.master)

@@ -8,18 +8,14 @@ from cocos import menu
 import pyglet
 from pyglet.window import mouse
 
-import consts
+#import consts
 import item
 from non_scroll_rect_map import No_Scroll_Rect_Map_Layer
 
 
 empty = pyglet.image.SolidColorImagePattern((255, 255, 255, 255)).create_image(32, 32)
 
-from consts import MAX_INVENTORY_SIZE
-from consts import INVENTORY_CELL_SIZE
-from consts import SEPARATE_ROW_SIZE
-from consts import BELT_ROW_SIZE
-from consts import BELT_CELL
+from registry.inventory import *
 #from consts import NO_SCROLL
 
 
@@ -228,7 +224,7 @@ class Inventory(layer.Layer):
 
     def change_item(self, item):
         self.master.start_interact_with_item(item)
-        if item.slot is consts.HAND:
+        if item.slot is HAND:
             item_to_drop = self.main_item
             self.set_new_main_item(item)
         else:

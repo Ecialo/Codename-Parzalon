@@ -2,7 +2,7 @@ from registry.Effects import on_hit_effects as on_h
 
 __author__ = 'Ecialo'
 from cocos import euclid as eu
-import hits as hit
+import hit as hit
 import consts as con
 
 

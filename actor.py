@@ -9,15 +9,19 @@ from cocos import layer
 import Box2D as b2
 
 import movable_object
-import consts as con
+#import consts as con
 from registry.metric import TILE_SIZE_IN_PIXELS
 from registry.item import MAIN
 #from consts import TILE_SIZE_IN_PIXELS
 #from consts import MAIN
+from registry.box2d import *
+from registry.metric import pixels_to_tiles
+from registry.utility import EMPTY_LIST
 import collides as coll
 from inventory import Inventory
 
 #consts = con.consts
+
 
 def animate(func):
     def decorate(*args, **kwargs):
@@ -77,16 +81,16 @@ class Actor(movable_object.Movable_Object):
         self.inventory = Inventory(self)
         
 
-        pix_to_tile = con.pixels_to_tiles
+        pix_to_tile = pixels_to_tiles
         rx, ry = pix_to_tile((cshape.rx, cshape.ry))
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(vertices=[(-rx, ry), (-rx, -ry+0.1),
                                                                                     (-rx+0.1, -ry), (rx-0.1, -ry),
                                                                                     (rx, -ry+0.1), (rx, ry)])))
-        self.b2body.fixtures[-1].filterData.categoryBits = con.B2SMTH | con.B2ACTOR
+        self.b2body.fixtures[-1].filterData.categoryBits = B2SMTH | B2ACTOR
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-rx, -ry), vertex2=(rx, -ry)),
                                                   isSensor=True))
-        self.b2body.fixtures[-1].filterData.categoryBits = con.B2GNDSENS
-        self.b2body.fixtures[-1].filterData.maskBits = con.B2LEVEL | con.B2ACTOR
+        self.b2body.fixtures[-1].filterData.categoryBits = B2GNDSENS
+        self.b2body.fixtures[-1].filterData.maskBits = B2LEVEL | B2ACTOR
         self.world.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
         self.ground_count = 0
         self.on_ground = False
@@ -242,7 +246,7 @@ class Actor(movable_object.Movable_Object):
         """
         if self.on_ground:
             #self.push((0,consts['params']['human']['jump_speed']))
-            self.b2body.linearVelocity.y = con.human['jump_speed']
+            self.b2body.linearVelocity.y = 11   # TODO сделать по людски
             #self.vertical_speed = consts['params']['human']['jump_speed']
 
     def move_to(self, x, y):
@@ -253,7 +257,7 @@ class Actor(movable_object.Movable_Object):
         vec = eu.Vector2(int(x), int(y))
         self.position = vec
         self.cshape.center = vec
-        self.b2body.position = con.pixels_to_tiles((vec.x, vec.y))
+        self.b2body.position = pixels_to_tiles((vec.x, vec.y))
         map(lambda hand: hand.attached_move(vec - old), self.hands)
 
     def choose_free_hand(self):
@@ -262,9 +266,9 @@ class Actor(movable_object.Movable_Object):
                 return hand
         return None
 
-    def use_hand(self, hand, start_args=con.EMPTY_LIST,
-                 continue_args=con.EMPTY_LIST,
-                 end_args=con.EMPTY_LIST):
+    def use_hand(self, hand, start_args=EMPTY_LIST,
+                 continue_args=EMPTY_LIST,
+                 end_args=EMPTY_LIST):
         hand.start_use(*start_args)
         hand.continue_use(*continue_args)
         hand.end_use(*end_args)

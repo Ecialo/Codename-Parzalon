@@ -1,3 +1,4 @@
+import task
 import effects as eff
 
 __author__ = 'Ecialo'
@@ -16,7 +17,6 @@ import movable_object
 import actor as ac
 
 from registry.Units import units_base
-from registry.Tasks import Task
 from registry.group import HERO, UNIT
 from registry.box2d import *
 
@@ -345,7 +345,7 @@ class Location_Layer(layer.ScrollableLayer):
         movable_object.Movable_Object.world = self.b2world
         self.b2world.contactListener = self.b2world.true_listener
         #print "ZEBRA"
-        Task.environment = self.force_ground
+        task.environment = self.force_ground
         eff.Advanced_Emitter.surface = self  # This bad
         #self.loc_key_handler
         for sc in self.scripts.known_objs():

@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
+from usage import Usage
+import cocos.euclid as eu
+from hit import Missile
+from registry.group import LINE
+
 
 class Shoot(Usage):
 
@@ -16,7 +21,7 @@ class Shoot(Usage):
             print 2312312321321312321
             end_point = eu.Vector2(*args[0])
             v = end_point - self.owner.cshape.center
-            hit_zone = hit.Missile(self, self.bullet_image, v, 300, self.owner.position, con.LINE)
+            hit_zone = Missile(self, self.bullet_image, v, 300, self.owner.position, LINE)
             self.actual_hit = hit_zone
             self.master.dispatch_event('on_launch_missile', hit_zone)
             hit_zone.show_hitboxes()

@@ -7,6 +7,18 @@ COMPLETE = True
 UNCOMPLETE = False
 
 
+def interval_proection(point, interval):
+    """
+    Return point in interval closet to given
+    """
+    if interval[0] <= point < interval[1]:
+        return point
+    elif point < interval[0]:
+        return interval[0]
+    else:
+        return interval[1]
+
+
 def module_path_to_os_path(path):
     return "./" + path.replace(".", "/") + "/"
 

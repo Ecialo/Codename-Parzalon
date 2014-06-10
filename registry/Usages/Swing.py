@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
 
+from usage import Usage
+import cocos.euclid as eu
+from registry.utility import interval_proection
+import hit
+
+
 class Swing(Usage):
 
     def __init__(self, effects):

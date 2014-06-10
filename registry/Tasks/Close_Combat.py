@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
 import random as rnd
+
 from ..utility import COMPLETE
-from .Task import *
+from task import *
 from .Random_Attack import *
 from .Turn import *
 from .Walk import *
