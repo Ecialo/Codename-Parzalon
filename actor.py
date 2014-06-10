@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
 
 #import cocos
@@ -9,12 +10,14 @@ import Box2D as b2
 
 import movable_object
 import consts as con
-from consts import TILE_SIZE_IN_PIXELS
-from consts import MAIN
+from registry.metric import TILE_SIZE_IN_PIXELS
+from registry.item import MAIN
+#from consts import TILE_SIZE_IN_PIXELS
+#from consts import MAIN
 import collides as coll
 from inventory import Inventory
 
-consts = con.consts
+#consts = con.consts
 
 def animate(func):
     def decorate(*args, **kwargs):

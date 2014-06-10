@@ -5,10 +5,13 @@ from cocos import euclid as eu
 from cocos.tiles import Tile
 import Box2D as b2
 import movable_object as mova
-from consts import SMALL, LARGE
+#from consts import SMALL, LARGE
 
 from registry.inventory import HAND
 from registry.utility import EMPTY_LIST
+from registry.item import SMALL, LARGE
+from registry.metric import pixels_to_tiles
+from registry.box2d import *
 
 
 def length(value):
@@ -70,16 +73,16 @@ class Item(mova.Movable_Object):
             self.master.stop_interact_with_item(self)
         #print self.position
         self.cshape.center = eu.Vector2(self.position[0], self.position[1])
-        rx, ry = con.pix_to_tile((self.cshape.rx, self.cshape.ry))
+        rx, ry = pixels_to_tiles((self.cshape.rx, self.cshape.ry))
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry)), userData=self))
-        self.b2body.fixtures[-1].filterData.categoryBits = con.B2ITEM
-        self.b2body.fixtures[-1].filterData.maskBits = con.B2LEVEL
+        self.b2body.fixtures[-1].filterData.categoryBits = B2ITEM
+        self.b2body.fixtures[-1].filterData.maskBits = B2LEVEL
         self.b2body.fixtures[-1].friction = 10
-        x, y = con.pix_to_tile((self.cshape.center.x, self.cshape.center.y))
+        x, y = pixels_to_tiles((self.cshape.center.x, self.cshape.center.y))
         self.b2body.position = (x, y)
         print x, y, self.master.b2body.position
-        self.b2body.linearVelocity.x = self.master.b2body.linearVelocity.x + con.pix_to_tile(randint(-500, 500))
-        self.b2body.linearVelocity.y = self.master.b2body.linearVelocity.y + con.pix_to_tile(randint(-100, 100))
+        self.b2body.linearVelocity.x = self.master.b2body.linearVelocity.x + pixels_to_tiles(randint(-500, 500))
+        self.b2body.linearVelocity.y = self.master.b2body.linearVelocity.y + pixels_to_tiles(randint(-100, 100))
         #self.horizontal_speed = self.master.horizontal_speed + randint(-500, 500)
         #self.vertical_speed = self.master.vertical_speed + randint(-100, 100)
         self.dispatch_event('on_drop_item', self)

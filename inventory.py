@@ -9,8 +9,8 @@ import pyglet
 from pyglet.window import mouse
 
 import consts
+import item
 from non_scroll_rect_map import No_Scroll_Rect_Map_Layer
-from registry.Items import items
 
 
 empty = pyglet.image.SolidColorImagePattern((255, 255, 255, 255)).create_image(32, 32)
@@ -200,7 +200,7 @@ class Inventory(layer.Layer):
     def put_item(self, item):
         item.set_master(self.master)
         print item.size
-        if item.size is items.SMALL:
+        if item.size is item.SMALL:
             print item
             self.bag.put_item(item)
         else:

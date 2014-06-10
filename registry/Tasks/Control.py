@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
+from cocos import layer
 from .Animate import *
 from .Task import *
+from registry.controls import bindings
+from registry.item import *
 
 
 
 class Control(Task):
 
-    bind = con.bindings
+    bind = bindings
     pressed = False
 
     def __init__(self, master):

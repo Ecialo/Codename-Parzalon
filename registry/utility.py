@@ -16,9 +16,11 @@ def include(index):
 
 
 def binary_list(n):
+    if n == 1:
+        return 0
     if n >= MAX_BITMASK_SIZE:
         return []
-    return map(lambda x: 2**x, range(n))
+    return map(lambda x: 2**x, xrange(n))
 
 
 def Animate(master, name):

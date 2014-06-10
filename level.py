@@ -50,9 +50,10 @@ class Level(object):
 
     def __init__(self, start_position, locations, path):
         path = module_path_to_os_path(path)
-        path = path[:include(path.rfind("/", 0, -1)):]
+        #path = path[:include(path.rfind("/", 0, -1)):]
         #print path
         self.locations = map(lambda nab: map(lambda location: path + location, nab), locations)
+        print self.locations
         self.x, self.y = start_position
         self.spawn_point = 'right'
         self.hero = 'Parzalon'
@@ -74,7 +75,7 @@ class Level(object):
         """
         Create scrollable Level from tmx map
         """
-        #print "load", filename, "location"
+        print "load", filename, "location"
         print "\n\n\n\n LOAD FRSH LEVEL"
         scroller = self.scroller
         data = tiles.load(filename)

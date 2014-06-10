@@ -6,29 +6,31 @@ from cocos import euclid as eu
 
 import Box2D as b2
 
-import consts as con
+from registry.metric import pixels_to_tiles
+from registry.metric import tiles_to_pixels
+#import consts as con
 
-consts = con.consts
+#consts = con.consts
 
 
-class Level_Collider(tiles.RectMapCollider):
-
-    def collide_bottom(self, dy):
-        self.wall |= con.DOWN
-        self.on_ground = True
-        self.vertical_speed = 0
-
-    def collide_top(self, dy):
-        self.wall |= con.UP
-        self.vertical_speed = 0
-
-    def collide_left(self, dx):
-        self.wall |= con.LEFT
-        #self.horizontal_speed = 0
-
-    def collide_right(self, dy):
-        self.wall |= con.RIGHT
-        #self.horizontal_speed = 0
+# class Level_Collider(tiles.RectMapCollider):
+#
+#     def collide_bottom(self, dy):
+#         self.wall |= con.DOWN
+#         self.on_ground = True
+#         self.vertical_speed = 0
+#
+#     def collide_top(self, dy):
+#         self.wall |= con.UP
+#         self.vertical_speed = 0
+#
+#     def collide_left(self, dx):
+#         self.wall |= con.LEFT
+#         #self.horizontal_speed = 0
+#
+#     def collide_right(self, dy):
+#         self.wall |= con.RIGHT
+#         #self.horizontal_speed = 0
 
 #TODO: move fixture adding to more specific classes
 class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
@@ -42,7 +44,7 @@ class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
         self.image = img
         #self.vertical_speed = vertical_speed
         #self.horizontal_speed = horizontal_speed
-        pix_to_tile = con.pixels_to_tiles
+        pix_to_tile = pixels_to_tiles
         self.b2body = self.world.CreateDynamicBody(position=pix_to_tile(position), fixedRotation=True,
                                                    userData=self, allowSleep=False)
         self.b2body.linearVelocity = pix_to_tile((horizontal_speed, vertical_speed))
@@ -65,7 +67,7 @@ class Movable_Object(cocos.sprite.Sprite):#, Level_Collider):
     #     self._move(*(vec-old))
 
     def set_position(self, x):
-        val = con.tiles_to_pixels(x)
+        val = tiles_to_pixels(x)
         self.position = val
         self.cshape.center = val
 

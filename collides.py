@@ -1,9 +1,11 @@
 import effects as eff
 
 __author__ = 'Ecialo'
-import consts as con
+from registry.group import STAB, LINE
+from registry.something import PARRY_WINDOW
+#import consts as con
 
-consts = con.consts
+#consts = con.consts
 
 
 def collide_actor_actor(actor1, actor2):
@@ -47,7 +49,7 @@ def collide_slash_slash(slash1, slash2):
 
 
 def collide_slash_hit_zone(slash, hit_zone):
-    if hit_zone.hit_shape is con.LINE:
+    if hit_zone.hit_shape is LINE:
         parry(slash, hit_zone)
 
 
@@ -67,10 +69,10 @@ def parry(self, other):
             #else other.time_to_complete/other.master.swing_time
         first = self if self.uncompleteness() < other.uncompleteness() else other
         second = self if first is other else other
-        if con.STAB in second.features:
+        if STAB in second.features:
             return
         p = self.trace.intersect(other.trace)
-        if p is not None and cross_angle(self.trace.v, other.trace.v) <= consts['parry_cos_disp']:
+        if p is not None and cross_angle(self.trace.v, other.trace.v) <= PARRY_WINDOW:
             #print eff.Sparkles.add_to_surface
             #print p
             eff.Sparkles().add_to_surface(p)

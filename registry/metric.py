@@ -2,7 +2,7 @@
 __author__ = 'Ecialo'
 
 from math import sqrt
-from box2d import GRAVITY
+from .box2d import GRAVITY
 
 TILE_SIZE_IN_PIXELS = 32
 

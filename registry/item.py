@@ -1,3 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'ecialo'
-SECONDARY, MAIN = xrange(2)
+from .utility import binary_list
+
+SECONDARY, MAIN = binary_list(2)
+SMALL, LARGE = binary_list(2)

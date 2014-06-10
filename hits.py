@@ -8,16 +8,21 @@ from cocos import euclid as eu
 
 import math
 import geometry as gm
-import consts as con
+#import consts as con
 import Box2D as b2
 
 #import effects as eff
 import movable_object as mova
 import collides as coll
 import box
+from registry.group import CHOP, STAB, SWING, MISSLE, LINE, RECTANGLE
+from registry.box2d import *
+from registry.metric import pixels_to_tiles
+from registry.metric import tiles_to_pixels
+from registry.utility import EMPTY_LIST
 from collides import cross_angle
 
-consts = con.consts
+#consts = con.consts
 
 
 def shape_to_cshape(shape):
@@ -33,12 +38,12 @@ def shape_to_cshape(shape):
 
 class Swing(cocos.draw.Line):#, mova.Movable_Object):
 
-    def __init__(self, stp, endp, master, hit_pattern=con.CHOP):
+    def __init__(self, stp, endp, master, hit_pattern=CHOP):
         self.master = master
         owner = self.master.owner
         stp = owner.from_global_to_self(stp)
         endp = owner.from_global_to_self(endp)
-        self.fight_group = master.owner.fight_group + consts['slash_fight_group']
+        self.fight_group = master.owner.fight_group | SWING
         self.base_fight_group = master.owner.fight_group
         super(Swing, self).__init__(stp, endp, (0, 255, 0, 255))
         #cocos.draw.Line.__init__(self, stp, endp, (0, 255, 0, 255))
@@ -88,9 +93,9 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
 
     def on_begin_contact(self, fixture):
         fixcat = fixture.filterData.categoryBits
-        if fixcat & con.B2BODYPART:
+        if fixcat & B2BODYPART:
             self.contacts.append(fixture.userData)
-        elif fixcat & con.B2SWING:
+        elif fixcat & B2SWING:
             fixture.userData.collide(self)
         #fixcat = fixture.filterData.categoryBits
         # elif fixcat & con.B2ACTOR:
@@ -100,7 +105,7 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         # pass
 
     def on_end_contact(self, fixture):
-        if fixture.filterData.categoryBits & con.B2ACTOR:
+        if fixture.filterData.categoryBits & B2ACTOR:
             self.contacts.remove(fixture.body.userData)
 
     def collide(self, other):
@@ -125,8 +130,8 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         """
         #Define geometry and time data
         actor = self.master.owner
-        v1 = actor.b2body.GetLocalPoint(con.pixels_to_tiles((self.start.x, self.start.y)))
-        v2 = actor.b2body.GetLocalPoint(con.pixels_to_tiles((self.end.x, self.end.y)))
+        v1 = actor.b2body.GetLocalPoint(pixels_to_tiles((self.start.x, self.start.y)))
+        v2 = actor.b2body.GetLocalPoint(pixels_to_tiles((self.end.x, self.end.y)))
         if v2.x <= v1.x:
             v1, v2 = v2, v1
         vlen = math.sqrt((v2.x-v1.x)*(v2.x-v1.x)+(v2.y-v1.y)*(v2.y-v1.y))
@@ -143,8 +148,8 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
                                                                     isSensor=True, userData=self))
         # self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=v1, vertex2=v2),
         #                                                       isSensor=True))
-        self.b2fixture.filterData.categoryBits = con.B2SWING
-        self.b2fixture.filterData.maskBits = con.B2HITZONE | con.B2SWING | con.B2BODYPART
+        self.b2fixture.filterData.categoryBits = B2SWING
+        self.b2fixture.filterData.maskBits = B2HITZONE | B2SWING | B2BODYPART
         actor.world.addEventHandler(self.b2fixture, self.on_begin_contact, self.on_end_contact)
         self.schedule(self.update)
 
@@ -208,12 +213,12 @@ def non_gravity_update(self, dt):
 class Hit_Zone(mova.Movable_Object):
 
     def __init__(self, master, img, vector, speed, position, hit_shape,
-                 effects=con.EMPTY_LIST):
+                 effects=EMPTY_LIST):
         #cshape = cm.AARectShape(eu.Vector2(*position), img.width/2, img.height/2)
-        if hit_shape is con.RECTANGLE:
+        if hit_shape is RECTANGLE:
             trace = gm.Rectangle(gm.Point2(0, 0), eu.Vector2(img.width, img.height))
             trace.pc = position
-        elif hit_shape is con.LINE:
+        elif hit_shape is LINE:
             start_point = gm.Point2(position[0] - img.width/2, position[1] - img.height/2)
             v = vector/abs(vector)*img.width
             trace = gm.LineSegment2(start_point, v)
@@ -224,33 +229,33 @@ class Hit_Zone(mova.Movable_Object):
         v = vector/abs(vector) if abs(vector) != 0 else eu.Vector2(0,0)
         v *= speed
         mova.Movable_Object.__init__(self, img, cshape, position, v.y, v.x)
-        if hit_shape is con.RECTANGLE:
-            rx, ry = con.pixels_to_tiles((cshape.rx, cshape.ry))
+        if hit_shape is RECTANGLE:
+            rx, ry = pixels_to_tiles((cshape.rx, cshape.ry))
             self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry)), isSensor=True,
                                                       userData=self))
-        elif hit_shape is con.LINE:
-            r = con.pixels_to_tiles(img.width/2.0)
+        elif hit_shape is LINE:
+            r = pixels_to_tiles(img.width/2.0)
             #self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-r, 0), vertex2=(r, 0)),
             self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(r, 0)),
                                                       isSensor=True, userData=self))
         self.b2body.gravityScale = 0
-        self.b2body.fixtures[-1].filterData.categoryBits = con.B2HITZONE
-        self.b2body.fixtures[-1].filterData.maskBits = con.B2HITZONE | \
-                                                       con.B2SWING | con.B2LEVEL | con.B2BODYPART
+        self.b2body.fixtures[-1].filterData.categoryBits = B2HITZONE
+        self.b2body.fixtures[-1].filterData.maskBits = B2HITZONE | \
+                                                       B2SWING | B2LEVEL | B2BODYPART
         self.world.addEventHandler(self.b2body.fixtures[-1], self.on_begin_contact, self.on_end_contact)
         self.master = master
-        self.fight_group = master.owner.fight_group + consts['missile_fight_group']
+        self.fight_group = master.owner.fight_group | MISSLE
         self.base_fight_group = master.owner.fight_group
 
         self.features = set()
-        self.hit_pattern = con.STAB
+        self.hit_pattern = STAB
 
         self.completed = False
 
         self.time_to_complete = 0.1
         self.time = 0.1
 
-        if effects is not con.EMPTY_LIST:
+        if effects is not EMPTY_LIST:
             self.effects = filter(None, map(lambda eff: eff(self), effects))
         else:
             self.effects = filter(None, map(lambda eff: eff(self), self.master.effects))
@@ -273,7 +278,7 @@ class Hit_Zone(mova.Movable_Object):
 
     def on_begin_contact(self, fixture):
         fixcat = fixture.filterData.categoryBits
-        if fixcat & con.B2LEVEL:
+        if fixcat & B2LEVEL:
             self.complete()
         else:
             fixture.userData.collide(self)
@@ -306,9 +311,9 @@ class Hit_Zone(mova.Movable_Object):
 
 class Invisible_Hit_Zone(Hit_Zone):
 
-    def __init__(self, master, width, height, v, speed, position, effects=con.EMPTY_LIST):
+    def __init__(self, master, width, height, v, speed, position, effects=EMPTY_LIST):
         img = image.SolidColorImagePattern((0, 0, 0, 0)).create_image(width, height)
-        Hit_Zone.__init__(self, master, img, v, speed, position, con.RECTANGLE, effects)
+        Hit_Zone.__init__(self, master, img, v, speed, position, RECTANGLE, effects)
 
 #TODO: move to box2d
 class Missile(Hit_Zone):

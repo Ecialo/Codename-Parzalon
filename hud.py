@@ -1,7 +1,7 @@
 __author__ = 'Ecialo'
 import cocos
 import consts as con
-import expression as ex
+import dialog as ex
 
 from cocos.layer import Layer
 from cocos.director import director
@@ -10,7 +10,7 @@ from cocos.sprite import Sprite
 from cocos.draw import Line
 from pyglet.event import EventDispatcher
 
-consts = con.consts
+#consts = con.consts
 
 
 class ResizableLayer(Layer, EventDispatcher):

@@ -1,6 +1,4 @@
-# To change this license header, choose License Headers in Project Properties.
-# To change this template file, choose Tools | Templates
-# and open the template in the editor.
+# -*- coding: utf-8 -*-
 import effects as eff
 
 __author__ = "Ecialo"
@@ -8,7 +6,12 @@ __author__ = "Ecialo"
 from cocos import euclid as eu
 import Box2D as b2
 import geometry as gm
-import consts as con
+#import consts as con
+from registry.utility import EMPTY_LIST
+from registry.metric import pixels_to_tiles
+from registry.metric import tiles_to_pixels
+from registry.group import CHOP, PENETRATE, CLEAVE
+from registry.box2d import *
 import box
 import pyglet
 
@@ -26,7 +29,7 @@ class Body_Part(object):
     
     def __init__(self, master, center, h_height, h_width,
                  stab_priority, chop_priority,
-                 on_destroy_effects=con.EMPTY_LIST):
+                 on_destroy_effects=EMPTY_LIST):
         self.master = master
         #print master, "BODU PART BODU"
         #print master.master, "DOBY PART Actor"
@@ -39,11 +42,11 @@ class Body_Part(object):
         #box2d
         actor = master.master
         x, y = center
-        box = con.pixels_to_tiles((h_width, h_height, (x, y), 0))
+        box = pixels_to_tiles((h_width, h_height, (x, y), 0))
         self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=box),
                                                                     isSensor=True, userData=self))
-        actor.b2body.fixtures[-1].filterData.categoryBits = con.B2BODYPART
-        actor.b2body.fixtures[-1].filterData.maskBits = con.B2HITZONE | con.B2SWING
+        actor.b2body.fixtures[-1].filterData.categoryBits = B2BODYPART
+        actor.b2body.fixtures[-1].filterData.maskBits = B2HITZONE | B2SWING
 
         # Center relatively body
         p = gm.Point2(center.x - h_width, center.y - h_height)
@@ -83,7 +86,7 @@ class Body_Part(object):
                 self.destroy()
             elif self.master.health <= 0:
                 self.master.destroy()
-            p = con.tiles_to_pixels(self.master.master.b2body.GetWorldPoint(self.b2fixture.shape.centroid))
+            p = tiles_to_pixels(self.master.master.b2body.GetWorldPoint(self.b2fixture.shape.centroid))
             eff.Blood().add_to_surface(p)
             hit.complete()
         #print self.health, self.armor
@@ -105,31 +108,31 @@ class Body_Part(object):
                 effect(self)
 
 
-class Chest(Body_Part):
-
-    slot = CHEST
-
-    def __init__(self, master):
-        Body_Part.__init__(self, master, eu.Vector2(0, 0), 40, 25, 2, 2,
-                           [death])
-
-
-class Head(Body_Part):
-
-    slot = HEAD
-
-    def __init__(self, master):
-        Body_Part.__init__(self, master, eu.Vector2(0, 57), 15, 20, 2, 2,
-                           [death])
-
-
-class Legs(Body_Part):
-
-    slot = LEGS
-
-    def __init__(self, master):
-        Body_Part.__init__(self, master, eu.Vector2(0, -77), 33, 25, 2, 2,
-                           [death])
+# class Chest(Body_Part):
+#
+#     slot = CHEST
+#
+#     def __init__(self, master):
+#         Body_Part.__init__(self, master, eu.Vector2(0, 0), 40, 25, 2, 2,
+#                            [death])
+#
+#
+# class Head(Body_Part):
+#
+#     slot = HEAD
+#
+#     def __init__(self, master):
+#         Body_Part.__init__(self, master, eu.Vector2(0, 57), 15, 20, 2, 2,
+#                            [death])
+#
+#
+# class Legs(Body_Part):
+#
+#     slot = LEGS
+#
+#     def __init__(self, master):
+#         Body_Part.__init__(self, master, eu.Vector2(0, -77), 33, 25, 2, 2,
+#                            [death])
 
 
 class Body(object):
@@ -139,7 +142,7 @@ class Body(object):
     img = None
     base_speed = 0
     
-    def __init__(self, master, body_parts, body_name, on_collide_effects=con.EMPTY_LIST):
+    def __init__(self, master, body_parts, body_name, on_collide_effects=EMPTY_LIST):
         self.master = master
         self.speed = self.base_speed
         #print self.master, "PRE BODY"
@@ -189,7 +192,7 @@ class Body(object):
         inner_trace.p = inner_p
         cleaved = False
         #inner_trace = gm.LineSegment2(inner_p, hit.trace.v)
-        if con.CHOP in hit.features:
+        if CHOP in hit.features:
             self.body_parts.sort(lambda a, b: a.chop_priority - b.chop_priority)
         else:
             self.body_parts.sort(lambda a, b: a.stab_priority - b.stab_priority)
@@ -201,14 +204,14 @@ class Body(object):
                 eff.Blood().add_to_surface(p)
                 part.collide(hit)
                 #print hit.features, con.CLEAVE not in hit.features
-                if con.CLEAVE not in hit.features:
+                if CLEAVE not in hit.features:
                     break
                 cleaved = True
         else:
             if not cleaved:
                 return
         #print "Olollolo"
-        if con.PENETRATE not in hit.features:
+        if PENETRATE not in hit.features:
             #print "SADASFA"
             hit.complete()
 
@@ -227,7 +230,8 @@ class Body(object):
                 body_part.set_pos(pos)
                 break
 
-    def make_animation(self, anim, filename):
+    def make_animation(self, anim, filename, path):
+        filename = path + filename.lower()
         f = open(filename)
         while 1:
             name = f.readline()
@@ -242,7 +246,7 @@ class Body(object):
             s[len(s)-1] = s[len(s)-1][0:len(s[len(s)-1])-1]
             for i in range(len(s)):
                 duration_list.append(float(s[i]))
-            image = pyglet.image.load(name)
+            image = pyglet.image.load(path + name)
             frames = []
             start = image.height
             i = 1

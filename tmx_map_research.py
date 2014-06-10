@@ -22,17 +22,21 @@ from pyglet.window import key
 import Box2D as b2
 
 from actor import Actor
-from registry.Bodies.bodies import Human
+from body import Human
 from registry.Brains.brains import Task
 from registry.Brains.brains import COMPLETE
 from registry.Brains.brains import Brain
 from registry.Brains.brains import Animate
 import movable_object
-import consts as con
-from consts import tiles_to_pixels
-from consts import jump_height_to_jump_speed
+#import consts as con
+#from consts import tiles_to_pixels
+#from consts import jump_height_to_jump_speed
+from registry.metric import tiles_to_pixels
+from registry.metric import jump_height_to_jump_speed
+from registry.box2d import GRAVITY
 from location import Location_Layer
 from location import b2Listener
+
 
 EPS = 4.0
 
@@ -368,7 +372,7 @@ class Tilemap_Tester_With_Box(Location_Layer):
         layer.ScrollableLayer.__init__(self)
         self.scroller = scroller
         self.force_ground = force_ground
-        self.b2world = b2.b2World(gravity=(0, -con.GRAVITY),
+        self.b2world = b2.b2World(gravity=(0, -GRAVITY),
                                   contactListener=b2Listener())
         self.b2level = self.b2world.CreateStaticBody()
         self._create_b2_tile_map(force_ground)

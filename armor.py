@@ -1,9 +1,9 @@
-from registry.Items import items
+import item
 
 __author__ = 'Ecialo'
 from cocos import euclid as eu
 
-from registry.Bodies.bodies import Body_Part
+from body import Body_Part
 import consts as con
 consts = con.consts
 
@@ -25,10 +25,10 @@ class Shell(Body_Part):
         self.master = None
 
 
-class Armor(items.Item):
+class Armor(item.Item):
 
     def __init__(self, img, shell):
-        items.Item.__init__(self, img)
+        item.Item.__init__(self, img)
         self.shell = shell
 
     def destroy(self):
@@ -39,7 +39,7 @@ class Armor(items.Item):
         #print 2222222
         self.shell.remove()
         self.master.attached = None
-        items.Item.drop(self)
+        item.Item.drop(self)
 
 
 class Helmet_Shell(Shell):

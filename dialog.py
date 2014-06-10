@@ -1,23 +1,25 @@
+import pyglet
 from pyglet.image import SolidColorImagePattern
 from cocos.sprite import Sprite
 from cocos.director import director
 from collections import namedtuple
 from collections import deque
 from cocos.text import Label
-import consts as con
-from consts import NAME, LINE
-from consts import COMPLETE
-from consts import DIALOG_WIDTH, DIALOG_HEIGHT
-from consts import CHARS_PER_MINUTE
-from consts import STEP
+#import consts as con
+from registry.dialog import *
+from registry.utility import COMPLETE
 
 
-consts = con.consts
+
+#consts = con.consts
+
+Parz_port = pyglet.resource.image('parzalon_portrait.png')
+Enemy_port = pyglet.resource.image('enemy_portrait.jpg')
 
 Person = namedtuple('Person', ['name', 'portrait', 'text_color'])
 
-persons_db = {'Parzalon': Person("Parzalon", consts['portrait']['parzalon'], (0, 0, 0, 255)),
-              'Enemy': Person("Enemy", consts['portrait']['enemy'], (255, 0, 0, 255))}
+persons_db = {'Parzalon': Person("Parzalon", Parz_port, (0, 0, 0, 255)),
+              'Enemy': Person("Enemy", Enemy_port, (255, 0, 0, 255))}
 
 fone = SolidColorImagePattern((0, 128, 128, 200)).create_image(DIALOG_WIDTH+STEP, DIALOG_HEIGHT)
 

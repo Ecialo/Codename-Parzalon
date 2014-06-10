@@ -1,3 +1,4 @@
 # -*- coding: utf-8 -*-
 __author__ = 'ecialo'
-HEAD, LEGS, CHEST, HANDS = xrange(4)
+from .utility import binary_list
+HEAD, LEGS, CHEST, HANDS = binary_list(4)

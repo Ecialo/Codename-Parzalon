@@ -1,5 +1,4 @@
 import effects as eff
-from registry.Brains import brains as br
 
 __author__ = 'Ecialo'
 
@@ -15,12 +14,11 @@ import Box2D as b2
 
 import movable_object
 import actor as ac
+
 from registry.Units import units_base
 from registry.Tasks import Task
-import consts as con
-
-from consts import NO_ROTATION
-consts = con.consts
+from registry.group import HERO, UNIT
+from registry.box2d import *
 
 
 def _spawn_unit(level, name, pos):
@@ -29,9 +27,9 @@ def _spawn_unit(level, name, pos):
     #map(lambda x: unit.get_item(x()(level)), un_par['items'])
     map(lambda x: unit.put_item(x()(level)), un_par['items'])
     unit.move_to(*pos)
-    if un_par['brain'].fight_group is consts['group']['hero'] and level.hero is None:
+    if un_par['brain'].fight_group is HERO and level.hero is None:
         level.hero = unit
-    elif un_par['brain'].fight_group is consts['group']['hero'] and level.hero is not None:
+    elif un_par['brain'].fight_group is HERO and level.hero is not None:
         level.hero.destroy()
         level.hero = unit
     unit.launcher.push_handlers(level)
@@ -293,7 +291,7 @@ class Location_Layer(layer.ScrollableLayer):
 
     is_event_handler = True
 
-    _spawn = {con.UNIT: _spawn_unit}
+    _spawn = {UNIT: _spawn_unit}
 
     def __init__(self, scripts, force_ground, scroller, keyboard, mouse):
         super(Location_Layer, self).__init__()
@@ -307,7 +305,7 @@ class Location_Layer(layer.ScrollableLayer):
         #self.scripts = scripts
 
         #Box2D world
-        self.b2world = Cool_B2_World(gravity=(0, -con.GRAVITY),
+        self.b2world = Cool_B2_World(gravity=(0, -GRAVITY),
                                      contactListener=b2Listener())
         self.b2level = self.b2world.CreateStaticBody()
         self._create_b2_tile_map(force_ground)
@@ -392,8 +390,8 @@ class Location_Layer(layer.ScrollableLayer):
                 cy = lowest_cell.j + half_height
                 shape.SetAsBox(half_width, half_height, (cx, cy), NO_ROTATION)
                 self.b2level.CreateFixture(shape=shape, userData=cell)
-                self.b2level.fixtures[-1].filterData.categoryBits = con.B2SMTH | con.B2LEVEL
-                self.b2level.fixtures[-1].filterData.maskBits = con.B2EVERY
+                self.b2level.fixtures[-1].filterData.categoryBits = B2SMTH | B2LEVEL
+                self.b2level.fixtures[-1].filterData.maskBits = B2EVERY
 
         # WIDTH, HEIGHT = con.TILE_SIZE/2, con.TILE_SIZE/2
         cells = rect_map.cells
