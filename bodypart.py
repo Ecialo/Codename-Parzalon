@@ -30,14 +30,9 @@ class Body_Part(object):
         self.on_destroy_effects = on_destroy_effects
 
         #box2d
-        actor = master.master
         x, y = center
-        box = pixels_to_tiles((h_width, h_height, (x, y), 0))
-        self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=box),
-                                                                    isSensor=True, userData=self))
-        actor.b2body.fixtures[-1].filterData.categoryBits = B2BODYPART
-        actor.b2body.fixtures[-1].filterData.maskBits = B2HITZONE | B2SWING
-
+        self.box = pixels_to_tiles((h_width, h_height, (x, y), 0))
+        self.setup_b2body()
         # Center relatively body
         p = gm.Point2(center.x - h_width, center.y - h_height)
         v = eu.Vector2(h_width * 2, h_height * 2)
@@ -48,6 +43,14 @@ class Body_Part(object):
         self.attached = None
 
     position = property(lambda self: self.master.master.from_self_to_global(self.shape.pc))
+
+    def setup_b2body(self):
+        actor = self.master.master
+        box = self.box
+        self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=box),
+                                                                    isSensor=True, userData=self))
+        actor.b2body.fixtures[-1].filterData.categoryBits = B2BODYPART
+        actor.b2body.fixtures[-1].filterData.maskBits = B2HITZONE | B2SWING
 
     def turn(self):
         c = self.shape.pc
