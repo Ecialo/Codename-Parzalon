@@ -5,7 +5,6 @@ __author__ = 'ecialo'
 def fire_rate(time_between_shots):
     def add_fire_rate(master):
         def reload_weapon(dt):
-            #print master
             if master.cur_reload > 0.0:
                 master.cur_reload -= dt
                 if master.cur_reload <= 0.0:

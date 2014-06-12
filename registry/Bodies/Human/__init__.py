@@ -18,7 +18,6 @@ path = module_path_to_os_path(__name__)
 
 class Human(Body):
 
-    print os.listdir(path)
     anim = {'walk': image.load(path + "walk.png"),
             'stand': image.load(path + "stand.png"),
             'jump': image.load(path + "stand.png"),

@@ -24,6 +24,7 @@ class Control(Task):
         #print self.scroller
 
     def __call__(self, dt):
+        #print self.bind
         if not self.pressed:
         #print "intsak", id(self.scroller)
             if self.key[self.bind['down']]:

@@ -7,8 +7,6 @@ from cocos import sprite
 from cocos import menu
 import pyglet
 from pyglet.window import mouse
-
-#import consts
 from non_scroll_rect_map import No_Scroll_Rect_Map_Layer
 
 
@@ -16,7 +14,6 @@ empty = pyglet.image.SolidColorImagePattern((255, 255, 255, 255)).create_image(3
 
 from registry.inventory import *
 from registry.item import SMALL
-#from consts import NO_SCROLL
 
 
 class Item_Context_Menu(menu.Menu):
@@ -27,7 +24,6 @@ class Item_Context_Menu(menu.Menu):
         items = [menu.MenuItem("Drop", self.drop),
                  menu.MenuItem("Close", self.kill)]
         self.create_menu(items)
-        print "READY"
 
     def drop(self):
         self.drop_method()
@@ -97,19 +93,14 @@ class Bag(No_Scroll_Rect_Map_Layer):
         super(Bag, self).__init__(-1, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE, cells)
         self.belt = Belt(0)
         self.master = master
-        #self.origin_x = 400#16*MAX_INVENTORY_SIZE
-        #self.origin_y = 0#16*MAX_INVENTORY_SIZE
-
         self.set_belt_size(3)
 
     def select_secondary_item(self, scroll):
         return self.belt.select_secondary_item(scroll)
 
     def put_item(self, item):
-        print item
         for cell in chain(*self.cells):
             if cell.tile.id == -1:
-                #print cell.i, cell.j
                 cell.tile = item.inventory_representation
                 self.update_cell(cell)
                 return
@@ -181,31 +172,23 @@ class Inventory(layer.Layer):
 
         self.selected_cell = None
         self.prev_cell = None
-
-        #buddy = sprite.Sprite('inventory.png')
-        #buddy.position = (400, 400)
         self.main_item_representation = sprite.Sprite(empty)
         self.main_item_representation.position = (200, 400)
         self.bag.position = (400, 0)
         self.active_zones = [(self.main_item_representation.get_rect(), "main_item")]
 
-        #self.add(buddy)
         self.add(self.main_item_representation, z=1)
         self.add(self.bag, z=1)
 
     def put_item(self, item):
         item.set_master(self.master)
-        print item.size
         if item.size is SMALL:
-            print item
             self.bag.put_item(item)
         else:
             self.change_item(item)
 
     def open(self):
         self.master.get_ancestor(Scene).add(self, z=5)
-        # for cell in chain(*self.bag.cells):
-        #     print cell.tile, cell.i, cell.j
 
     def close(self):
         self.kill()
@@ -264,8 +247,6 @@ class Inventory(layer.Layer):
     def destroy(self):
         self.bag.destroy()
         self.main_item.drop()
-        # for armor in self.armor.itervalues():
-        #     armor.drop()
 
     def on_mouse_motion(self, x, y, dx, dy):
         if not self._locked:
@@ -287,7 +268,6 @@ class Inventory(layer.Layer):
                     item = cell.get('item')
                     if item:
                         self.add(Item_Context_Menu(item, self.item_dropper(cell)), z=2)
-                        print item
                 else:
                     item = self.get_item_outside_bag(x, y)
                     if item:

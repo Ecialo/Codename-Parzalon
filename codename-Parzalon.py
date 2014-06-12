@@ -4,15 +4,11 @@ from cocos.director import director
 from menu import GameMenu
 
 from registry.window import *
-#from registry.Levels import levels_base
-#import cProfile
+#import cProfile        # Оставим профайлер. Один раз он уже пригодился.
 
 
 def main():
     director.init(**window)
-    # lvl = levels_base['Test_Level']
-    # print lvl
-    # lvl.run()
     menu = GameMenu()
     menu.start_game()
 

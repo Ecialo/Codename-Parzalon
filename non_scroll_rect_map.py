@@ -49,36 +49,17 @@ class No_Scroll_Map_Layer(Layer):
         keep = set()
         for cell in self.get_all_cells():
             cx, cy = key = cell.origin[:2]
-            #print cx, cy
             keep.add(key)
             if cell.tile is None:
                 continue
             if key not in self._sprites:
-                #print cell.tile.image
                 self._sprites[key] = pyglet.sprite.Sprite(cell.tile.image,
-                    x=cx, y=cy, batch=self.batch)
+                                                          x=cx, y=cy, batch=self.batch)
             s = self._sprites[key]
-            # if self.debug:
-            #     if getattr(s, '_label', None): continue
-            #     label = [
-            #         'cell=%d,%d'%(cell.i, cell.j),
-            #         'origin=%d,%d px'%(cx, cy),
-            #     ]
-            #     for p in cell.properties:
-            #         label.append('%s=%r'%(p, cell.properties[p]))
-            #     lx, ly = cell.topleft
-            #     s._label = pyglet.text.Label(
-            #         '\n'.join(label), multiline=True, x=lx, y=ly,
-            #         bold=True, font_size=8, width=cell.width,
-            #         batch=self.batch)
-            # else:
-            #     s._label = None
             s._label = None
         for k in list(self._sprites):
             if k not in keep and k in self._sprites:
-                print self._sprites[k]
                 self._sprites[k]._label = None
-                #del self._sprites[k]
                 self._sprites[k].delete()
 
     def update_cell(self, cell):
@@ -108,11 +89,9 @@ class No_Scroll_Map_Layer(Layer):
         return r
 
     def on_enter(self):
-        #self._update_sprite_set()
         super(No_Scroll_Map_Layer, self).on_enter()
 
     def draw(self):
-        # invoked by Cocos machinery
         super(No_Scroll_Map_Layer, self).draw()
 
         # XXX overriding draw eh?
@@ -127,7 +106,3 @@ class No_Scroll_Rect_Map_Layer(RectMap, No_Scroll_Map_Layer):
         RectMap.__init__(self, id, tw, th, cells, origin, properties)
         No_Scroll_Map_Layer.__init__(self, properties)
         self._update_sprite_set()
-
-    # def get_at_pixel(self, x, y):
-    #     print int((x - self.origin_x) // self.tw), int((y - self.origin_y) // self.th)
-    #     return RectMap.get_at_pixel(self, x, y)

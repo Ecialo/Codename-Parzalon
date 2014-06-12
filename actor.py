@@ -1,26 +1,18 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
 
-#import cocos
 from pyglet.event import EventDispatcher
 from cocos import collision_model as cm
 from cocos import euclid as eu
-from cocos import layer
 import Box2D as b2
-
 import movable_object
-#import consts as con
 from registry.metric import TILE_SIZE_IN_PIXELS
 from registry.item import MAIN
-#from consts import TILE_SIZE_IN_PIXELS
-#from consts import MAIN
 from registry.box2d import *
 from registry.metric import pixels_to_tiles
 from registry.utility import EMPTY_LIST
 import collides as coll
 from inventory import Inventory
-
-#consts = con.consts
 
 
 def animate(func):
@@ -36,7 +28,6 @@ def animate(func):
 def activity(func):
     def decorate(*args, **kwargs):
             if args[0].state != func.__name__:
-                #print 1234
                 map(args[0].body.recalculate_body_part_position, args[0].body.parts_pos[func.__name__])
             func(*args, **kwargs)
     decorate.__name__ = func.__name__
@@ -51,11 +42,9 @@ class Launcher(EventDispatcher):
         self.owner = master
 
     def launch(self, missile):
-        #print missile
         self.dispatch_event('on_launch_missile', missile)
 
     def destroy_missile(self, missile):
-        #print "LOLOLOLOLOLLOLOLOLOLOLOLOLO"
         self.dispatch_event('on_remove_missile', missile)
 Launcher.register_event_type('on_launch_missile')
 Launcher.register_event_type('on_remove_missile')
@@ -96,13 +85,9 @@ class Actor(movable_object.Movable_Object):
         self.on_ground = False
 
         self.recovery = 0.0  # Time before moment when acton can be controlled again
-        #self.scale = 0.5
-
-        #self.schedule(self.item_update)
 
     height = property(lambda self: self.body.img.height)
     width = property(lambda self: self.body.img.width)
-    #attack_perform = property(lambda self: self.hands[0].attack_perform)
 
     def use_item(self, item_type, trigger, args):       # MAIN or SECONDARY
         if item_type is MAIN:
@@ -112,17 +97,12 @@ class Actor(movable_object.Movable_Object):
 
         if not item:
             return
-        #if item_type is not MAIN:
-            #print trigger, item.on_use, item.available
         if trigger and not item.on_use and item.available:
             item.start_use(*args)
         elif trigger and item.on_use and item.available:
             item.continue_use(*args)
         elif not trigger and item.on_use and item.available:
             item.end_use(*args)
-
-    #def item_update(self, dt):
-    #    map(lambda x: x.item_update(dt), self.hands)
 
     def start_interact_with_item(self, item):
         if item and item.item_update:
@@ -150,9 +130,6 @@ class Actor(movable_object.Movable_Object):
     def refresh_environment(self, environment):
         map(lambda item: item(environment), self.hands)
 
-    def get_item(self, item):
-        self.inventory.get_item(item)
-
     def put_item(self, item):
         self.inventory.put_item(item)
 
@@ -177,8 +154,6 @@ class Actor(movable_object.Movable_Object):
             self.dispatch_event('on_death', self)
 
     def transfer(self):
-        #print "SMTHSSDAS", self.b2body.cool_world.contactListener.beginHandlers
-        #print "SMTHING", self.b2body.cool_world.contactListener.getHandlers(self.b2body.fixtures[-1])
         for item in self.hands:
             item.transfer()
         super(Actor, self).transfer()
@@ -198,10 +173,7 @@ class Actor(movable_object.Movable_Object):
         """
         if self.on_ground:
             d = horizontal_direction * self.body.speed
-            #if abs(self.horizontal_speed + d) > self.body.speed:
-            #self.push((d,0))
             self.b2body.linearVelocity.x = d
-            #self.horizontal_speed = d
             if self.direction != horizontal_direction:
                 self.turn()
 
@@ -211,12 +183,10 @@ class Actor(movable_object.Movable_Object):
         Do not move Actor
         """
         self.b2body.linearVelocity.x = 0
-        #self.horizontal_speed = 0
 
     @activity
     def sit(self):
         self.b2body.linearVelocity.x = 0
-        #self.horizontal_speed = 0
 
     def turn(self):
         self.direction = -self.direction
@@ -224,20 +194,6 @@ class Actor(movable_object.Movable_Object):
 
     def push(self, v):
         self.b2body.linearVelocity += v
-        #self.b2body.awake = True
-        #self.b2body.ApplyLinearImpulse(impulse=v, point=self.b2body.position, wake=False)
-        #self.horizontal_speed += v.x
-        #self.vertical_speed += v.y
-
-    #def get_item(self, item):
-    #    if item.slot == con.HAND:
-    #        self.hands.append(item)
-    #        item.master = self
-    #    else:
-    #        for body_part in self.body.body_parts:
-    #            if body_part.slot is item.slot:
-    #                body_part.get_on(item)
-    #                break
 
     @activity
     def jump(self):
@@ -245,9 +201,7 @@ class Actor(movable_object.Movable_Object):
         Actor jump with his body jump speed.
         """
         if self.on_ground:
-            #self.push((0,consts['params']['human']['jump_speed']))
             self.b2body.linearVelocity.y = 11   # TODO сделать по людски
-            #self.vertical_speed = consts['params']['human']['jump_speed']
 
     def move_to(self, x, y):
         """
@@ -274,7 +228,6 @@ class Actor(movable_object.Movable_Object):
         hand.end_use(*end_args)
 
     def push_task(self, task):
-        #print 123
         self.actions[0].task_manager.push_task(task)
 
     def push_inst_task(self, task):
@@ -318,9 +271,6 @@ class Actor(movable_object.Movable_Object):
         Recalculate position from Level base to Actors base
         """
         return pos - self.position
-
-    #def on_enter(self):
-    #    self.launcher.push_handlers(self.get_ancestor(layer.scrolling.ScrollableLayer))
 Actor.register_event_type('on_activate_trigger')
 Actor.register_event_type('on_take_damage')
 Actor.register_event_type('on_death')

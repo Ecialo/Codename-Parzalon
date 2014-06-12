@@ -28,10 +28,8 @@ class Lazy_Resource_Registry(object):
         self.resource_name = resource_name
         self._data = None
         self.index()
-        #print self._data
 
     def __getitem__(self, item):
-        #print item
         if type(self._data[item]) is not str:
             return self._data[item]
         else:
@@ -47,9 +45,7 @@ class Lazy_Resource_Registry(object):
     def load_then_apply(self, item):
         tmp = None
         querry = "from %s.%s import *" % (self.resource_name, item)
-        #print querry
         exec querry
-        #print item
         exec "tmp = %s" % item
         self[item] = tmp
 
@@ -60,4 +56,3 @@ class Lazy_Resource_Registry(object):
         all_items = (item.split(".")[0] for item in os.listdir(resource_path))
         valid_items = filter(lambda x: "__" not in x, all_items)
         self._data = dict(zip(valid_items, valid_items))
-        #print self._data

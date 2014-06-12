@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ecialo'
+from registry.utility import COMPLETE
+
 
 class Task(object):
 
-    #hands = property(lambda self: self.master.hands)
     environment = None
 
     def __init__(self, master, time=None):

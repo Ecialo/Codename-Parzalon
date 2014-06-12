@@ -5,7 +5,6 @@ from cocos import euclid as eu
 from cocos.tiles import Tile
 import Box2D as b2
 import movable_object as mova
-#from consts import SMALL, LARGE
 
 from registry.inventory import HAND
 from registry.utility import EMPTY_LIST
@@ -43,7 +42,6 @@ class Item(mova.Movable_Object):
         self.position = self.master.position
         if self.item_update:
             self.master.stop_interact_with_item(self)
-        #print self.position
         self.cshape.center = eu.Vector2(self.position[0], self.position[1])
         rx, ry = pixels_to_tiles((self.cshape.rx, self.cshape.ry))
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry)), userData=self))
@@ -52,14 +50,10 @@ class Item(mova.Movable_Object):
         self.b2body.fixtures[-1].friction = 10
         x, y = pixels_to_tiles((self.cshape.center.x, self.cshape.center.y))
         self.b2body.position = (x, y)
-        print x, y, self.master.b2body.position
         self.b2body.linearVelocity.x = self.master.b2body.linearVelocity.x + pixels_to_tiles(randint(-500, 500))
         self.b2body.linearVelocity.y = self.master.b2body.linearVelocity.y + pixels_to_tiles(randint(-100, 100))
-        #self.horizontal_speed = self.master.horizontal_speed + randint(-500, 500)
-        #self.vertical_speed = self.master.vertical_speed + randint(-100, 100)
         self.dispatch_event('on_drop_item', self)
         self.master = None
-        #print 123412421
         self.schedule(self.update)
 
     def get_up(self):
@@ -67,9 +61,6 @@ class Item(mova.Movable_Object):
 
     def set_master(self, master):
         self.master = master
-
-    # def update(self, dt):
-    #     mova.Movable_Object.update(self, dt)
 Item.register_event_type('on_drop_item')
 Item.register_event_type('on_get_up_item')
 Item.register_event_type('on_lay_item')

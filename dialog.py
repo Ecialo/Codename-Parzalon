@@ -5,13 +5,8 @@ from cocos.director import director
 from collections import namedtuple
 from collections import deque
 from cocos.text import Label
-#import consts as con
 from registry.dialog import *
 from registry.utility import COMPLETE
-
-
-
-#consts = con.consts
 
 Parz_port = pyglet.resource.image('parzalon_portrait.png')
 Enemy_port = pyglet.resource.image('enemy_portrait.jpg')
@@ -26,7 +21,6 @@ fone = SolidColorImagePattern((0, 128, 128, 200)).create_image(DIALOG_WIDTH+STEP
 
 def load_dialogs(filename):
     with open(filename) as source:
-        #print 123
         state = NAME
         dialogs = {}
         name = None
@@ -37,7 +31,6 @@ def load_dialogs(filename):
                 state = LINE
             elif state is LINE and line.strip():
                 a = line.strip().split(":")
-                print a
                 person, phrase = a
                 dialogs[name].append((persons_db[person], phrase.strip("\"")))
             else:

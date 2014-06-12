@@ -8,7 +8,7 @@ from registry.utility import EMPTY_LIST
 from registry.metric import pixels_to_tiles
 from registry.metric import tiles_to_pixels
 from registry.box2d import *
-#import consts as con
+
 
 def death(body_part):
     body_part.master.destroy()
@@ -23,8 +23,6 @@ class Body_Part(object):
                  stab_priority, chop_priority,
                  on_destroy_effects=EMPTY_LIST):
         self.master = master
-        #print master, "BODU PART BODU"
-        #print master.master, "DOBY PART Actor"
 
         self.health = self.max_health
         self.armor = self.max_armor
@@ -50,8 +48,6 @@ class Body_Part(object):
         self.attached = None
 
     position = property(lambda self: self.master.master.from_self_to_global(self.shape.pc))
-    #horizontal_speed = property(lambda self: self.master.horizontal_speed)
-    #vertical_speed = property(lambda self: self.master.vertical_speed)
 
     def turn(self):
         c = self.shape.pc
@@ -61,7 +57,6 @@ class Body_Part(object):
         self.shape.pc = (pos[0] * self.master.master.direction, pos[1])
         if self.attached is not None:
             self.attached.shell.shape.pc = self.shape.pc
-        #print 11
 
     def transfer(self):
         pass
@@ -81,7 +76,6 @@ class Body_Part(object):
             p = tiles_to_pixels(self.master.master.b2body.GetWorldPoint(self.b2fixture.shape.centroid))
             eff.Blood().add_to_surface(p)
             hit.complete()
-        #print self.health, self.armor
 
     def get_on(self, item):
         if self.attached is not None:

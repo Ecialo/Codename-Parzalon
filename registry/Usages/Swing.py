@@ -39,7 +39,6 @@ class Swing(Usage):
         #Send line to holder in weapon for update end point and to screen for draw
         self.actual_hit = hit.Swing(stp, end, self)
         #self.master.dispatch_event('on_do_hit', self.actual_hit)
-        print "!232312", self.owner
         self.owner.add(self.actual_hit, z=100)
 
     def continue_use(self, *args):
@@ -62,14 +61,10 @@ class Swing(Usage):
 
     def complete(self):
         if self.actual_hit is not None:
-            print "send to remove", self.actual_hit
-            #self.master.dispatch_event('on_remove_hit', self.actual_hit)
-            print "removed"
             self.actual_hit = None
             self.master.available = True
             self.master.on_use = False
 
     def move(self, v):
-        #print 111
         if self.actual_hit is not None:
             self.actual_hit._move(v)

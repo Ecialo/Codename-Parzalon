@@ -4,25 +4,18 @@ from pyglet import image
 import cocos
 from cocos import collision_model as cm
 from cocos import euclid as eu
-#from cocos import layer
 
 import math
 import geometry as gm
-#import consts as con
 import Box2D as b2
 
-#import effects as eff
 import movable_object as mova
 import collides as coll
 import box
 from registry.group import CHOP, STAB, SWING, MISSLE, LINE, RECTANGLE
 from registry.box2d import *
 from registry.metric import pixels_to_tiles
-from registry.metric import tiles_to_pixels
 from registry.utility import EMPTY_LIST
-from collides import cross_angle
-
-#consts = con.consts
 
 
 def shape_to_cshape(shape):
@@ -36,7 +29,7 @@ def shape_to_cshape(shape):
         return cm.AARectShape(c, abs(shape.v.x/2), abs(shape.v.y/2))
 
 
-class Swing(cocos.draw.Line):#, mova.Movable_Object):
+class Swing(cocos.draw.Line):
 
     def __init__(self, stp, endp, master, hit_pattern=CHOP):
         self.master = master
@@ -46,8 +39,6 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         self.fight_group = master.owner.fight_group | SWING
         self.base_fight_group = master.owner.fight_group
         super(Swing, self).__init__(stp, endp, (0, 255, 0, 255))
-        #cocos.draw.Line.__init__(self, stp, endp, (0, 255, 0, 255))
-        #mova.Movable_Object.__init__(self, )
 
         self.completed = False
         self._time_to_complete = 0.0
@@ -77,7 +68,6 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         Update time to complete with representable color
         """
         self._time_to_complete = time
-        #print 111
         val = int(time * self._color_c)
         self.color = (255 - val, val, 0, 255)
 
@@ -97,12 +87,6 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
             self.contacts.append(fixture.userData)
         elif fixcat & B2SWING:
             fixture.userData.collide(self)
-        #fixcat = fixture.filterData.categoryBits
-        # elif fixcat & con.B2ACTOR:
-        #     self._collide_actor(fixture.body.userData)
-        # elif fixcat & con.B2HITZONE:
-        #     self._collide_hit_zone(fixture.body.userData)
-        # pass
 
     def on_end_contact(self, fixture):
         if fixture.filterData.categoryBits & B2ACTOR:
@@ -122,7 +106,7 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
 
     def aim(self, vec):
         end = self.start + vec.normalize()*self.master.length
-        self.end = end # self.master.owner.from_global_to_self(end)
+        self.end = end
 
     def perform(self, time):
         """
@@ -142,12 +126,9 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         self.trace = gm.LineSegment2(start, v)
         self.cshape = shape_to_cshape(self.trace)
         self.set_time_to_complete(time)
-        print (vlen, vcent, vangle)
         self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(vlen, 0,
                                                                                                  vcent, vangle)),
                                                                     isSensor=True, userData=self))
-        # self.b2fixture = actor.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=v1, vertex2=v2),
-        #                                                       isSensor=True))
         self.b2fixture.filterData.categoryBits = B2SWING
         self.b2fixture.filterData.maskBits = B2HITZONE | B2SWING | B2BODYPART
         actor.world.addEventHandler(self.b2fixture, self.on_begin_contact, self.on_end_contact)
@@ -170,7 +151,6 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
         self.fight_group = -1
         self.base_fight_group = -1
         self.master.owner.world.destroy_fixture(self.b2fixture)
-        #self.master.owner.b2body.DestroyFixture(self.b2fixture)
         self.master.complete()
         self.kill()
 
@@ -184,37 +164,17 @@ class Swing(cocos.draw.Line):#, mova.Movable_Object):
             self.cshape.center += vec
 
 
-# def on_level_collide_destroy(update_fun):
-#
-#     def dec_update(self, dt):
-#         #print self.wall
-#         update_fun(self, dt)
-#         if self.wall is not con.NO_TR:
-#             print self.wall
-#             self.complete()
-#     return dec_update
-
-
 def non_gravity_update(self, dt):
-    #print self.vertical_speed, self.horizontal_speed
     start_point = self.cshape.center.copy()
     super(Hit_Zone, self).update(dt)
-    #dy = self.vertical_speed * dt if self.vertical_speed != 0 else 0
-    #dx = self.horizontal_speed * dt if self.horizontal_speed != 0 else 0
-    #self._move(dx, dy)
-    #print start_point, self.cshape.center
     v = self.cshape.center - start_point
-    #print v
     self.trace.p += v
-    #print self.trace.p
-    #print self.wall
 
 
 class Hit_Zone(mova.Movable_Object):
 
     def __init__(self, master, img, vector, speed, position, hit_shape,
                  effects=EMPTY_LIST):
-        #cshape = cm.AARectShape(eu.Vector2(*position), img.width/2, img.height/2)
         if hit_shape is RECTANGLE:
             trace = gm.Rectangle(gm.Point2(0, 0), eu.Vector2(img.width, img.height))
             trace.pc = position
@@ -235,7 +195,6 @@ class Hit_Zone(mova.Movable_Object):
                                                       userData=self))
         elif hit_shape is LINE:
             r = pixels_to_tiles(img.width/2.0)
-            #self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-r, 0), vertex2=(r, 0)),
             self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(r, 0)),
                                                       isSensor=True, userData=self))
         self.b2body.gravityScale = 0
@@ -261,7 +220,6 @@ class Hit_Zone(mova.Movable_Object):
             self.effects = filter(None, map(lambda eff: eff(self), self.master.effects))
 
         self.schedule(self.update)
-        #print self.update
 
     def update(self, dt):
         self.time -= dt
@@ -282,11 +240,6 @@ class Hit_Zone(mova.Movable_Object):
             self.complete()
         else:
             fixture.userData.collide(self)
-        # elif fixcat & con.B2ACTOR:
-        #     self._collide_actor(fixture.body.userData)
-        # elif fixcat & con.B2HITZONE:
-        #     self._collide_hit_zone(fixture.body.userData)
-        # pass
 
     def on_end_contact(self, fixture):
         pass
@@ -314,6 +267,7 @@ class Invisible_Hit_Zone(Hit_Zone):
     def __init__(self, master, width, height, v, speed, position, effects=EMPTY_LIST):
         img = image.SolidColorImagePattern((0, 0, 0, 0)).create_image(width, height)
         Hit_Zone.__init__(self, master, img, v, speed, position, RECTANGLE, effects)
+
 
 #TODO: move to box2d
 class Missile(Hit_Zone):

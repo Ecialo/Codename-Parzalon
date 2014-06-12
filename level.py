@@ -1,8 +1,5 @@
 __author__ = 'Ecialo'
-
-from collections import namedtuple
-
-import cocos
+from cocos.scene import Scene
 from cocos import layer
 from pyglet.window import key
 from pyglet.window import mouse
@@ -11,11 +8,7 @@ from cocos.director import director
 import hud
 
 from location import Location_Layer
-
-import actor as ac
-
 from registry.utility import module_path_to_os_path
-from registry.utility import include
 
 
 class Keyboard_Handler(object):
@@ -50,10 +43,7 @@ class Level(object):
 
     def __init__(self, start_position, locations, path):
         path = module_path_to_os_path(path)
-        #path = path[:include(path.rfind("/", 0, -1)):]
-        #print path
         self.locations = map(lambda nab: map(lambda location: path + location, nab), locations)
-        print self.locations
         self.x, self.y = start_position
         self.spawn_point = 'right'
         self.hero = 'Parzalon'
@@ -75,8 +65,6 @@ class Level(object):
         """
         Create scrollable Level from tmx map
         """
-        print "load", filename, "location"
-        print "\n\n\n\n LOAD FRSH LEVEL"
         scroller = self.scroller
         data = tiles.load(filename)
         back = data['Background']
@@ -87,13 +75,11 @@ class Level(object):
         return self._create_location(force, back, player_layer)
 
     def reload_location(self, layers):
-        print "\n\n\n\n RELOADED LEVEL"
         self._create_location(*layers)
 
     def _create_location(self, force, back, player_layer):
-        print "LOAD LOCATION ON", self.x, self.y
         player_layer.connect(self)
-        scene = cocos.scene.Scene()
+        scene = Scene()
         scroller = player_layer.scroller
         try:
             scroller.remove("background")
@@ -111,7 +97,6 @@ class Level(object):
 
         scene.add(scroller, z=0)
         scene.add(hud.HUD(player_layer), z=2)
-        #scene.add(player_layer.hero.inventory, z=2)
         return scene
 
     def win(self, _, actor, location):
@@ -120,11 +105,9 @@ class Level(object):
 
     def loose(self, location):
         self.unload_location(location)
-        print 'LLLL'
         director.pop()
 
     def change_location(self, direction, actor, location):
-        print 'change', direction
         self.unload_location(location)
         self.hero = location.hero
         if direction == "right":
@@ -142,18 +125,12 @@ class Level(object):
         director.replace(self.load_location())
 
     def unload_location(self, location):
-        print "LOCATION", location.hero.parent
         if location.hero.fight_group > 0:
             location.hero.kill()
             location.actors.remove(location.hero)
         location.unschedule(location.update)
-        #location.collman.clear()
-        #print "STACK", location.hero._event_stack
         location.hero.remove_handlers(location)
-        #print "CLEAR STACK", location.hero._event_stack
         location.disconnect(self)
-        #location.hero.actions[0].task_manager.clear_queue()
-        #location.hero.launcher.pop_handlers()
 
     def printer(self, location):
         print "PRINTER", location
