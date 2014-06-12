@@ -2,7 +2,9 @@
 from unit import Unit
 
 __author__ = 'Ecialo'
-from registry.Bodies import bodies_base
-from registry.Brains import brains_base
 from registry.group import UNIT
-Parzalon = Unit(UNIT, bodies_base['Human'], brains_base['Controller'], [])
+from registry import BASE
+Human = BASE['Human']
+Controller = BASE['Controller']
+Sword = BASE['Sword']
+Parzalon = Unit(UNIT, Human, Controller, [Sword])
