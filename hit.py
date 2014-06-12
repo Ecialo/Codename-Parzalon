@@ -189,19 +189,7 @@ class Hit_Zone(mova.Movable_Object):
         v = vector/abs(vector) if abs(vector) != 0 else eu.Vector2(0,0)
         v *= speed
         mova.Movable_Object.__init__(self, img, cshape, position, v.y, v.x)
-        if hit_shape is RECTANGLE:
-            rx, ry = pixels_to_tiles((cshape.rx, cshape.ry))
-            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry)), isSensor=True,
-                                                      userData=self))
-        elif hit_shape is LINE:
-            r = pixels_to_tiles(img.width/2.0)
-            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(r, 0)),
-                                                      isSensor=True, userData=self))
-        self.b2body.gravityScale = 0
-        self.b2body.fixtures[-1].filterData.categoryBits = B2HITZONE
-        self.b2body.fixtures[-1].filterData.maskBits = B2HITZONE | \
-                                                       B2SWING | B2LEVEL | B2BODYPART
-        self.world.addEventHandler(self.b2body.fixtures[-1], self.on_begin_contact, self.on_end_contact)
+
         self.master = master
         self.fight_group = master.owner.fight_group | MISSLE
         self.base_fight_group = master.owner.fight_group
@@ -220,6 +208,25 @@ class Hit_Zone(mova.Movable_Object):
             self.effects = filter(None, map(lambda eff: eff(self), self.master.effects))
 
         self.schedule(self.update)
+
+    def setup_b2body(self):
+        super(Hit_Zone, self).setup_b2body()
+        cshape = self.cshape
+        hit_shape = self.hit_shape
+        img = self.image
+        if hit_shape is RECTANGLE:
+            rx, ry = pixels_to_tiles((cshape.rx, cshape.ry))
+            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry)), isSensor=True,
+                                                      userData=self))
+        elif hit_shape is LINE:
+            r = pixels_to_tiles(img.width/2.0)
+            self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(r, 0)),
+                                                      isSensor=True, userData=self))
+        self.b2body.gravityScale = 0
+        self.b2body.fixtures[-1].filterData.categoryBits = B2HITZONE
+        self.b2body.fixtures[-1].filterData.maskBits = B2HITZONE | \
+                                                       B2SWING | B2LEVEL | B2BODYPART
+        self.world.addEventHandler(self.b2body.fixtures[-1], self.on_begin_contact, self.on_end_contact)
 
     def update(self, dt):
         self.time -= dt

@@ -15,19 +15,22 @@ class Movable_Object(Sprite):
     tilemap = None
     world = None
 
-    def __init__(self, img, cshape=None, position=(0, 0), vertical_speed=0, horizontal_speed=0):
+    def __init__(self, img, cshape=None, position=(0, 0), vertical_speed=0.0, horizontal_speed=0.0):
         super(Movable_Object, self).__init__(img, position)
         self.image = img
-        pix_to_tile = pixels_to_tiles
-        self.b2body = self.world.CreateDynamicBody(position=pix_to_tile(position), fixedRotation=True,
-                                                   userData=self, allowSleep=False)
-        self.b2body.linearVelocity = pix_to_tile((horizontal_speed, vertical_speed))
         self.cshape = cshape
         if cshape:
             self.cshape.center = eu.Vector2(*position)
-        #self.wall = con.NO_TR
+
+        self.setup_b2body()
+        self.b2body.linearVelocity = pixels_to_tiles((horizontal_speed, vertical_speed))
+        self.b2body.position = position
+
         self.ground_count = 0
         self.on_ground = False
+
+    def setup_b2body(self):
+        self.b2body = self.world.CreateDynamicBody(fixedRotation=True, userData=self, allowSleep=False)
 
     def set_position(self, pos):
         val = tiles_to_pixels(pos)

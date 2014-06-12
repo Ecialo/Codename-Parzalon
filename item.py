@@ -42,6 +42,12 @@ class Item(mova.Movable_Object):
         self.position = self.master.position
         if self.item_update:
             self.master.stop_interact_with_item(self)
+        self.b2drop()
+        self.dispatch_event('on_drop_item', self)
+        self.master = None
+        self.schedule(self.update)
+
+    def b2drop(self):
         self.cshape.center = eu.Vector2(self.position[0], self.position[1])
         rx, ry = pixels_to_tiles((self.cshape.rx, self.cshape.ry))
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(rx, ry)), userData=self))
@@ -52,9 +58,6 @@ class Item(mova.Movable_Object):
         self.b2body.position = (x, y)
         self.b2body.linearVelocity.x = self.master.b2body.linearVelocity.x + pixels_to_tiles(randint(-500, 500))
         self.b2body.linearVelocity.y = self.master.b2body.linearVelocity.y + pixels_to_tiles(randint(-100, 100))
-        self.dispatch_event('on_drop_item', self)
-        self.master = None
-        self.schedule(self.update)
 
     def get_up(self):
         self.dispatch_event('on_get_up_item', self)

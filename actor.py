@@ -68,10 +68,19 @@ class Actor(movable_object.Movable_Object):
         self.launcher = Launcher(self)
         self.state = 'stand'
         self.inventory = Inventory(self)
-        
 
+        self.ground_count = 0
+        self.on_ground = False
+
+        self.recovery = 0.0  # Time before moment when acton can be controlled again
+
+    height = property(lambda self: self.body.img.height)
+    width = property(lambda self: self.body.img.width)
+
+    def setup_b2body(self):
+        super(Actor, self).setup_b2body()
         pix_to_tile = pixels_to_tiles
-        rx, ry = pix_to_tile((cshape.rx, cshape.ry))
+        rx, ry = pix_to_tile((self.cshape.rx, self.cshape.ry))
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(vertices=[(-rx, ry), (-rx, -ry+0.1),
                                                                                     (-rx+0.1, -ry), (rx-0.1, -ry),
                                                                                     (rx, -ry+0.1), (rx, ry)])))
@@ -81,13 +90,6 @@ class Actor(movable_object.Movable_Object):
         self.b2body.fixtures[-1].filterData.categoryBits = B2GNDSENS
         self.b2body.fixtures[-1].filterData.maskBits = B2LEVEL | B2ACTOR
         self.world.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
-        self.ground_count = 0
-        self.on_ground = False
-
-        self.recovery = 0.0  # Time before moment when acton can be controlled again
-
-    height = property(lambda self: self.body.img.height)
-    width = property(lambda self: self.body.img.width)
 
     def use_item(self, item_type, trigger, args):       # MAIN or SECONDARY
         if item_type is MAIN:

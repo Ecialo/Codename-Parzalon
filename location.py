@@ -451,3 +451,5 @@ class Location_Layer(layer.ScrollableLayer):
 
     def on_key_release(self, symbol, modifers):
         self.loc_key_handler[symbol] = False
+
+
