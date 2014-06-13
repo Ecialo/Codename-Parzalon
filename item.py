@@ -64,6 +64,9 @@ class Item(mova.Movable_Object):
 
     def set_master(self, master):
         self.master = master
+
+    def transfer(self):
+        self(self.master.location)
 Item.register_event_type('on_drop_item')
 Item.register_event_type('on_get_up_item')
 Item.register_event_type('on_lay_item')

@@ -62,7 +62,6 @@ class Actor(movable_object.Movable_Object):
 
         self.direction = 1
 
-        self.hands = []
         self.owner = self
         self.body = body(self)
         self.launcher = Launcher(self)
@@ -129,9 +128,6 @@ class Actor(movable_object.Movable_Object):
     def activate_trigger(self, trigger):
         self.dispatch_event('on_activate_trigger', trigger, self)
 
-    def refresh_environment(self, environment):
-        map(lambda item: item(environment), self.hands)
-
     def put_item(self, item):
         self.inventory.put_item(item)
 
@@ -146,8 +142,6 @@ class Actor(movable_object.Movable_Object):
         Remove Actor from level
         """
         if self.fight_group > 0:
-            for item in self.hands:
-                item.drop()
             for armor in filter(lambda x: (x.attached is not None), self.body.body_parts):
                 armor.attached.drop()
             self.fight_group = -1
@@ -156,20 +150,13 @@ class Actor(movable_object.Movable_Object):
             self.dispatch_event('on_death', self)
 
     def transfer(self):
-        for item in self.hands:
-            item.transfer()
+        self.inventory.transfer()
         super(Actor, self).transfer()
         self.ground_count = 0
         self.on_ground = True
 
-    def _move(self, dx, dy):
-        old = self.cshape.center.copy()
-        super(Actor, self)._move(dx, dy)
-        vec = self.cshape.center.copy() - old
-        map(lambda hand: hand.attached_move(vec) if hand else not hand, self.hands)
-
-    @activity
-    def walk(self, horizontal_direction):
+    #@activity
+    def move(self, horizontal_direction):
         """
         Move Actor in horizontal_direction with his body speed
         """
@@ -214,20 +201,7 @@ class Actor(movable_object.Movable_Object):
         self.position = vec
         self.cshape.center = vec
         self.b2body.position = pixels_to_tiles((vec.x, vec.y))
-        map(lambda hand: hand.attached_move(vec - old), self.hands)
-
-    def choose_free_hand(self):
-        for hand in self.hands:
-            if not hand.on_use and hand.available:
-                return hand
-        return None
-
-    def use_hand(self, hand, start_args=EMPTY_LIST,
-                 continue_args=EMPTY_LIST,
-                 end_args=EMPTY_LIST):
-        hand.start_use(*start_args)
-        hand.continue_use(*continue_args)
-        hand.end_use(*end_args)
+        #map(lambda hand: hand.attached_move(vec - old), self.hands)
 
     def push_task(self, task):
         self.actions[0].task_manager.push_task(task)

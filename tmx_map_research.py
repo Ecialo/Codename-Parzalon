@@ -68,7 +68,7 @@ class Move(Path_Method):
     def __call__(self, master, target_cell, dt):
         super(Move, self).__call__(master, None, dt)
         Animate(master, 'walk')
-        master.walk(master.direction)
+        master.move(master.direction)
 
 
 class Jump(Path_Method):
@@ -90,7 +90,7 @@ class Jump(Path_Method):
         print master.position[0], target_cell.center[0]
         if abs(master.position[0] - target_cell.center[0]) > EPS:
             Animate(master, 'walk')
-            master.walk(master.direction)
+            master.move(master.direction)
         else:
             print 2312312312
             master.stand()
@@ -110,7 +110,7 @@ class Fall(Path_Method):
         super(Fall, self).__call__(master, None, dt)
         if abs(master.position[0] - target_cell.center[0]) > EPS:
             Animate(master, 'walk')
-            master.walk(master.direction)
+            master.move(master.direction)
         else:
             master.stand()
 

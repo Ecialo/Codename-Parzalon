@@ -40,7 +40,7 @@ class Control(Task):
                     self.master.stand()
                     Animate(self.master, 'stand')
                 elif hor_dir != 0 and self.master.on_ground:
-                    self.master.walk(hor_dir)
+                    self.master.move(hor_dir)
                     Animate(self.master, 'walk')
 
             #Use items

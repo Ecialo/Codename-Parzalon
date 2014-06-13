@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from itertools import chain
 
 from cocos import layer
@@ -283,3 +284,9 @@ class Inventory(layer.Layer):
                     self.bag.set_new_belt_item(self.selected_cell)
                 self.select_secondary_item()
                 self.selected_cell = None
+
+    def transfer(self):
+        u"""
+        Перенести предметы из одного b2 мира в другой
+        """
+        pass

@@ -21,7 +21,7 @@ class Movable_Object(Sprite):
         self.cshape = cshape
         if cshape:
             self.cshape.center = eu.Vector2(*position)
-
+        self.b2body = None
         self.setup_b2body()
         self.b2body.linearVelocity = pixels_to_tiles((horizontal_speed, vertical_speed))
         self.b2body.position = position
@@ -62,13 +62,6 @@ class Movable_Object(Sprite):
                 self.world.addEventHandler(new_fixture, *handlers)
         self.b2body.cool_world.destroy_body(self.b2body)
         self.b2body = new_b2body
-
-    def _move(self, dx, dy):
-        """
-        Try to move Actor on dx, ndy with registrations all collisions
-        with map.
-        """
-        self.b2body.position += (dx, dy)
 
     def onGroundBegin(self, fixture):
         self.ground_count += 1

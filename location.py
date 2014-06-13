@@ -281,6 +281,7 @@ class Location_Layer(layer.ScrollableLayer):
     def prepare(self, spawn_point, hero):
         movable_object.Movable_Object.tilemap = self.force_ground
         movable_object.Movable_Object.world = self.b2world
+        movable_object.Movable_Object.location = self
         self.b2world.contactListener = self.b2world.true_listener
         task.environment = self.force_ground
         eff.Advanced_Emitter.surface = self  # This bad
@@ -291,7 +292,7 @@ class Location_Layer(layer.ScrollableLayer):
         if hero is not 'Parzalon':
             self.hero = hero
         self.hero.push_handlers(self)
-        self.hero.refresh_environment(self)
+        #self.hero.refresh_environment(self)
         self.hero.show_hitboxes()
         to_remove = []
         for sc in self.scripts.known_objs():
