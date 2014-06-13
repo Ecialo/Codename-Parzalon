@@ -1,7 +1,7 @@
 __author__ = 'Ecialo'
 import cocos
 import consts as con
-import expression as ex
+import dialog as ex
 
 from cocos.layer import Layer
 from cocos.director import director
@@ -10,7 +10,7 @@ from cocos.sprite import Sprite
 from cocos.draw import Line
 from pyglet.event import EventDispatcher
 
-consts = con.consts
+#consts = con.consts
 
 
 class ResizableLayer(Layer, EventDispatcher):
@@ -75,15 +75,15 @@ class DudeDamageLayer(ResizableLayer):
         return armored
 
     def _init_body_parts(self, layer_type='front'):
-        self.ui_body[layer_type]['head'] = Sprite(consts['hud']['body'][layer_type]['head'],
+        self.ui_body[layer_type]['head'] = Sprite(con.body[layer_type]['head'],
                                                   position=(50, self.cur_y-50))
-        self.ui_body[layer_type]['chest'] = Sprite(consts['hud']['body'][layer_type]['chest'],
+        self.ui_body[layer_type]['chest'] = Sprite(con.body[layer_type]['chest'],
                                                    position=(50, self.cur_y-85))
-        self.ui_body[layer_type]['left_arm'] = Sprite(consts['hud']['body'][layer_type]['left_arm'],
+        self.ui_body[layer_type]['left_arm'] = Sprite(con.body[layer_type]['left_arm'],
                                                       position=(34, self.cur_y-90))
-        self.ui_body[layer_type]['right_arm'] = Sprite(consts['hud']['body'][layer_type]['right_arm'],
+        self.ui_body[layer_type]['right_arm'] = Sprite(con.body[layer_type]['right_arm'],
                                                        position=(66, self.cur_y-91))
-        self.ui_body[layer_type]['legs'] = Sprite(consts['hud']['body'][layer_type]['legs'],
+        self.ui_body[layer_type]['legs'] = Sprite(con.body[layer_type]['legs'],
                                                   position=(50, self.cur_y-119))
 
     def on_hud_shift_needed(self):
@@ -122,7 +122,7 @@ class DudeStatusLayer(ResizableLayer):
         self.game_layer = game_layer
         self.batch = BatchNode()
 
-        self.ui_status_icons = {'health_icon': Sprite(consts['hud']['status']['health_icon'],
+        self.ui_status_icons = {'health_icon': Sprite(con.status['health_icon'],
                                                       position=(110, self.cur_y-50))}
 
         self.bar_orig_x = 140

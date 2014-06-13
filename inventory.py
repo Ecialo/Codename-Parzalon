@@ -1,24 +1,20 @@
+# -*- coding: utf-8 -*-
 from itertools import chain
-import consts
+
 from cocos import layer
 from cocos.scene import Scene
 from cocos import tiles
 from cocos import sprite
 from cocos import menu
-from non_scroll_rect_map import No_Scroll_Rect_Map_Layer
-import items
-import cocos
 import pyglet
 from pyglet.window import mouse
+from non_scroll_rect_map import No_Scroll_Rect_Map_Layer
+
 
 empty = pyglet.image.SolidColorImagePattern((255, 255, 255, 255)).create_image(32, 32)
 
-MAX_INVENTORY_SIZE = 5
-INVENTORY_CELL_SIZE = 32
-SEPARATE_ROW = 1
-BELT_ROW = 1
-BELT_CELL = -1
-NO_SCROLL = 0
+from registry.inventory import *
+from registry.item import SMALL
 
 
 class Item_Context_Menu(menu.Menu):
@@ -29,7 +25,6 @@ class Item_Context_Menu(menu.Menu):
         items = [menu.MenuItem("Drop", self.drop),
                  menu.MenuItem("Close", self.kill)]
         self.create_menu(items)
-        print "READY"
 
     def drop(self):
         self.drop_method()
@@ -46,7 +41,7 @@ class Item_Context_Menu(menu.Menu):
 
 class Belt_Cell(tiles.RectCell):
     def __init__(self, i):
-        j = MAX_INVENTORY_SIZE + SEPARATE_ROW
+        j = MAX_INVENTORY_SIZE + SEPARATE_ROW_SIZE
         super(Belt_Cell, self).__init__(i, j, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE,
                                         {'is_belt': True}, tiles.Tile(-1, {}, empty))
 
@@ -89,7 +84,7 @@ class Bag(No_Scroll_Rect_Map_Layer):
         cells = []
         for i in xrange(MAX_INVENTORY_SIZE):
             column = []
-            for j in xrange(MAX_INVENTORY_SIZE + SEPARATE_ROW + BELT_ROW):
+            for j in xrange(MAX_INVENTORY_SIZE + SEPARATE_ROW_SIZE + BELT_ROW_SIZE):
                 if j < MAX_INVENTORY_SIZE:
                     column.append(Inventory_Cell(i, j))
                 else:
@@ -99,19 +94,14 @@ class Bag(No_Scroll_Rect_Map_Layer):
         super(Bag, self).__init__(-1, INVENTORY_CELL_SIZE, INVENTORY_CELL_SIZE, cells)
         self.belt = Belt(0)
         self.master = master
-        #self.origin_x = 400#16*MAX_INVENTORY_SIZE
-        #self.origin_y = 0#16*MAX_INVENTORY_SIZE
-
         self.set_belt_size(3)
 
     def select_secondary_item(self, scroll):
         return self.belt.select_secondary_item(scroll)
 
     def put_item(self, item):
-        print item
         for cell in chain(*self.cells):
             if cell.tile.id == -1:
-                #print cell.i, cell.j
                 cell.tile = item.inventory_representation
                 self.update_cell(cell)
                 return
@@ -183,31 +173,23 @@ class Inventory(layer.Layer):
 
         self.selected_cell = None
         self.prev_cell = None
-
-        #buddy = sprite.Sprite('inventory.png')
-        #buddy.position = (400, 400)
         self.main_item_representation = sprite.Sprite(empty)
         self.main_item_representation.position = (200, 400)
         self.bag.position = (400, 0)
         self.active_zones = [(self.main_item_representation.get_rect(), "main_item")]
 
-        #self.add(buddy)
         self.add(self.main_item_representation, z=1)
         self.add(self.bag, z=1)
 
     def put_item(self, item):
         item.set_master(self.master)
-        print item.size
-        if item.size is items.SMALL:
-            print item
+        if item.size is SMALL:
             self.bag.put_item(item)
         else:
             self.change_item(item)
 
     def open(self):
         self.master.get_ancestor(Scene).add(self, z=5)
-        # for cell in chain(*self.bag.cells):
-        #     print cell.tile, cell.i, cell.j
 
     def close(self):
         self.kill()
@@ -226,7 +208,7 @@ class Inventory(layer.Layer):
 
     def change_item(self, item):
         self.master.start_interact_with_item(item)
-        if item.slot is consts.HAND:
+        if item.slot is HAND:
             item_to_drop = self.main_item
             self.set_new_main_item(item)
         else:
@@ -266,8 +248,6 @@ class Inventory(layer.Layer):
     def destroy(self):
         self.bag.destroy()
         self.main_item.drop()
-        # for armor in self.armor.itervalues():
-        #     armor.drop()
 
     def on_mouse_motion(self, x, y, dx, dy):
         if not self._locked:
@@ -289,7 +269,6 @@ class Inventory(layer.Layer):
                     item = cell.get('item')
                     if item:
                         self.add(Item_Context_Menu(item, self.item_dropper(cell)), z=2)
-                        print item
                 else:
                     item = self.get_item_outside_bag(x, y)
                     if item:
@@ -305,3 +284,9 @@ class Inventory(layer.Layer):
                     self.bag.set_new_belt_item(self.selected_cell)
                 self.select_secondary_item()
                 self.selected_cell = None
+
+    def transfer(self):
+        u"""
+        Перенести предметы из одного b2 мира в другой
+        """
+        pass

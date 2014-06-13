@@ -3,14 +3,12 @@ __author__ = "Ecialo"
 from cocos.director import director
 from menu import GameMenu
 
-import consts as con
-import cProfile
-
-consts = con.consts
+from registry.window import *
+#import cProfile        # Оставим профайлер. Один раз он уже пригодился.
 
 
 def main():
-    director.init(**consts['window'])
+    director.init(**window)
     menu = GameMenu()
     menu.start_game()
 

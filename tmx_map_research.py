@@ -12,25 +12,32 @@ from itertools import ifilter
 from math import sqrt
 from time import clock
 from heapq import *
+
 from cocos import scene
 from cocos.director import *
 from cocos import tiles
 from cocos import layer
 from cocos import draw
 from pyglet.window import key
+import Box2D as b2
+
 from actor import Actor
-from bodies import Human
-from brains import Task
-from brains import COMPLETE
-from brains import Brain
-from brains import Animate
+from body import Human
+from registry.Brains.brains import Task
+from registry.Brains.brains import COMPLETE
+from registry.Brains.brains import Brain
+from registry.Brains.brains import Animate
 import movable_object
-import consts as con
-from consts import tiles_value_to_pixel_value
-from consts import jump_height_to_pixel_speed
+#import consts as con
+#from consts import tiles_to_pixels
+#from consts import jump_height_to_jump_speed
+from registry.metric import tiles_to_pixels
+from registry.metric import jump_height_to_jump_speed
+from registry.box2d import GRAVITY
 from location import Location_Layer
 from location import b2Listener
-import Box2D as b2
+
+
 EPS = 4.0
 
 
@@ -61,15 +68,15 @@ class Move(Path_Method):
     def __call__(self, master, target_cell, dt):
         super(Move, self).__call__(master, None, dt)
         Animate(master, 'walk')
-        master.walk(master.direction)
+        master.move(master.direction)
 
 
 class Jump(Path_Method):
 
     def __init__(self, speed, height, direction):
         super(Jump, self).__init__(direction)
-        speed = tiles_value_to_pixel_value(speed)
-        height = jump_height_to_pixel_speed(height)
+        speed = tiles_to_pixels(speed)
+        height = jump_height_to_jump_speed(height)
         self.parameters = {'speed': speed,
                            'jump_height': height}
 
@@ -83,7 +90,7 @@ class Jump(Path_Method):
         print master.position[0], target_cell.center[0]
         if abs(master.position[0] - target_cell.center[0]) > EPS:
             Animate(master, 'walk')
-            master.walk(master.direction)
+            master.move(master.direction)
         else:
             print 2312312312
             master.stand()
@@ -93,7 +100,7 @@ class Fall(Path_Method):
 
     def __init__(self, speed, direction):
         super(Fall, self).__init__(direction)
-        speed = tiles_value_to_pixel_value(speed)
+        speed = tiles_to_pixels(speed)
         self.parameters = {'speed': speed}
 
     def check(self, target):
@@ -103,7 +110,7 @@ class Fall(Path_Method):
         super(Fall, self).__call__(master, None, dt)
         if abs(master.position[0] - target_cell.center[0]) > EPS:
             Animate(master, 'walk')
-            master.walk(master.direction)
+            master.move(master.direction)
         else:
             master.stand()
 
@@ -365,7 +372,7 @@ class Tilemap_Tester_With_Box(Location_Layer):
         layer.ScrollableLayer.__init__(self)
         self.scroller = scroller
         self.force_ground = force_ground
-        self.b2world = b2.b2World(gravity=(0, -con.GRAVITY),
+        self.b2world = b2.b2World(gravity=(0, -GRAVITY),
                                   contactListener=b2Listener())
         self.b2level = self.b2world.CreateStaticBody()
         self._create_b2_tile_map(force_ground)

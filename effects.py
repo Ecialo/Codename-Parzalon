@@ -62,7 +62,6 @@ class Sparkles(Advanced_Emitter):
     color_modulate = True
 
 
-
 class Blood(Advanced_Emitter):
     # angle
     angle = -90.0

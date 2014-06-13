@@ -6,7 +6,7 @@ from cocos.scene import Scene
 from cocos.director import director
 from pyglet import app
 
-from level import Level
+from registry.Levels import levels_base
 
 
 class GameMenu(Menu):
@@ -36,7 +36,7 @@ class MainMenu(Menu):
         self.create_menu(self.items, shake(), shake_back())
 
     def on_new_game(self):
-        lvl = Level((0, 0), [['map01.tmx'], ['map02.tmx']])
+        lvl = levels_base['Test_Level']
         lvl.run()
 
     def on_options_enter(self):
