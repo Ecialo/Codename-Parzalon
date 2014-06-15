@@ -2,11 +2,13 @@
 __author__ = 'ecialo'
 from cocos.tiles import *
 from map_object import *
+from map_object_layer import Map_Object_Layer
 
 
 def load_tmx(filename):
-    '''Load some tile mapping resources from a TMX file.
-    '''
+    """
+    Load some tile mapping resources from a TMX file.
+    """
 
     resource = Resource(filename)
 
@@ -17,11 +19,19 @@ def load_tmx(filename):
             map.name)
 
     width = int(map.attrib['width'])
-    height  = int(map.attrib['height'])
+    height = int(map.attrib['height'])
 
     # XXX this is ASSUMED to be consistent
     tile_width = int(map.attrib['tilewidth'])
     tile_height = int(map.attrib['tileheight'])
+
+    # load all properties
+    properties = {}
+    props = map.find('properties')
+    if props is not None:
+        for p in props.findall('property'):
+            properties[p.attrib['name']] = p.attrib['value']
+    resource.add_resource('properties', properties)
 
     # load all the tilesets
     tilesets = []
@@ -88,11 +98,13 @@ def load_tmx(filename):
         id = layer.attrib['name']
 
         # Load properties of layers
-        sl = {}
-        for prop in layer.getiterator('property'):
-            sl[prop.attrib['name']] = prop.attrib['value']
+        properties = {}
+        props = layer.find('properties')
+        if props is not None:
+            for p in props.findall('property'):
+                properties[p.attrib['name']] = p.attrib['value']
 
-        m = RectMapLayer(id, tile_width, tile_height, cells, None, sl)
+        m = RectMapLayer(id, tile_width, tile_height, cells, None, properties)
         m.visible = int(layer.attrib.get('visible', 1))
 
         resource.add_resource(id, m)
@@ -102,7 +114,12 @@ def load_tmx(filename):
     tile_height, tile_width = float(tile_height), float(tile_width)
     for obj_group in map.findall('objectgroup'):
         id = obj_group.attrib['name']
-        objs = []
+        properties = {}
+        props = obj_group.find('properties')
+        if props is not None:
+            for p in props.findall('property'):
+                properties[p.attrib['name']] = p.attrib['value']
+        objs = Map_Object_Layer(id, properties)
         for c in obj_group.getiterator('object'):
             if c.find('ellipse') is not None:
                 continue
@@ -123,7 +140,7 @@ def load_tmx(filename):
                 obj = obj.create_polyline(polyline.attrib['points'])
             else:
                 obj = obj.create_rect()
-            objs.append(obj)
+            objs.add(obj)
                 # params = [c.attrib['x'],
                 #           c.attrib['y'],
                 #           c.attrib['width'],
@@ -136,7 +153,6 @@ def load_tmx(filename):
                 #     properties[prop.attrib['name']] = prop.attrib['value']
                 # objs.append(Collision_object(n, t, cm.AARectShape, params, m_he,
                 #                                 properties))
-
         resource.add_resource(id, objs)
     return resource
 
@@ -149,6 +165,8 @@ if __name__ == '__main__':
     print scripts
     for script in scripts:
         print script
-    b2world = b2.b2World()
+    b2world = b2World()
     for script in scripts:
         script.to_b2(b2world)
+    print scripts.get_all_of_type('nigga')
+    print test_map_loader['properties']

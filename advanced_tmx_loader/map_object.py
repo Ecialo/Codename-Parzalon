@@ -1,6 +1,44 @@
 # -*- coding: utf-8 -*-
 __author__ = 'ecialo'
 import Box2D as b2
+from math import atan2
+
+
+class NoB2DError(Exception):
+    pass
+
+
+def polar_sort(axis):
+
+    def sort(points):
+        return sorted(points, key=lambda point: atan2(point[1] - axis[1], point[0] - axis[0]))
+
+    return sort
+
+
+def ccw(p1, p2, p3):
+    return (p2[0] - p1[0])*(p3[1] - p1[1]) - (p2[1] - p1[1])*(p3[0] - p1[0]) > 0
+
+
+def cw(p1, p2, p3):
+    return (p2[0] - p1[0])*(p3[1] - p1[1]) - (p2[1] - p1[1])*(p3[0] - p1[0]) < 0
+
+
+def convex_hull(points):
+    up = [points[0]]
+    down = [points[0]]
+    fp = points[0]
+    lp = points[-1]
+    for point in points[1::]:
+        if point is lp or cw(fp, point, lp):
+            while len(up) >= 2 and not cw(up[-2], up[-1], point):
+                up.pop()
+            up.append(point)
+        if point is lp or ccw(fp, point, lp):
+            while len(down) >= 2 and not ccw(down[-2], down[-1], point):
+                down.pop()
+            down.append(point)
+    return down + list(reversed(up[1::]))
 
 
 class Abstract_Map_Object(object):
@@ -52,10 +90,17 @@ class Polygon_Map_Object(Abstract_Map_Object):
 
     def __init__(self, properties, points, name="", type='', x=0, y=0):
         super(Polygon_Map_Object, self).__init__(properties, x, y)
-        #TODO Проверить полигон на выпуклость и расположение точек против часовой стрелки
-        self.points = list(points)
+        # Какая бы фигня не была в точках в результате мы получим выпуклую оболочку
+        # Работающим в tiled стоит быть аккуратнее
+        self.points = convex_hull(self.normalize(list(points)))
         self.name = name
         self.type = type
+
+    def normalize(self, points):
+        points = sorted(points)
+        axis = points[0]
+        self.position = axis
+        return map(lambda point: (point[0] - axis[0], point[1] - axis[1]), points)
 
     def to_b2(self, b2World):
         shape = b2.b2PolygonShape(vertices=self.points)
@@ -68,6 +113,11 @@ class Polygon_Map_Object(Abstract_Map_Object):
 
 class Tile_Map_Object(Abstract_Map_Object):
 
+    u"""
+    Пусть эта хрень будет вроде как точечным объектом.
+    Это должно быть удобно в tiled, а вот в б2д мы это пихать не будем
+    """
+
     def __init__(self, properties, gid=0, name="", type='', x=0, y=0):
         super(Tile_Map_Object, self).__init__(properties, x, y)
         self.gid = gid
@@ -75,7 +125,7 @@ class Tile_Map_Object(Abstract_Map_Object):
         self.type = type
 
     def to_b2(self, b2World):
-        pass
+        raise NoB2DError
 
     def __str__(self):
         return "Tile\nname\t%s\ntype\t%s\nx,y\t%f,%f" % (self.name, self.type, self.position[0], self.position[1])+ \
@@ -144,3 +194,6 @@ class Map_Object(object):
             self.base['width'] = float(self.base['width'])/tile_width
             self.base['height'] = float(self.base['height'])/tile_height
         return Rect_Map_Object(self.properties, **self.base)
+
+if __name__ == '__main__':
+    pass

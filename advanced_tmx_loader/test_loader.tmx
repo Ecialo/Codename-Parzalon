@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="100" height="100" tilewidth="32" tileheight="32">
+ <properties>
+  <property name="Balabolka" value="kusachia"/>
+ </properties>
+ <tileset firstgid="1" name="mytileset_01" tilewidth="32" tileheight="32">
+  <image source="../registry/Levels/Test_Level/mytileset_01.png" width="507" height="382"/>
+ </tileset>
+ <tileset firstgid="166" name="5z1KX" tilewidth="32" tileheight="32">
+  <image source="../registry/Levels/Test_Level/5z1KX.png" width="736" height="672"/>
+  <tile id="27">
+   <properties>
+    <property name="bottom" value="yes"/>
+    <property name="left" value="yes"/>
+    <property name="right" value="yes"/>
+    <property name="top" value="yes"/>
+   </properties>
+  </tile>
+  <tile id="28">
+   <properties>
+    <property name="top" value="yes"/>
+   </properties>
+  </tile>
+  <tile id="29">
+   <properties>
+    <property name="top" value="yes"/>
+   </properties>
+  </tile>
+  <tile id="449">
+   <properties>
+    <property name="Player_start" value="yes"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Background" width="100" height="100">
+  <properties>
+   <property name="transparent" value="yes"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJztzjERADAIBLBHQf27ZUcB5TJkTyUpAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGB4AAAAA8IUsOAAAAAAAAFzTFA3Fmg==
+  </data>
+ </layer>
+ <layer name="Player Level" width="100" height="100">
+  <properties>
+   <property name="obstackle" value="yes"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJzt2ktOw0AURFGHDTCBhTJifYSNoR5ERCgf27jdlbxzpBpiPpeOsMk0AQAAAADU8bXB9vg8VbTv9e2wfkt69P4cz8D5AHhOx8lrborj9NvD3yRjnVo0zsdY5y0YS4scWuTQIocWObTIocW+3DdkcV+dxfkAAMjkfRlZ1tzHuJfpx/mopWfnudf7nrkKlr4eLu2xxfUqPXtNOB+3VGqRToscWuTQIocWObTIoUUOLXJokUOLHFrk0CKHFjm0yKFFDi2WOf7Zf/5HvNWquvS7234eH4dxq9rj2uvIyHNR9b0xia/pVXsktmgq9kht0VTrkdyiqdQjvUVTpccjtGgq9HiUFs2z3w8+Uotnp0WOii3Snp/du/7c9/Rf2sjnJ3P3+bLdtmjSPv79cHlrr306Z9eum7Kte2zRpMf5S3n2vvf52PKcVNWjhybr9eqhyTo9e2iyXO8emiyzRw9N5turhybz7NlDk/v27qHJbSN6pDZ5Hf0FTON6nDexvs9LRqw9jxv9NZiZmZmZmZmZmZlZ3f0AJs1KTw==
+  </data>
+ </layer>
+ <objectgroup name="Scripts" width="100" height="100">
+  <properties>
+   <property name="puss" value="11232"/>
+  </properties>
+  <object name="elka" type="jjjjj" x="497" y="1894" width="137" height="77">
+   <properties>
+    <property name=":j" value="11"/>
+   </properties>
+  </object>
+  <object name="Pew-pew" type="nigga" gid="3" x="853" y="2189">
+   <properties>
+    <property name="llll" value="22"/>
+   </properties>
+  </object>
+  <object name="Lenin" type="nigga" x="807" y="1876" width="73" height="68">
+   <properties>
+    <property name="bold" value="adnaznachno"/>
+    <property name="red_magic" value="stronk"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object name="Pukalka" type="Bolshaia" x="229" y="2117">
+   <properties>
+    <property name="bolshaia" value="ochen"/>
+   </properties>
+   <polyline points="0,0 195,-63 355,-9 524,-71"/>
+  </object>
+  <object name="Echo_odna_nigga" type="nigga" x="841" y="2019" width="150" height="72">
+   <properties>
+    <property name="telek" value="chuzoy"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
