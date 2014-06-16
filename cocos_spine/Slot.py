@@ -1,6 +1,7 @@
 __author__ = 'Ecialo'
 
 from collections import namedtuple
+import Box2D as b2
 import Attachment
 
 Slot_Data = namedtuple("Slot_Data", ['name', 'bone', 'color', 'attachment'])
@@ -16,6 +17,15 @@ class Slot(object):
 
         self.slot_data = None
         self.to_draw = None
+
+    def init_b2(self):
+        if self.attachment and type(self.attachment) is not unicode:
+            body = self.bone.body
+            width = self.attachment.width
+            height = self.attachment.height
+            center = self.attachment.tsr.position
+            angle = self.attachment.tsr.rotation
+            body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(width, height, center, angle))))
 
     def apply_slot_data(self):
         self.slot_data = Slot_Data(self.name, self.bone, self.color, self.attachment)

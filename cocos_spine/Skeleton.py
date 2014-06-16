@@ -50,7 +50,7 @@ class Skeleton_Data(object):
         #     self.current_skin = self.skins.values()[0]
         self.set_skin(self.skins.keys()[0])
         #self.prepare_to_draw()
-        self.update_transform()
+        #self.update_transform()
 
     def update_transform(self):
         self.root_bone.update_childs()
@@ -223,10 +223,14 @@ class Skeleton_Data(object):
 
 class Skeleton(batch.BatchableNode):
 
-    def __init__(self, skeleton_data):
+    def __init__(self, skeleton_data, b2world):
         super(Skeleton, self).__init__()
         self.skeleton_data = skeleton_data
+        self.b2world = b2world
+        self.skeleton_data.root_bone.init_b2(self.b2world)
         self.render()
+        for slot in self.skeleton_data.slots.itervalues():
+            slot.init_b2()
 
     def set_skin(self, skin_name):
         self.skeleton_data.set_skin(skin_name)
@@ -259,11 +263,53 @@ class Skeleton(batch.BatchableNode):
 
 def main():
 
+    from cocos.draw import Canvas, parameter
     from cocos import layer
     from cocos import scene
     from cocos.director import director
+    import Box2D as b2
     #import json
     director.init(1024, 768, do_not_scale=True)
+
+    class Box(Canvas):
+        r = parameter()
+        stroke_width = parameter()
+        color = parameter()
+
+        def __init__(self, position, size, color, b2world, stroke_width=1):
+            super(Box, self).__init__()
+            #self.r = rectangular
+            self.hw, self.hh = size
+            self.color = color
+            self.stroke_width = stroke_width
+            self.body = b2world.CreateDynamicBody()
+            self.body.position = position
+            self.body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(self.hw, self.hh))))
+            self.schedule(self.update)
+
+        def update(self, dt):
+            self.position = self.body.position
+
+        def render(self):
+            #print 1
+            plb = (-self.hw, -self.hh)
+            plt = (-self.hw, self.hh)
+            prb = (self.hw, -self.hh)
+            prt = (self.hw, self.hh)
+            self.set_color(self.color)
+            self.set_stroke_width(self.stroke_width)
+
+            self.move_to(plb)
+            self.line_to(plt)
+
+            self.move_to(plt)
+            self.line_to(prt)
+
+            self.move_to(prt)
+            self.line_to(prb)
+
+            self.move_to(prb)
+            self.line_to(plb)
 
     class TestLayer(layer.Layer):
 
@@ -271,6 +317,7 @@ def main():
 
         def __init__(self):
             super(TestLayer, self).__init__()
+            self.b2world = b2.b2World()
             self.time = 0.0
             #self.name = 'spineboy'
             #self.name = 'goblins'
@@ -293,7 +340,7 @@ def main():
                 self.schedule(self.update)
             elif name == 'skeleton':
                 sd = Skeleton_Data('./'+name+'.json', './'+name+'.atlas')
-                skel = Skeleton(sd)
+                skel = Skeleton(sd, self.b2world)
                 self.skel = skel
                 self.animation = skel.find_animation('walking')
                 skel.position = (512, 200)
@@ -302,6 +349,7 @@ def main():
                 #self.skel.set_skin('goblin')
                 self.add(skel)
                 self.schedule(self.update)
+                self.skel.add(Box((0, 300),(20,20),(255,255,255,255),self.b2world))
             elif name == 'spineboy':
                 sd = Skeleton_Data('./data/'+name+'.json', './data/'+name+'.atlas')
                 skel = Skeleton(sd)
@@ -367,6 +415,7 @@ def main():
                                      time=self.time,
                                      loop=True)
                 self.skel.skeleton_data.update_transform()
+                self.b2world.Step(dt*5,1,1)
             else:
                 self.time += dt
                 self.anim1.apply(skeleton=self.skel,
