@@ -274,7 +274,8 @@ def main():
             self.time = 0.0
             #self.name = 'spineboy'
             #self.name = 'goblins'
-            self.name = 'dragon'
+            #self.name = 'dragon'
+            self.name = 'skeleton'
             name = self.name
             if name == 'dragon':
                 sd = Skeleton_Data('./data/'+name+'.json', './data/'+name+'.atlas')
@@ -284,6 +285,17 @@ def main():
                 skel = Skeleton(sd)
                 self.skel = skel
                 self.animation = skel.find_animation('flying')
+                skel.position = (512, 200)
+                self.skel.skeleton_data.update_transform()
+                #self.skel.set_skin('goblingirl')
+                #self.skel.set_skin('goblin')
+                self.add(skel)
+                self.schedule(self.update)
+            elif name == 'skeleton':
+                sd = Skeleton_Data('./'+name+'.json', './'+name+'.atlas')
+                skel = Skeleton(sd)
+                self.skel = skel
+                self.animation = skel.find_animation('walking')
                 skel.position = (512, 200)
                 self.skel.skeleton_data.update_transform()
                 #self.skel.set_skin('goblingirl')
@@ -348,6 +360,12 @@ def main():
                                time=self.time,
                                loop=True,
                                alpha=0.5)
+                self.skel.skeleton_data.update_transform()
+            elif self.name == 'skeleton':
+                self.time += dt
+                self.animation.apply(skeleton=self.skel,
+                                     time=self.time,
+                                     loop=True)
                 self.skel.skeleton_data.update_transform()
             else:
                 self.time += dt

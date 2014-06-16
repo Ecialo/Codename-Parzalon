@@ -134,7 +134,7 @@ class Rotate_Timeline(Curve_Timeline):
         #print self.frames, self.bone.name
         if frame_count > 1:
             index = bisect(self.frames, (time, None))
-            if 0 < index <= frame_count:
+            if 0 < index < frame_count:
 
                 bone = self.bone
 
@@ -193,7 +193,7 @@ class Translate_Timeline(Curve_Timeline):
         frame_count = len(self.frames)
         if frame_count > 1:
             index = bisect(self.frames, (time, None))
-            if 0 <= index <= frame_count:
+            if 0 <= index < frame_count:
 
                 bone = self.bone
 
