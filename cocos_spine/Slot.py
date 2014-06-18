@@ -30,9 +30,13 @@ class Slot(object):
     def apply_slot_data(self):
         self.slot_data = Slot_Data(self.name, self.bone, self.color, self.attachment)
 
+    def set_to_draw(self, sprite_attachment):
+        self.to_draw = sprite_attachment
+
     def set_attachment(self, image, attachment):
         self.attachment = attachment.name
-        if self.to_draw:
-            self.to_draw.set_new_attachment(image, attachment)
-        else:
-            self.to_draw = Attachment.Sprite_Attachment(image, attachment)
+        self.to_draw.set_new_attachment(image, attachment)
+        # if self.to_draw:
+        #     self.to_draw.set_new_attachment(image, attachment)
+        # else:
+        #     self.to_draw = Attachment.Sprite_Attachment(image, attachment)

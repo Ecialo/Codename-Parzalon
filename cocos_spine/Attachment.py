@@ -1,6 +1,7 @@
 __author__ = 'Pavgran'
 
 from cocos import sprite
+from pyglet import image
 from collections import namedtuple
 from TSR import *
 from cocos.draw import *
@@ -62,17 +63,19 @@ class Attachment(object):
 
 class Sprite_Attachment(sprite.Sprite):
 
-    def __init__(self, image, attachment, debug=False):
-        self.name = attachment.name
-        #print attachment.name
-        #self.attachment_data = attachment
-        position = attachment.tsr.position
-        rotation = attachment.tsr.rotation
-        #image = image           # We must place here image from atlas
-        super(Sprite_Attachment, self).__init__(image, position)
-        self.rotation = rotation
-        self.scale_x = attachment.tsr.scale_x
-        self.scale_y = attachment.tsr.scale_y
+    def __init__(self, image=image.SolidColorImagePattern((0, 0, 0, 0)).create_image(2, 2),
+                 attachment=Attachment(), debug=False):
+        if attachment:
+            self.name = attachment.name
+            #print attachment.name
+            #self.attachment_data = attachment
+            position = attachment.tsr.position
+            rotation = attachment.tsr.rotation
+            #image = image           # We must place here image from atlas
+            super(Sprite_Attachment, self).__init__(image, position)
+            self.rotation = rotation
+            self.scale_x = attachment.tsr.scale_x
+            self.scale_y = attachment.tsr.scale_y
         self.debug = debug
         self.b = None
         if debug:
@@ -103,6 +106,10 @@ class Sprite_Attachment(sprite.Sprite):
         #self.scale_x = attachment.tsr.scale_x
         #self.scale_y = attachment.tsr.scale_y
         #self.rotation = attachment.tsr.rotation
+
+    def set_empty_image(self):
+        self.image_anchor = (1,1)
+        self.image = image.SolidColorImagePattern((0, 0, 0, 0)).create_image(2, 2)
 
     def set_tsr_by_named_pack(self, pack):
         self.position = pack.position
