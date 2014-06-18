@@ -25,6 +25,7 @@ def json_data_loader(filename):
 
 Event = namedtuple("Event", ['int', 'float', 'string'])
 
+
 class Skeleton_Data(object):
 
     def __init__(self, file, atlas):
@@ -249,6 +250,11 @@ class Skeleton(batch.BatchableNode):
         for slot in self.skeleton_data.slots.itervalues():
             slot.init_b2()
 
+    def debag(self):
+        for lol in self.skeleton_data.slots.itervalues():
+            if lol.debag_box:
+                self.add(lol.debag_box, z=100)
+
     def set_skin(self, skin_name):
         self.skeleton_data.set_skin(skin_name)
         self.render()
@@ -361,6 +367,7 @@ def main():
                 sd = Skeleton_Data('./'+name+'.json', './'+name+'.atlas')
                 skel = Skeleton(sd, self.b2world)
                 self.skel = skel
+                self.skel.debag()
                 self.animation = skel.find_animation('jump')
                 skel.position = (512, 200)
                 self.skel.skeleton_data.update_transform()
