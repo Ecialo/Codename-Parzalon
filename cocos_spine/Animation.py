@@ -234,7 +234,7 @@ class Scale_Timeline(Translate_Timeline):
         frame_count = len(self.frames)
         if frame_count > 1:
             index = bisect(self.frames, (time, None))
-            if 0 <= index <= frame_count:
+            if 0 <= index < frame_count:
 
                 bone = self.bone
 
@@ -303,6 +303,53 @@ class Attachment_Timeline(Timeline):
             skeleton.set_attachment(self.slot, request_attach_name)
 
 
+class Draworder_Timeline(Timeline):
+
+    def __init__(self, keyframes):
+        super(Draworder_Timeline, self).__init__()
+        #self.keyframes = keyframes
+        self.permutations = [[] for i in xrange(len(keyframes))]
+
+        for keyframe in keyframes:
+            self.frames.append((keyframe['time'], keyframe.get('offsets',[])))
+
+    def apply_data(self, skeleton_data):
+        slots = skeleton_data.slots
+        slotCount = len(slots)
+        for i, frame in enumerate(self.frames):
+            _, offsets = frame
+            if offsets:
+                unchanged = []
+                drawOrder = [-1]*slotCount
+                originalIndex = 0
+                for offset in offsets:
+                    slotIndex = slots.keys().index(offset['slot'])
+                    while originalIndex < slotIndex:
+                        unchanged.append(originalIndex)
+                        originalIndex += 1
+                    drawOrder[originalIndex + offset['offset']] = originalIndex
+                    originalIndex += 1
+                while originalIndex < slotCount:
+                    unchanged.append(originalIndex)
+                    originalIndex += 1
+                for j in xrange(slotCount):
+                    if drawOrder[j] == -1:
+                        drawOrder[j] = unchanged.pop(0)
+            else:
+                drawOrder = range(slotCount)
+            self.permutations[i] = [-1]*slotCount
+            for j, k in enumerate(drawOrder):
+                self.permutations[i][k] = j
+
+    def apply(self, skeleton, time, alpha):
+        frame_count = len(self.frames)
+        index = bisect(self.frames, (time, None))
+        if index == 0:
+            skeleton.set_draworder(range(len(skeleton.slots)))
+        if 0 < index <= frame_count:
+            skeleton.set_draworder(self.permutations[index-1])
+
+
 class Animation(object):
 
     def __init__(self, name, timelines):
@@ -320,7 +367,7 @@ class Animation(object):
         if 'events' in timelines:
             print "Warning: unsupported timeline: events"
         if 'draworder' in timelines:
-            print "Warning: unsupported timeline: draworder"
+            self.load_draworder_timelines(timelines['draworder'])
 
     def apply(self, time, skeleton, loop):
         skeleton_data = skeleton.skeleton_data
@@ -352,6 +399,9 @@ class Animation(object):
                 self.timelines.append(Attachment_Timeline(slot_name, slot['attachment']))
             if 'color' in slot:
                 print "Warning: unsupported slot timeline type: color"
+
+    def load_draworder_timelines(self, draworder):
+        self.timelines.append(Draworder_Timeline(draworder))
 
     def apply_bones_and_slots_data(self, skeleton_data):
         reduce(lambda _, timeline: timeline.apply_data(skeleton_data), self.timelines, None)
