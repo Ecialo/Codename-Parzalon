@@ -62,12 +62,13 @@ class Slot(object):
         self.to_draw = None
 
     def init_b2(self):
-        if self.attachment and type(self.attachment) is not unicode:        # TODO Едрить мы неучи
+        if self.to_draw:
+            attach = self.to_draw
             body = self.bone.body
-            width = self.attachment.width
-            height = self.attachment.height
-            center = self.attachment.tsr.position
-            angle = self.attachment.tsr.rotation
+            width = attach.width
+            height = attach.height
+            center = attach.position
+            angle = attach.rotation
             body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(width, height, center, angle))))
             self.debag_box = Box((width, height), body, (255,255,255,255))
 
