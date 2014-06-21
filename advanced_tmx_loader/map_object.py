@@ -47,6 +47,7 @@ class Abstract_Map_Object(object):
         self.position = (x, y)
         self.properties = properties
         self.b2body = None
+        self.script = None
 
     def to_b2(self, b2World):
         u"""

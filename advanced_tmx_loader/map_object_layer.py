@@ -29,6 +29,11 @@ class Map_Object_Layer(object):
     def __getitem__(self, item):
         self.get_by_name(item)
 
+    def __delitem__(self, key):
+        item = self.names[key]
+        self.types[item.type].remove(item)
+        self.names[key] = None
+
     def __iter__(self):
         for item in chain(*self.types.itervalues()):
             yield item
