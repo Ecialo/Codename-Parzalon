@@ -367,7 +367,7 @@ def main():
                 sd = Skeleton_Data('./'+name+'.json', './'+name+'.atlas')
                 skel = Skeleton(sd, self.b2world)
                 self.skel = skel
-                #self.skel.debag()
+                self.skel.debag()
                 self.animation = skel.find_animation('jump')
                 skel.position = (512, 200)
                 self.skel.skeleton_data.update_transform()

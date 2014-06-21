@@ -24,7 +24,7 @@ class Box(Canvas):
 
         def update(self, dt):
             self.position = self.body.position
-            self.rotation = self.body.angle
+            self.rotation = -self.body.angle
 
         def render(self):
             #print 1
@@ -70,7 +70,7 @@ class Slot(object):
             center = attach.position
             angle = attach.rotation
             body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(width, height, center, angle))))
-            self.debag_box = Box((width, height), body, (255,255,255,255))
+            self.debag_box = Box((width, height), (255,255,255,255), body)
 
     def apply_slot_data(self):
         self.slot_data = Slot_Data(self.name, self.bone, self.color, self.attachment)
