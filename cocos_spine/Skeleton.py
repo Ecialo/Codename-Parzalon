@@ -342,7 +342,7 @@ def main():
 
         def __init__(self):
             super(TestLayer, self).__init__()
-            self.b2world = b2.b2World()
+            self.b2world = b2.b2World(gravity=(0, -20))
             self.time = 0.0
             #self.name = 'spineboy'
             #self.name = 'goblins'
@@ -375,7 +375,7 @@ def main():
                 #self.skel.set_skin('goblin')
                 self.add(skel)
                 self.schedule(self.update)
-                self.skel.add(Box((0, 300),(20,20),(255,255,255,255),self.b2world))
+                self.skel.add(Box((-35, 200), (20, 20), (255, 255, 255, 255),self.b2world))
             elif name == 'spineboy':
                 sd = Skeleton_Data('./data/'+name+'.json', './data/'+name+'.atlas')
                 skel = Skeleton(sd)
@@ -436,12 +436,12 @@ def main():
                                alpha=0.5)
                 self.skel.skeleton_data.update_transform()
             elif self.name == 'skeleton':
-                self.time += dt
+                self.time += dt/5
                 self.animation.apply(skeleton=self.skel,
                                      time=self.time,
                                      loop=True)
                 self.skel.skeleton_data.update_transform()
-                self.b2world.Step(dt*5,1,1)
+                self.b2world.Step(dt/5,1,1)
             else:
                 self.time += dt
                 self.anim1.apply(skeleton=self.skel,

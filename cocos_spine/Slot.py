@@ -69,8 +69,8 @@ class Slot(object):
             height = attach.height
             center = attach.position
             angle = attach.rotation
-            body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(width, height, center, angle))))
-            self.debag_box = Box((width, height), (255,255,255,255), body)
+            body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(width/2, height/2, center, angle))))
+            self.debag_box = Box((width/2, height/2), (255, 0, 0, 255), body)
 
     def apply_slot_data(self):
         self.slot_data = Slot_Data(self.name, self.bone, self.color, self.attachment)
