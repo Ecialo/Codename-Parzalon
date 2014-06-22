@@ -5,7 +5,35 @@ from map_object import *
 from map_object_layer import Map_Object_Layer
 
 
-def load_tmx(filename):
+class _NOT_LOADED(object): pass
+_cache = weakref.WeakValueDictionary()
+
+
+def load(filename):
+    """
+    Load resource(s) defined in the indicated XML file.
+    """
+    # make sure we can find files relative to this one
+    dirname = os.path.dirname(filename)
+    if dirname and dirname not in pyglet.resource.path:
+        pyglet.resource.path.append(dirname)
+        pyglet.resource.reindex()
+
+    if filename in _cache:
+        if _cache[filename] is _NOT_LOADED:
+            raise ResourceError('Loop in tile map files loading "%s"'%filename)
+        return _cache[filename]
+
+    _cache[filename] = _NOT_LOADED
+    if filename.endswith('.tmx'):
+        obj = advanced_tmx_load(filename)
+    else:
+        obj = load_tiles(filename)
+    _cache[filename] = obj
+    return obj
+
+
+def advanced_tmx_load(filename):
     """
     Load some tile mapping resources from a TMX file.
     """

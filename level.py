@@ -3,7 +3,8 @@ from cocos.scene import Scene
 from cocos import layer
 from pyglet.window import key
 from pyglet.window import mouse
-from cocos import tiles
+#from cocos import tiles
+from advanced_tmx_loader import load
 from cocos.director import director
 import hud
 
@@ -66,7 +67,7 @@ class Level(object):
         Create scrollable Level from tmx map
         """
         scroller = self.scroller
-        data = tiles.load(filename)
+        data = load(filename)
         back = data['Background']
         force = data['Player Level']
         scripts = data['Scripts']

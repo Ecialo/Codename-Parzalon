@@ -55,6 +55,9 @@ class Abstract_Map_Object(object):
         """
         pass
 
+    def set_script(self, script):
+        self.script = script
+
     def _to_b2(self, b2World, shape):
         self.b2body = b2World.CreateStaticBody(userData=self, position=self.position)
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=shape))

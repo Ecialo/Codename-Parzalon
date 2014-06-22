@@ -165,7 +165,7 @@ class HUD(cocos.layer.Layer):
     def __init__(self, game_layer):
         self.game_layer = game_layer
         super(HUD, self).__init__()
-        self.game_layer.script_manager.set_handler('run_dialog', self.run_dialog)
+        #self.game_layer.script_manager.set_handler('run_dialog', self.run_dialog)
         self.current_dialog = None
         self.add(DudeDamageLayer(game_layer))
         self.add(DudeStatusLayer(game_layer))

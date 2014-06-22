@@ -1,51 +1,56 @@
 # -*- coding: utf-8 -*-
 __author__ = 'ecialo'
+from registry.Scripts import scripts_base
 
 
-def passive(preprocess):
-
-    def passive_preprocess(environment, object):
-        script = preprocess(environment, object)
-        return script
-
-    return passive_preprocess
+def to_data_name(name):
+    return "_".join(map(lambda namepart: namepart.capitalize(), name.split('_')))
 
 
-def instant(preprocess):
+def passive(script):
 
-    def passive_preprocess(environment, object):
-        preprocess(environment, object)
-        return None
+    def passive_preprocess(map_object, environment):
+        passive_script = script(map_object, environment)
+        map_object.set_script(passive_script)
+        return True
 
     return passive_preprocess
 
 
-def entry_preprocess(environment, entry_object):
-    script = None
-    return script
+def instant(script):
+
+    def instant_preprocess(map_object, environment):
+        instant_script = script(map_object, environment)
+        #print instant_script
+        instant_script.run(map_object.position)
+        return False
+
+    return instant_preprocess
 
 
-class Script_Manger(object):
+class Script_Manager(object):
 
-    preprocessers = {'entry': entry_preprocess}
-    modes = {'passive': passive}
+    modes = {'passive': passive,
+             'instant': instant}
 
     def __init__(self, script_layer, location):
-        self.location_preprocess = location
+        self.location = location
         self.script_layer = script_layer
         self.location_preprocess()
 
     def location_preprocess(self):
-        preprocess = self.preprocessers
         modes = self.modes
+        location = self.location
         to_delete = []
-        for object in self.script_layer:
-            mode = object['mode']
-            result = modes[mode](preprocess[object.type])(object)
-            if result:
-                object.script = result
-            else:
-                to_delete.append(object)
+        for map_object in self.script_layer:
+            print map_object
+            mode = map_object['mode']
+            result = modes[mode](scripts_base[to_data_name(map_object.type)])(map_object, location)
+            if not result:
+                to_delete.append(map_object)
 
         for item in to_delete:
             del self.script_layer[item.name]
+
+    def get_script_by_name(self, name):
+        return self.script_layer[name]

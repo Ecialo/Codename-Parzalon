@@ -12,13 +12,13 @@ from cocos import layer
 
 import Box2D as b2
 
+from script_manager import Script_Manager
 import movable_object
 import actor as ac
 
 from registry.Units import units_base
 from registry.group import HERO, UNIT
 from registry.box2d import *
-
 
 def _spawn_unit(level, name, pos):
     un_par = units_base[name]
@@ -47,25 +47,25 @@ def _spawn_prepared_unit(level, unit, pos):
     unit.do(type(action)())
 
 
-class Script_Manager(event.EventDispatcher):
-
-    def activate_trigger(self, tr, actor, location):
-        tr_name = tr.properties['trigger']
-        tr_attr = tr.properties[tr_name]
-        self.dispatch_event(tr_name, tr_attr, actor, location)
-        self.dispatch_event('printer', location)
-        actor.last_activated_trigger = None
-
-    def activate_event(self, ev, actor, location):
-        ev_name = ev.properties['event']
-        ev_attr = ev.properties[ev_name]
-        self.dispatch_event(ev_name, ev_attr, actor, location)
-
-Script_Manager.register_event_type('change_location')
-Script_Manager.register_event_type('run_dialog')
-Script_Manager.register_event_type('printer')
-Script_Manager.register_event_type('loose')
-Script_Manager.register_event_type('win')
+# class Script_Manager(event.EventDispatcher):
+#
+#     def activate_trigger(self, tr, actor, location):
+#         tr_name = tr.properties['trigger']
+#         tr_attr = tr.properties[tr_name]
+#         self.dispatch_event(tr_name, tr_attr, actor, location)
+#         self.dispatch_event('printer', location)
+#         actor.last_activated_trigger = None
+#
+#     def activate_event(self, ev, actor, location):
+#         ev_name = ev.properties['event']
+#         ev_attr = ev.properties[ev_name]
+#         self.dispatch_event(ev_name, ev_attr, actor, location)
+#
+# Script_Manager.register_event_type('change_location')
+# Script_Manager.register_event_type('run_dialog')
+# Script_Manager.register_event_type('printer')
+# Script_Manager.register_event_type('loose')
+# Script_Manager.register_event_type('win')
 
 
 class b2Listener(b2.b2ContactListener):
@@ -254,15 +254,7 @@ class Location_Layer(layer.ScrollableLayer):
         self.b2level = self.b2world.CreateStaticBody()
         self._create_b2_tile_map(force_ground)
 
-        self.script_manager = Script_Manager()
-        self.script_manager.push_handlers(self)
-
-        self.scripts = cm.CollisionManagerBruteForce()
-        self.collman = cm.CollisionManagerBruteForce()
-        self.static_collman = cm.CollisionManagerBruteForce()
-
-        for sc in scripts:
-            self.scripts.add(sc)
+        #self.script_manager.push_handlers(self)
 
         #Lists of dynamic objs
         self.hits = []
@@ -272,11 +264,18 @@ class Location_Layer(layer.ScrollableLayer):
         #Append hero
         self.hero = None
 
+        self.script_manager = Script_Manager(scripts, self)
+
+    def get_script_by_name(self, name):
+        return self.script_manager.get_script_by_name(name)
+
     def connect(self, level):
-        self.script_manager.push_handlers(level)
+        #self.script_manager.push_handlers(level)
+        pass
 
     def disconnect(self, level):
-        self.script_manager.pop_handlers()
+        #self.script_manager.pop_handlers()
+        pass
 
     def prepare(self, spawn_point, hero):
         movable_object.Movable_Object.tilemap = self.force_ground
@@ -285,23 +284,9 @@ class Location_Layer(layer.ScrollableLayer):
         self.b2world.contactListener = self.b2world.true_listener
         task.environment = self.force_ground
         eff.Advanced_Emitter.surface = self  # This bad
-        for sc in self.scripts.known_objs():
-            if spawn_point in sc.properties:
-                dx, dy = sc.center
-                self.spawn(hero, (dx, dy))
-        if hero is not 'Parzalon':
-            self.hero = hero
         self.hero.push_handlers(self)
         #self.hero.refresh_environment(self)
-        self.hero.show_hitboxes()
-        to_remove = []
-        for sc in self.scripts.known_objs():
-            if 'spawn' in sc.properties:
-                dx, dy = sc.center
-                self.spawn(sc.properties['spawn'], (dx, dy))
-                to_remove.append(sc)
-        for it in to_remove:
-            self.scripts.remove_tricky(it)
+        #self.hero.show_hitboxes()
         self.run()
 
     def _create_b2_tile_map(self, rect_map):
