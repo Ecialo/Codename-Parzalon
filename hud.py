@@ -186,5 +186,5 @@ class HUD(cocos.layer.Layer):
             else:
                 self.add(self.current_dialog.current_phrase())
 
-    def on_exit(self):
-        self.game_layer.script_manager.remove_handler('run_dialog', self)
+    # def on_exit(self):
+    #     self.game_layer.script_manager.remove_handler('run_dialog', self)

@@ -196,12 +196,14 @@ class Actor(movable_object.Movable_Object):
         """
         Place Actor to x, y.
         """
-        old = self.cshape.center.copy()
-        vec = eu.Vector2(int(x), int(y))
-        self.position = vec
-        self.cshape.center = vec
-        self.b2body.position = pixels_to_tiles((vec.x, vec.y))
-        #map(lambda hand: hand.attached_move(vec - old), self.hands)
+        # old = self.cshape.center.copy()
+        # vec = eu.Vector2(int(x), int(y))
+        # self.position = vec
+        # self.cshape.center = vec
+        # self.b2body.position = pixels_to_tiles((vec.x, vec.y))
+        # map(lambda hand: hand.attached_move(vec - old), self.hands)
+        print x, y
+        self.b2body.position = pixels_to_tiles((x, y))
 
     def push_task(self, task):
         self.actions[0].task_manager.push_task(task)

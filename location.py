@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import task
 import effects as eff
 
@@ -7,7 +8,6 @@ from collections import deque
 
 from pyglet import event
 
-from cocos import collision_model as cm
 from cocos import layer
 
 import Box2D as b2
@@ -19,6 +19,7 @@ import actor as ac
 from registry.Units import units_base
 from registry.group import HERO, UNIT
 from registry.box2d import *
+
 
 def _spawn_unit(level, name, pos):
     un_par = units_base[name]
@@ -264,6 +265,15 @@ class Location_Layer(layer.ScrollableLayer):
         #Append hero
         self.hero = None
 
+        ### Так как локация создаётся только тогда, когда в неё перемещаются, то
+        ### никто не будет против, если контекст будет перенесён в неё сразу не дожидаясь подготовки
+        movable_object.Movable_Object.tilemap = self.force_ground
+        movable_object.Movable_Object.world = self.b2world
+        movable_object.Movable_Object.location = self
+        self.b2world.contactListener = self.b2world.true_listener
+        task.environment = self.force_ground
+        eff.Advanced_Emitter.surface = self  # This bad
+
         self.script_manager = Script_Manager(scripts, self)
 
     def get_script_by_name(self, name):
@@ -340,9 +350,7 @@ class Location_Layer(layer.ScrollableLayer):
         """
         Remove Actor from self if he is dead
         """
-        if actor.fight_group >= 0:
-            self.collman.add(actor)
-        else:
+        if actor.fight_group < 0:
             self.actors.remove(actor)
 
     def update(self, dt):
@@ -356,22 +364,18 @@ class Location_Layer(layer.ScrollableLayer):
         """
 
         #All collisions between movable objects calculate here
-        events = filter(lambda sc: 'event' in sc.properties,
-                              self.scripts.iter_colliding(self.hero))
-        for ev in events:
-            self.script_manager.activate_event(ev, self.hero, self)
-            self.scripts.remove_tricky(ev)
+        # events = filter(lambda sc: 'event' in sc.properties,
+        #                       self.scripts.iter_colliding(self.hero))
+        # for ev in events:
+        #     self.script_manager.activate_event(ev, self.hero, self)
+        #     self.scripts.remove_tricky(ev)
 
         self.b2world.Step(dt, 1, 1)
-        self.collman.clear()
+        # self.collman.clear()
 
         for missile in self.missiles:
             if missile.uncompleteness() <= 0.01 and not missile.completed:
                 missile.complete()
-            elif missile.completed:
-                pass
-            else:
-                self.collman.add(missile)
         map(self._actor_kick_or_add, self.actors)
 
     def spawn(self, obj, pos):

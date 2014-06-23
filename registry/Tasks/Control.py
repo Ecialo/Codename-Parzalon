@@ -19,8 +19,8 @@ class Control(Task):
         self.key = loc.loc_key_handler
         self.mouse = loc.loc_mouse_handler
         self.scroller = loc.scroller
-        self.static_objs = loc.static_collman
-        self.triggers = loc.scripts
+        #self.static_objs = loc.static_collman
+        #self.triggers = loc.scripts
         #print self.scroller
 
     def __call__(self, dt):
@@ -51,15 +51,15 @@ class Control(Task):
             second_item_trigger = self.mouse[self.bind['second_hand']]
             self.master.use_item(SECONDARY, second_item_trigger, [pos, alt])
 
-        action = self.key[self.bind['action']]
-        if action:
-            #print "CONTROLLER", self.key
-            self.key[self.bind['action']] = False
-            triggers = filter(lambda sc: 'trigger' in sc.properties,
-                              self.triggers.iter_colliding(self.master))
-            #print list(triggers)
-            for tr in triggers:
-                self.master.activate_trigger(tr)
+        # action = self.key[self.bind['action']]
+        # if action:
+        #     #print "CONTROLLER", self.key
+        #     self.key[self.bind['action']] = False
+        #     triggers = filter(lambda sc: 'trigger' in sc.properties,
+        #                       self.triggers.iter_colliding(self.master))
+        #     #print list(triggers)
+        #     for tr in triggers:
+        #         self.master.activate_trigger(tr)
         #
         # change = self.key[self.bind['change_weapon']]
         # if change:
