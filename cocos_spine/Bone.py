@@ -1,6 +1,7 @@
 __author__ = 'Ecialo'
 
 from collections import namedtuple
+import math
 import Box2D as b2
 from tsr_transform import *
 from TSR import *
@@ -23,9 +24,12 @@ class Bone(object):
         self.body = None
 
     def init_b2(self, b2world):
-        self.body = b2world.CreateDynamicBody(fixedRotation=True, gravityScale=0, allowSleep=False)
+        self.body = b2world.CreateDynamicBody(gravityScale=0, allowSleep=False)
+        self.body.position = self.global_tsr.position
+        self.body.angle = math.radians(self.global_tsr.rotation)
         if self.parent:
-            b2world.CreateJoint(type=b2.b2RevoluteJointDef, bodyA=self.parent.body, bodyB=self.body)
+            #b2world.CreateJoint(type=b2.b2RevoluteJointDef, bodyA=self.parent.body, bodyB=self.body)
+            pass
         for child in self.childs:
             child.init_b2(b2world)
 
@@ -39,8 +43,9 @@ class Bone(object):
         #par_pos, par_scale_x, par_scale_y, par_rot = data
         #self.position, self.scale_x, self.scale_y, self.rotation = tsr_transform(data, self.bone_data[3:7:])
         self.global_tsr.set_by_named_pack(self.local_tsr.tsr_transform(data))
-        self.body.position = self.global_tsr.position
-        self.body.angle = self.global_tsr.rotation
+        if self.body:
+            self.body.position = self.global_tsr.position
+            self.body.angle = math.radians(self.global_tsr.rotation)
         self.update_childs()
 
     def add_bone(self, bone):

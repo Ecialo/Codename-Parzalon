@@ -68,7 +68,7 @@ class Sprite_Attachment(sprite.Sprite):
         if attachment:
             self.name = attachment.name
             #print attachment.name
-            #self.attachment_data = attachment
+            self.attachment_data = attachment
             position = attachment.tsr.position
             rotation = attachment.tsr.rotation
             #image = image           # We must place here image from atlas
@@ -93,7 +93,7 @@ class Sprite_Attachment(sprite.Sprite):
 
     def set_new_attachment(self, image, attachment):
         self.name = attachment.name
-        #self.attachment_data = attachment
+        self.attachment_data = attachment
         #print "BABAIKA007"
         self.image_anchor = (image.width/2, image.height/2)
         self.image = image

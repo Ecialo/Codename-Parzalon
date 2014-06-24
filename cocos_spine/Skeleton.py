@@ -56,7 +56,7 @@ class Skeleton_Data(object):
         self.set_draworder(range(len(self.slots)))
         self.set_skin(self.skins.keys()[0])
         #self.prepare_to_draw()
-        #self.update_transform()
+        self.update_transform()
 
     def update_transform(self):
         self.root_bone.update_childs()
@@ -364,7 +364,7 @@ def main():
                 self.add(skel)
                 self.schedule(self.update)
             elif name == 'skeleton':
-                sd = Skeleton_Data('./'+name+'.json', './'+name+'.atlas')
+                sd = Skeleton_Data('./cocos_spine/'+name+'.json', './cocos_spine/'+name+'.atlas')
                 skel = Skeleton(sd, self.b2world)
                 self.skel = skel
                 self.skel.debag()
@@ -377,9 +377,10 @@ def main():
                 self.schedule(self.update)
                 self.skel.add(Box((-35, 200), (20, 20), (255, 255, 255, 255),self.b2world))
             elif name == 'spineboy':
-                sd = Skeleton_Data('./data/'+name+'.json', './data/'+name+'.atlas')
-                skel = Skeleton(sd)
+                sd = Skeleton_Data('./cocos_spine/data/'+name+'.json', './cocos_spine/data/'+name+'.atlas')
+                skel = Skeleton(sd, self.b2world)
                 self.skel = skel
+                self.skel.debag()
                 self.anim1 = skel.find_animation('walk')
                 self.anim2 = skel.find_animation('jump')
                 skel.position = (512, 200)

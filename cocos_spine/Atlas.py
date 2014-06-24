@@ -37,7 +37,7 @@ class Atlas(object):
                 while True:
                     if state is st_filename:
                         file_name = value
-                        image = pyglet.image.load(file_name)
+                        image = pyglet.image.load('cocos_spine/'+file_name)
                         state = st_metadata
                     elif state is st_metadata:
                         if ':' in value:

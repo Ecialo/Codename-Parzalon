@@ -1,9 +1,11 @@
 __author__ = 'Ecialo'
 
 from collections import namedtuple
+import math
 import Box2D as b2
 import Attachment
 from cocos.draw import Canvas, parameter
+from registry.metric import pixels_to_tiles
 
 Slot_Data = namedtuple("Slot_Data", ['name', 'bone', 'color', 'attachment'])
 
@@ -13,18 +15,21 @@ class Box(Canvas):
         stroke_width = parameter()
         color = parameter()
 
-        def __init__(self, size, color, body, stroke_width=1):
+        def __init__(self, size, color, body, angle, stroke_width=1):
             super(Box, self).__init__()
             #self.r = rectangular
             self.hw, self.hh = size
             self.color = color
             self.stroke_width = stroke_width
             self.body = body
+            self.angle = angle
             self.schedule(self.update)
 
         def update(self, dt):
-            self.position = self.body.position
-            self.rotation = -self.body.angle
+            #self.position = self.body.position
+            #self.rotation = -self.body.angle
+            self.position = self.body.GetWorldPoint(self.body.fixtures[0].shape.centroid)
+            self.rotation = -math.degrees(self.body.angle) - self.angle
 
         def render(self):
             #print 1
@@ -64,13 +69,17 @@ class Slot(object):
     def init_b2(self):
         if self.to_draw:
             attach = self.to_draw
+            attach_data = attach.attachment_data
             body = self.bone.body
             width = attach.width
             height = attach.height
-            center = attach.position
-            angle = attach.rotation
-            body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(box=(width/2, height/2, center, angle))))
-            self.debag_box = Box((width/2, height/2), (255, 0, 0, 255), body)
+            center = attach_data.tsr.position
+            angle = attach_data.tsr.rotation
+            #center = attach.position
+            #angle = attach.rotation
+            body.CreateFixture(b2.b2FixtureDef(
+                shape=b2.b2PolygonShape(box=(width/2, height/2, center, angle))))
+            self.debag_box = Box((width/2, height/2), (255, 0, 0, 255), body, angle)
 
     def apply_slot_data(self):
         self.slot_data = Slot_Data(self.name, self.bone, self.color, self.attachment)
