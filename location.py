@@ -5,6 +5,7 @@ import effects as eff
 __author__ = 'Ecialo'
 
 from collections import deque
+from itertools import chain
 
 from pyglet import event
 
@@ -342,6 +343,16 @@ class Location_Layer(layer.ScrollableLayer):
                     try_create_and_append_block(cells_in_horizontal_block, 1)
                     cells_in_horizontal_block = []
             try_create_and_append_block(cells_in_horizontal_block, 1)
+
+        for cell in chain(*cells):
+            if cell and cell.get('slope'):
+                x, y = cell.i, cell
+                sx, sy, dx, dy = map(float, cell['slope'].split())
+                shape = b2.b2EdgeShape(vertex1=(x+sx, y+sy), vertex2 = (x+sx+dx, y+sy+dy))
+                self.b2level.CreateFixture(shape=shape, userData=cell)
+                self.b2level.fixtures[-1].filterData.categoryBits = B2SMTH | B2LEVEL
+                self.b2level.fixtures[-1].filterData.maskBits = B2EVERY
+
 
     def run(self):
         self.schedule(self.update)
