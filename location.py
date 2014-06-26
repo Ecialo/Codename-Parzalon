@@ -17,6 +17,8 @@ from script_manager import Script_Manager
 import movable_object
 import actor as ac
 
+from registry import BASE
+from registry.utility import to_data_name
 from registry.Units import units_base
 from registry.group import HERO, UNIT
 from registry.box2d import *
@@ -302,56 +304,62 @@ class Location_Layer(layer.ScrollableLayer):
 
     def _create_b2_tile_map(self, rect_map):
 
-        def try_create_and_append_block(cells_in_block, mode):
-            if cells_in_block and mode == 0:
-                cells_in_block.pop()
-            if cells_in_block:
-                height = len(cells_in_block) if not mode else 1
-                width = len(cells_in_block) if mode else 1
-                half_height = height/2.0
-                half_width = width/2.0
-                lowest_cell = cells_in_block[0]
-                cx = lowest_cell.i + half_width
-                cy = lowest_cell.j + half_height
-                shape.SetAsBox(half_width, half_height, (cx, cy), NO_ROTATION)
-                self.b2level.CreateFixture(shape=shape, userData=cell)
-                self.b2level.fixtures[-1].filterData.categoryBits = B2SMTH | B2LEVEL
-                self.b2level.fixtures[-1].filterData.maskBits = B2EVERY
-
         cells = rect_map.cells
-        m = len(cells)
-        n = len(cells[0])
-
-        shape = b2.b2PolygonShape()
-        for cell_column in cells:
-            cells_in_vertical_block = []
-            for cell in cell_column:
-                if cell.get('top'):
-                    cells_in_vertical_block.append(cell)
-                else:
-                    try_create_and_append_block(cells_in_vertical_block, 0)
-                    cells_in_vertical_block = []
-            try_create_and_append_block(cells_in_vertical_block, 0)
-
-        for j in xrange(n):
-            cells_in_horizontal_block = []
-            for i in xrange(m):
-                cell = cells[i][j]
-                if cell.get('top'):
-                    cells_in_horizontal_block.append(cell)
-                else:
-                    try_create_and_append_block(cells_in_horizontal_block, 1)
-                    cells_in_horizontal_block = []
-            try_create_and_append_block(cells_in_horizontal_block, 1)
-
         for cell in chain(*cells):
-            if cell and cell.get('slope'):
-                x, y = cell.i, cell
-                sx, sy, dx, dy = map(float, cell['slope'].split())
-                shape = b2.b2EdgeShape(vertex1=(x+sx, y+sy), vertex2 = (x+sx+dx, y+sy+dy))
-                self.b2level.CreateFixture(shape=shape, userData=cell)
-                self.b2level.fixtures[-1].filterData.categoryBits = B2SMTH | B2LEVEL
-                self.b2level.fixtures[-1].filterData.maskBits = B2EVERY
+            is_tiled = cell.tile is not None
+            for geprop in chain(cell.properties.iterkeys(),
+                                cell.tile.properties.iterkeys() if is_tiled else []):
+                BASE[to_data_name(geprop)](cell, self)
+        # def try_create_and_append_block(cells_in_block, mode):
+        #     if cells_in_block and mode == 0:
+        #         cells_in_block.pop()
+        #     if cells_in_block:
+        #         height = len(cells_in_block) if not mode else 1
+        #         width = len(cells_in_block) if mode else 1
+        #         half_height = height/2.0
+        #         half_width = width/2.0
+        #         lowest_cell = cells_in_block[0]
+        #         cx = lowest_cell.i + half_width
+        #         cy = lowest_cell.j + half_height
+        #         shape.SetAsBox(half_width, half_height, (cx, cy), NO_ROTATION)
+        #         self.b2level.CreateFixture(shape=shape, userData=cell)
+        #         self.b2level.fixtures[-1].filterData.categoryBits = B2SMTH | B2LEVEL
+        #         self.b2level.fixtures[-1].filterData.maskBits = B2EVERY
+        #
+        # cells = rect_map.cells
+        # m = len(cells)
+        # n = len(cells[0])
+        #
+        # shape = b2.b2PolygonShape()
+        # for cell_column in cells:
+        #     cells_in_vertical_block = []
+        #     for cell in cell_column:
+        #         if cell.get('top'):
+        #             cells_in_vertical_block.append(cell)
+        #         else:
+        #             try_create_and_append_block(cells_in_vertical_block, 0)
+        #             cells_in_vertical_block = []
+        #     try_create_and_append_block(cells_in_vertical_block, 0)
+        #
+        # for j in xrange(n):
+        #     cells_in_horizontal_block = []
+        #     for i in xrange(m):
+        #         cell = cells[i][j]
+        #         if cell.get('top'):
+        #             cells_in_horizontal_block.append(cell)
+        #         else:
+        #             try_create_and_append_block(cells_in_horizontal_block, 1)
+        #             cells_in_horizontal_block = []
+        #     try_create_and_append_block(cells_in_horizontal_block, 1)
+        #
+        # for cell in chain(*cells):
+        #     if cell and cell.get('slope'):
+        #         x, y = cell.i, cell
+        #         sx, sy, dx, dy = map(float, cell['slope'].split())
+        #         shape = b2.b2EdgeShape(vertex1=(x+sx, y+sy), vertex2 = (x+sx+dx, y+sy+dy))
+        #         self.b2level.CreateFixture(shape=shape, userData=cell)
+        #         self.b2level.fixtures[-1].filterData.categoryBits = B2SMTH | B2LEVEL
+        #         self.b2level.fixtures[-1].filterData.maskBits = B2EVERY
 
 
     def run(self):

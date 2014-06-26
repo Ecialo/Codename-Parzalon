@@ -3,8 +3,7 @@ __author__ = 'ecialo'
 from registry.Scripts import scripts_base
 
 
-def to_data_name(name):
-    return "_".join(map(lambda namepart: namepart.capitalize(), name.split('_')))
+from registry.utility import to_data_name
 
 
 def passive(script):

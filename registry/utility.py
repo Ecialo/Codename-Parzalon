@@ -19,6 +19,10 @@ def interval_proection(point, interval):
         return interval[1]
 
 
+def to_data_name(name):
+    return "_".join(map(lambda namepart: namepart.capitalize(), name.split('_')))
+
+
 def module_path_to_os_path(path):
     return "./" + path.replace(".", "/") + "/"
 
