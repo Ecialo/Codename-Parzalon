@@ -12,3 +12,5 @@ GRAVITY = 50
 
 # Вращение тела
 NO_ROTATION = 0
+
+HALF_TILE = 0.5
