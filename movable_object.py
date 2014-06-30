@@ -1,5 +1,6 @@
 __author__ = 'Ecialo'
 
+from cocos.batch import BatchableNode
 from cocos.sprite import Sprite
 from cocos import euclid as eu
 
@@ -15,9 +16,12 @@ class Movable_Object(Sprite):
     tilemap = None
     world = None
 
-    def __init__(self, img, cshape=None, position=(0, 0), vertical_speed=0.0, horizontal_speed=0.0):
-        super(Movable_Object, self).__init__(img, position)
-        self.image = img
+    def __init__(self, img=None, cshape=None, position=(0, 0), vertical_speed=0.0, horizontal_speed=0.0):
+        if img:
+            super(Movable_Object, self).__init__(img, position)
+            self.image = img
+        else:
+            BatchableNode.__init__(self)
         self.cshape = cshape
         if cshape:
             self.cshape.center = eu.Vector2(*position)
@@ -32,8 +36,8 @@ class Movable_Object(Sprite):
     def setup_b2body(self):
         self.b2body = self.world.CreateDynamicBody(fixedRotation=True, userData=self, allowSleep=False)
 
-    def set_position(self, pos):
-        val = tiles_to_pixels(pos)
+    def set_position(self, position):
+        val = tiles_to_pixels(position)
         self.position = val
         self.cshape.center = val
 
@@ -74,3 +78,11 @@ class Movable_Object(Sprite):
 
     def update(self, dt):
         self.set_position(self.b2body.position)
+
+
+class Concrete_Movable_Object(Sprite):
+    pass
+
+
+class Abstarct_Movable_Object(BatchableNode):
+    pass

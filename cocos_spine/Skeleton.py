@@ -281,9 +281,25 @@ class Skeleton(batch.BatchableNode):
         #     finally:
         #         i += 1
 
-    def visit(self):
-        #self.skeleton_data.update_transform()
-        super(Skeleton, self).visit()
+    # def visit(self):
+    #     #self.skeleton_data.update_transform()
+    #     super(Skeleton, self).visit()
+
+    def _set_position(self, p):
+        self.skeleton_data.root_bone.local_tsr.position = p
+
+    def _set_rotation(self, a):
+        self.skeleton_data.root_bone.local_tsr.rotation = a
+
+    def _set_scale(self, s):
+        self.skeleton_data.root_bone.local_tsr.scale_x = s
+        self.skeleton_data.root_bone.local_tsr.scale_y = s
+
+    def _set_scale_x(self, s):
+        self.skeleton_data.root_bone.local_tsr.scale_x = s
+
+    def _set_scale_y(self, s):
+        self.skeleton_data.root_bone.local_tsr.scale_y = s
 
 
 def main():

@@ -4,6 +4,7 @@ __author__ = 'Ecialo'
 from pyglet.event import EventDispatcher
 from cocos import collision_model as cm
 from cocos import euclid as eu
+from cocos.batch import BatchableNode
 import Box2D as b2
 import movable_object
 from registry.metric import TILE_SIZE_IN_PIXELS
@@ -250,3 +251,65 @@ class Actor(movable_object.Movable_Object):
 Actor.register_event_type('on_activate_trigger')
 Actor.register_event_type('on_take_damage')
 Actor.register_event_type('on_death')
+
+
+#TODO Прописать б2мир и юзер дату.
+#TODO Дописать актёрские методы.
+#TODO Определить ширину и высоту актёра не используя костыльный cshape
+#TODO Скруглить ноги
+class Cool_Actor(movable_object.Movable_Object):
+
+    """
+    Работает со Skeleton в качестве тела.
+    """
+
+    is_event_handler = True
+
+    def __init__(self, body):
+        super(Cool_Actor, self).__init__()
+        self.body = body
+        self.add(body)
+        self.setup_b2body()
+
+    def setup_b2body(self):
+        super(Cool_Actor, self).setup_b2body()
+        pix_to_tile = pixels_to_tiles
+        rx, ry = pix_to_tile((self.cshape.rx, self.cshape.ry))
+        self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(vertices=[(-rx, ry), (-rx, -ry+0.1),
+                                                                                    (-rx+0.1, -ry), (rx-0.1, -ry),
+                                                                                    (rx, -ry+0.1), (rx, ry)])))
+        self.b2body.fixtures[-1].filterData.categoryBits = B2SMTH | B2ACTOR
+        self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-rx, -ry), vertex2=(rx, -ry)),
+                                                  isSensor=True))
+        self.b2body.fixtures[-1].filterData.categoryBits = B2GNDSENS
+        self.b2body.fixtures[-1].filterData.maskBits = B2LEVEL | B2ACTOR
+        self.world.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
+
+    def on_ground_begin(self, fixture):
+        self.ground_count += 1
+        self.on_ground = True
+
+    def on_ground_end(self, fixture):
+        self.ground_count -= 1
+        if self.ground_count == 0:
+            self.on_ground = False
+
+    def _set_position(self, p):
+        BatchableNode._set_position(self, p)
+        self.body.position = p
+
+    def _set_rotation(self, a):
+        BatchableNode._set_rotation(self, a)
+        self.body.rotation = a
+
+    def _set_scale(self, s):
+        BatchableNode._set_scale(self, s)
+        self.body.scale = s
+
+    def _set_scale_x(self, s):
+        BatchableNode._set_scale_x(self, s)
+        self.body.scale_x = s
+
+    def _set_scale_y(self, s):
+        BatchableNode._set_scale_y(self, s)
+        self.body.scale_y = s
