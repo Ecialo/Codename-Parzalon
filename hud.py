@@ -35,32 +35,33 @@ class DudeDamageLayer(ResizableLayer):
 
     def __init__(self, game_layer):
         super(DudeDamageLayer, self).__init__()
-        self.game_layer = game_layer
-        self.red_bp = BatchNode()
-        self.normal_bp = BatchNode()
-        self.armored_bp = BatchNode()
-
-        self.ui_body = {'back': {}, 'front': {}, 'armored': {}}
-        self._init_body_parts('back')
-        self._init_body_parts('front')
-        self._init_body_parts('armored')
-
-        # the layer now listens to on_take_damage event from hero
-        self.game_layer.hero.push_handlers(self.on_take_damage)
-
-        armored_bp = self._get_armored_body_parts()
-
-        for body_part in self.ui_body['back']:
-            self.red_bp.add(self.ui_body['back'][body_part])
-        for body_part in self.ui_body['front']:
-            self.normal_bp.add(self.ui_body['front'][body_part])
-        for body_part in self.ui_body['armored']:
-            if body_part in armored_bp:
-                self.armored_bp.add(self.ui_body['armored'][body_part])
-
-        self.add(self.red_bp, z=-1)
-        self.add(self.normal_bp, z=0)
-        self.add(self.armored_bp, z=1)
+        pass
+        # self.game_layer = game_layer
+        # self.red_bp = BatchNode()
+        # self.normal_bp = BatchNode()
+        # self.armored_bp = BatchNode()
+        #
+        # self.ui_body = {'back': {}, 'front': {}, 'armored': {}}
+        # self._init_body_parts('back')
+        # self._init_body_parts('front')
+        # self._init_body_parts('armored')
+        #
+        # # the layer now listens to on_take_damage event from hero
+        # self.game_layer.hero.push_handlers(self.on_take_damage)
+        #
+        # armored_bp = self._get_armored_body_parts()
+        #
+        # for body_part in self.ui_body['back']:
+        #     self.red_bp.add(self.ui_body['back'][body_part])
+        # for body_part in self.ui_body['front']:
+        #     self.normal_bp.add(self.ui_body['front'][body_part])
+        # for body_part in self.ui_body['armored']:
+        #     if body_part in armored_bp:
+        #         self.armored_bp.add(self.ui_body['armored'][body_part])
+        #
+        # self.add(self.red_bp, z=-1)
+        # self.add(self.normal_bp, z=0)
+        # self.add(self.armored_bp, z=1)
 
     def _get_armored_body_parts(self):
         armored = set()

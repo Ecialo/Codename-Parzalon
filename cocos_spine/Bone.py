@@ -24,7 +24,7 @@ class Bone(object):
         self.body = None
 
     def init_b2(self, b2world):
-        self.body = b2world.CreateDynamicBody(gravityScale=0, allowSleep=False)
+        self.body = b2world.CreateDynamicBody(gravityScale=0, allowSleep=False, userData=self)
         self.body.position = self.global_tsr.position
         self.body.angle = math.radians(self.global_tsr.rotation)
         if self.parent:

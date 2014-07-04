@@ -9,11 +9,16 @@ from pyglet import event
 
 from cocos import collision_model as cm
 from cocos import layer
+from cocos.batch import BatchNode
 
 import Box2D as b2
 
 import movable_object
 import actor as ac
+from registry.metric import pixels_to_tiles
+from cocos_spine import Skeleton as sk
+from cocos_spine import Atlas as atl
+from registry import BASE
 
 from registry.Units import units_base
 from registry.group import HERO, UNIT
@@ -21,19 +26,14 @@ from registry.box2d import *
 
 
 def _spawn_unit(level, name, pos):
-    un_par = units_base[name]
-    unit = ac.Actor(un_par['body'])
-    map(lambda x: unit.put_item(x()(level)), un_par['items'])
-    unit.move_to(*pos)
-    if un_par['brain'].fight_group is HERO and level.hero is None:
-        level.hero = unit
-    elif un_par['brain'].fight_group is HERO and level.hero is not None:
-        level.hero.destroy()
-        level.hero = unit
-    unit.launcher.push_handlers(level)
-    level.actors.append(unit)
-    level.add(unit, z=2)
-    unit.do(un_par['brain']())
+    atlas = atl.Atlas('./cocos_spine/skeleton.atlas')
+    skel_d = sk.Skeleton_Data('./cocos_spine/skeleton.json', atlas)
+    skeleton = sk.Skeleton(skel_d, level.b2world)
+    print pos
+    pos = pixels_to_tiles(pos)
+    level.hero = ac.Cool_Actor(skeleton, position=pos)
+    level.add(level.hero)
+    level.hero.do(BASE['Controller']())
 
 
 def _spawn_prepared_unit(level, unit, pos):
@@ -269,6 +269,9 @@ class Location_Layer(layer.ScrollableLayer):
         self.missiles = []
         self.actors = []
 
+        self.batch = BatchNode()
+        self.add(self.batch)
+
         #Append hero
         self.hero = None
 
@@ -293,7 +296,7 @@ class Location_Layer(layer.ScrollableLayer):
             self.hero = hero
         self.hero.push_handlers(self)
         #self.hero.refresh_environment(self)
-        self.hero.show_hitboxes()
+        #self.hero.show_hitboxes()
         to_remove = []
         for sc in self.scripts.known_objs():
             if 'spawn' in sc.properties:
@@ -371,11 +374,11 @@ class Location_Layer(layer.ScrollableLayer):
         """
 
         #All collisions between movable objects calculate here
-        events = filter(lambda sc: 'event' in sc.properties,
-                              self.scripts.iter_colliding(self.hero))
-        for ev in events:
-            self.script_manager.activate_event(ev, self.hero, self)
-            self.scripts.remove_tricky(ev)
+        # events = filter(lambda sc: 'event' in sc.properties,
+        #                       self.scripts.iter_colliding(self.hero))
+        # for ev in events:
+        #     self.script_manager.activate_event(ev, self.hero, self)
+        #     self.scripts.remove_tricky(ev)
 
         self.b2world.Step(dt, 1, 1)
         self.collman.clear()

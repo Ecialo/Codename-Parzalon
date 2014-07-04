@@ -10,8 +10,9 @@ import movable_object
 from registry.metric import TILE_SIZE_IN_PIXELS
 from registry.item import MAIN
 from registry.box2d import *
-from registry.metric import pixels_to_tiles
+from registry.metric import pixels_to_tiles, tiles_to_pixels
 from registry.utility import EMPTY_LIST
+from pyglet import image
 import collides as coll
 from inventory import Inventory
 
@@ -253,10 +254,8 @@ Actor.register_event_type('on_take_damage')
 Actor.register_event_type('on_death')
 
 
-#TODO Прописать б2мир и юзер дату.
+#TODO Прописать в скелете б2мир и юзер дату.
 #TODO Дописать актёрские методы.
-#TODO Определить ширину и высоту актёра не используя костыльный cshape
-#TODO Скруглить ноги
 class Cool_Actor(movable_object.Movable_Object):
 
     """
@@ -265,16 +264,21 @@ class Cool_Actor(movable_object.Movable_Object):
 
     is_event_handler = True
 
-    def __init__(self, body):
-        super(Cool_Actor, self).__init__()
+    def __init__(self, body, position=(0, 0)):
         self.body = body
+        img = image.SolidColorImagePattern((0, 0, 0, 0)).create_image(2, 2)
+        super(Cool_Actor, self).__init__(img, position=position)
         self.add(body)
-        self.setup_b2body()
+
+        self.inventory = Inventory(self)
+        print self.b2body.position, "AFTER"
+        self.schedule(self.update)
 
     def setup_b2body(self):
+        #TODO сделат круглые ноги. Это важно, но нужно как то определять их размер. Я пока не знаю как
         super(Cool_Actor, self).setup_b2body()
         pix_to_tile = pixels_to_tiles
-        rx, ry = pix_to_tile((self.cshape.rx, self.cshape.ry))
+        rx, ry = pix_to_tile((5, 5))
         self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(vertices=[(-rx, ry), (-rx, -ry+0.1),
                                                                                     (-rx+0.1, -ry), (rx-0.1, -ry),
                                                                                     (rx, -ry+0.1), (rx, ry)])))
@@ -295,6 +299,7 @@ class Cool_Actor(movable_object.Movable_Object):
             self.on_ground = False
 
     def _set_position(self, p):
+        #print "POSITION", p
         BatchableNode._set_position(self, p)
         self.body.position = p
 
@@ -313,3 +318,110 @@ class Cool_Actor(movable_object.Movable_Object):
     def _set_scale_y(self, s):
         BatchableNode._set_scale_y(self, s)
         self.body.scale_y = s
+
+    def use_item(self, item_type, trigger, args):       # MAIN or SECONDARY
+        if item_type is MAIN:
+            item = self.inventory.main_item
+        else:
+            item = self.inventory.secondary_item
+
+        if not item:
+            return
+        if trigger and not item.on_use and item.available:
+            item.start_use(*args)
+        elif trigger and item.on_use and item.available:
+            item.continue_use(*args)
+        elif not trigger and item.on_use and item.available:
+            item.end_use(*args)
+
+    def start_interact_with_item(self, item):
+        if item and item.item_update:
+            self.schedule(item.item_update)
+
+    def stop_interact_with_item(self, item):
+        if item and item.item_update:
+            self.unschedule(item.item_update)
+
+    def collide(self, other):
+        other._collide_actor(self)
+
+    def _collide_actor(self, other):
+        coll.collide_actor_actor(self, other)
+
+    def _collide_hit_zone(self, other):
+        coll.collide_actor_hit_zone(self, other)
+
+    def _collide_slash(self, other):
+        coll.collide_actor_slash(self, other)
+
+    def put_item(self, item):
+        self.inventory.put_item(item)
+
+    def open(self):
+        self.inventory.open()
+
+    def close(self):
+        self.inventory.close()
+
+    def destroy(self):
+        """
+        Remove Actor from level
+        """
+        if self.fight_group > 0:
+            for armor in filter(lambda x: (x.attached is not None), self.body.body_parts):
+                armor.attached.drop()
+            self.fight_group = -1
+            self.remove_action(self.actions[0])
+            self.kill()
+            self.dispatch_event('on_death', self)
+
+    def transfer(self):
+        self.inventory.transfer()
+        super(Cool_Actor, self).transfer()
+        self.ground_count = 0
+        self.on_ground = True
+
+    def move_to(self, x, y):
+        """
+        Place Actor to x, y.
+        """
+        vec = eu.Vector2(int(x), int(y))
+        self.position = vec
+        self.b2body.position = pixels_to_tiles((vec.x, vec.y))
+        #map(lambda hand: hand.attached_move(vec - old), self.hands)
+
+    def push_task(self, task):
+        self.actions[0].task_manager.push_task(task)
+
+    def push_inst_task(self, task):
+        self.actions[0].task_manager.push_instant_task(task)
+
+    def take_hit(self, hit):
+        """
+        Check with every Body_Part is Hit hit or not.
+        """
+        self.body.collide(hit)
+
+    # def show_hitboxes(self):
+    #     """
+    #     Show hitboxes of every Body_Part
+    #     """
+    #     self.body.show_hitboxes()
+
+    def from_self_to_global(self, pos):
+        """
+        Recalculate position from Actors base to Level base
+        """
+        return pos + self.position
+
+    def from_global_to_self(self, pos):
+        """
+        Recalculate position from Level base to Actors base
+        """
+        return pos - self.position
+
+    def set_position(self, position):
+        #print "POPPP", position
+        val = tiles_to_pixels(position)
+        self.position = val
+        #print self.b2body.position

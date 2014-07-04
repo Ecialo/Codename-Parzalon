@@ -22,13 +22,15 @@ class Movable_Object(Sprite):
             self.image = img
         else:
             BatchableNode.__init__(self)
-        self.cshape = cshape
-        if cshape:
-            self.cshape.center = eu.Vector2(*position)
+        # self.cshape = cshape
+        # if cshape:
+        #     self.cshape.center = eu.Vector2(*position)
         self.b2body = None
         self.setup_b2body()
+        print "MOVA", position
         self.b2body.linearVelocity = pixels_to_tiles((horizontal_speed, vertical_speed))
         self.b2body.position = position
+        print self.b2body.position, "TRUE"
 
         self.ground_count = 0
         self.on_ground = False
@@ -39,7 +41,7 @@ class Movable_Object(Sprite):
     def set_position(self, position):
         val = tiles_to_pixels(position)
         self.position = val
-        self.cshape.center = val
+        #self.cshape.center = val
 
     def transfer(self):
         to_transfer = {'fixedRotation': 'fixedRotation',
