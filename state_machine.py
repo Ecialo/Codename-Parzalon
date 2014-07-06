@@ -59,6 +59,8 @@ class State(object):
         self.b2body = actor.b2body
         if self.name:
             self.animation = self.body.find_animation(self.name)
+        else:
+            self.animation = None
         self.time = 0.0
 
     def move(self, direction):
@@ -75,15 +77,14 @@ class State(object):
 
     def update(self, dt):
         self.time += dt
-        self.animation.apply(time=self.time,
-                             skeleton=self.body,
-                             loop=True)
+        if self.animation:
+            self.animation.apply(time=self.time,
+                                 skeleton=self.body,
+                                 loop=True)
         self.body.skeleton_data.update_transform()
 
 
 class Stand(State):
-
-    name = "Bored 1"
 
     def move(self, direction):
         if direction:
@@ -104,7 +105,7 @@ class Walk(State):
 
     def update(self, dt):
         super(Walk, self).update(dt)
-        self.actor.b2body.ApplyForceToCenter((70*self.actor.direction, 0), 1)
+        self.actor.b2body.ApplyForceToCenter((15*self.actor.direction, 0), 1)
 
 
 class State_Machine(object):
