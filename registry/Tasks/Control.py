@@ -25,14 +25,15 @@ class Control(Task):
 
     def __call__(self, dt):
         #print self.bind
-        # if not self.pressed:
+        if not self.pressed:
         # #print "intsak", id(self.scroller)
         #     if self.key[self.bind['down']]:
         #         self.master.sit()
         #         Animate(self.master, 'sit')
         #         #print "intsak", id(self.scroller)
         #     else:
-        #         hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
+            hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
+            self.master.move(hor_dir)
         #         if self.key[self.bind['jump']] and self.master.on_ground:
         #             self.master.jump()
         #             Animate(self.master, 'jump')

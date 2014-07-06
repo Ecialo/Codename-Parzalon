@@ -14,6 +14,7 @@ from registry.metric import pixels_to_tiles, tiles_to_pixels
 from registry.utility import EMPTY_LIST
 from pyglet import image
 import collides as coll
+from state_machine import State_Machine
 from inventory import Inventory
 
 
@@ -265,29 +266,50 @@ class Cool_Actor(movable_object.Movable_Object):
     is_event_handler = True
 
     def __init__(self, body, position=(0, 0)):
-        self.body = body
         img = image.SolidColorImagePattern((0, 0, 0, 0)).create_image(2, 2)
+        self.body = body
         super(Cool_Actor, self).__init__(img, position=position)
         self.add(body)
+
+        self.state_machine = State_Machine(self)
 
         self.inventory = Inventory(self)
         print self.b2body.position, "AFTER"
         self.schedule(self.update)
 
+    def on_enter(self):
+        super(Cool_Actor, self).on_enter()
+        self.schedule(self.state_machine.update)
+
+    def on_exit(self):
+        super(Cool_Actor, self).on_exit()
+        self.unschedule(self.state_machine.update)
+
+    @property
+    def direction(self):
+        return self.scale_x
+
+    @direction.setter
+    def direction(self, direction):
+        self.scale_x = direction
+
+    def move(self, direction):
+        self.state_machine.move(direction)
+
     def setup_b2body(self):
         #TODO сделат круглые ноги. Это важно, но нужно как то определять их размер. Я пока не знаю как
         super(Cool_Actor, self).setup_b2body()
         pix_to_tile = pixels_to_tiles
-        rx, ry = pix_to_tile((5, 5))
-        self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2PolygonShape(vertices=[(-rx, ry), (-rx, -ry+0.1),
-                                                                                    (-rx+0.1, -ry), (rx-0.1, -ry),
-                                                                                    (rx, -ry+0.1), (rx, ry)])))
+        #rx, ry = pix_to_tile((5, 5))
+        shape = b2.b2CircleShape(radius=3, pos=(0, 3))
+        self.b2body.CreateFixture(b2.b2FixtureDef(shape=shape))
         self.b2body.fixtures[-1].filterData.categoryBits = B2SMTH | B2ACTOR
-        self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-rx, -ry), vertex2=(rx, -ry)),
-                                                  isSensor=True))
-        self.b2body.fixtures[-1].filterData.categoryBits = B2GNDSENS
-        self.b2body.fixtures[-1].filterData.maskBits = B2LEVEL | B2ACTOR
-        self.world.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
+
+        # self.b2body.CreateFixture(b2.b2FixtureDef(shape=b2.b2EdgeShape(vertex1=(-rx, -ry), vertex2=(rx, -ry)),
+        #                                           isSensor=True))
+        # self.b2body.fixtures[-1].filterData.categoryBits = B2GNDSENS
+        # self.b2body.fixtures[-1].filterData.maskBits = B2LEVEL | B2ACTOR
+        # self.world.addEventHandler(self.b2body.fixtures[-1], self.on_ground_begin, self.on_ground_end)
 
     def on_ground_begin(self, fixture):
         self.ground_count += 1
