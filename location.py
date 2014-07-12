@@ -15,6 +15,7 @@ import Box2D as b2
 
 import movable_object
 import actor as ac
+from body import Cool_Body
 from registry.metric import pixels_to_tiles
 from cocos_spine import Skeleton as sk
 from cocos_spine import Atlas as atl
@@ -25,13 +26,11 @@ from registry.group import HERO, UNIT
 from registry.box2d import *
 
 
+
 def _spawn_unit(level, name, pos):
-    atlas = atl.Atlas('./cocos_spine/skeleton.atlas')
-    skel_d = sk.Skeleton_Data('./cocos_spine/skeleton.json', atlas)
-    skeleton = sk.Skeleton(skel_d, level.b2world)
-    print pos
+    nab = BASE['Parzalon']
     pos = pixels_to_tiles(pos)
-    level.hero = ac.Cool_Actor(skeleton, position=pos)
+    level.hero = ac.Cool_Actor(nab['body'], position=pos)
     level.add(level.hero)
     level.hero.do(BASE['Controller']())
 
@@ -394,7 +393,7 @@ class Location_Layer(layer.ScrollableLayer):
 
     def spawn(self, obj, pos):
         if obj in units_base:
-            self._spawn[0](self, obj, pos)
+            self._spawn[1](self, obj, pos)
         elif isinstance(obj, ac.Actor):
             _spawn_prepared_unit(self, obj, pos)
 

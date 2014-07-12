@@ -44,6 +44,7 @@ class Skeleton_Data(object):
         elif isinstance(atlas, Atlas):
             self.atlas = atlas
         else:
+            print atlas
             raise Exception("Invalid atlas")
 
         if type(file) is str:

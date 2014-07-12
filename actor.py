@@ -256,7 +256,6 @@ Actor.register_event_type('on_death')
 
 
 #TODO Прописать в скелете б2мир и юзер дату.
-#TODO Дописать актёрские методы.
 class Cool_Actor(movable_object.Movable_Object):
 
     """
@@ -267,9 +266,9 @@ class Cool_Actor(movable_object.Movable_Object):
 
     def __init__(self, body, position=(0, 0)):
         img = image.SolidColorImagePattern((0, 0, 0, 0)).create_image(2, 2)
-        self.body = body
+        self.body = body(self)
         super(Cool_Actor, self).__init__(img, position=position)
-        self.add(body)
+        self.add(self.body)
 
         self.state_machine = State_Machine(self)
 
@@ -296,8 +295,10 @@ class Cool_Actor(movable_object.Movable_Object):
     def move(self, direction):
         self.state_machine.move(direction)
 
+    def crouch(self):
+        self.state_machine.crouch()
+
     def setup_b2body(self):
-        #TODO сделат круглые ноги. Это важно, но нужно как то определять их размер. Я пока не знаю как
         super(Cool_Actor, self).setup_b2body()
         pix_to_tile = pixels_to_tiles
         #rx, ry = pix_to_tile((5, 5))

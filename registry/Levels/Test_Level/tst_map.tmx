@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="25" height="25" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="mytileset_01" tilewidth="32" tileheight="32">
-  <image source="../Codename-Parzalon/mytileset_01.png" width="507" height="382"/>
+  <image source="./mytileset_01.png" width="507" height="382"/>
  </tileset>
  <tileset firstgid="166" name="5z1KX" tilewidth="32" tileheight="32">
-  <image source="../Codename-Parzalon/5z1KX.png" width="736" height="672"/>
+  <image source="./5z1KX.png" width="736" height="672"/>
   <tile id="27">
    <properties>
     <property name="bottom" value="yes"/>

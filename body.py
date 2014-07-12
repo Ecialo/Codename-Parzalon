@@ -1,7 +1,17 @@
 # -*- coding: utf-8 -*-
+"""
+Что новое сильное тело должно уметь:
+1) Иметь полную функциональность спайновского скелета
+2) Хранить характеристики тела и обеспечивать работу с ними
+...
+n+1) Ещё что-то, что связано с коллизиями, но мне сейчас не видно)
+"""
 import effects as eff
 
 __author__ = "Ecialo"
+
+from cocos_spine.Skeleton import Skeleton, Skeleton_Data, Atlas
+from characteristics import Characteristics
 
 import geometry as gm
 from registry.utility import EMPTY_LIST
@@ -127,3 +137,23 @@ class Body(object):
             anim[name[0:len(name)-4]] = pyg_anim
             f.readline()
         f.close()
+
+
+class Cool_Body(Skeleton):
+
+    skeleton_json = None
+    skeleton_atlas = None
+
+    params = \
+        {
+            'acceleration': 0.0,
+            'max_speed': 0.0,
+            'jump_height': 0.0
+        }
+
+    def __init__(self, actor):
+        sd = Skeleton_Data(self.skeleton_json, self.skeleton_atlas)
+        super(Cool_Body, self).__init__(sd, actor.world)
+
+        self.master = actor
+        self.characteristics = Characteristics(self.params)
