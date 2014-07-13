@@ -298,6 +298,10 @@ class Cool_Actor(movable_object.Movable_Object):
     def crouch(self):
         self.state_machine.crouch()
 
+    def jump(self):
+        print 43243245245
+        self.state_machine.jump()
+
     def setup_b2body(self):
         super(Cool_Actor, self).setup_b2body()
         pix_to_tile = pixels_to_tiles

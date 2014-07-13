@@ -14,7 +14,7 @@
 """
 __author__ = 'ecialo'
 from registry.utility import binary_list
-STAND, WALK, CROUCH, RUN = binary_list(4)
+STAND, WALK, CROUCH, RUN, FALL = binary_list(5)
 UNCHANGED = 0
 COUNTER_DIRECTION = -1
 
@@ -97,6 +97,9 @@ class Stand(State):
     def crouch(self):
         return CROUCH
 
+    def jump(self):
+        return FALL
+
 
 class Walk(State):
 
@@ -166,6 +169,12 @@ class Running(State):
         super(Running, self).update(dt)
 
 
+class Fall(State):
+
+    def move(self, direction):
+        return FALL
+
+
 class Reversed_Animation(object):
 
     def __init__(self, animation):
@@ -206,7 +215,8 @@ class State_Machine(object):
                        WALK: Walk(actor),
                        RUN: Running(actor),
                        CROUCH | STAND: Crouch(actor),
-                       CROUCH | WALK: Crawling(actor)}
+                       CROUCH | WALK: Crawling(actor),
+                       FALL: Fall(actor)}
 
         self.transitions = {}
         transitions = {(STAND, STAND): None,
@@ -222,7 +232,12 @@ class State_Machine(object):
                        (CROUCH | WALK, CROUCH | WALK): 'crawl',
                        (WALK, RUN): None,
                        (RUN, WALK): None,
-                       (RUN, RUN): 'run'}
+                       (RUN, RUN): 'run',
+                       (FALL, FALL): 'fall',
+                       (STAND, FALL): 'jump',
+                       (WALK, FALL): 'long_jump',
+                       (RUN, FALL): 'long_jump',
+                       (FALL, STAND): 'Bow'}
         pre_trans = {}
         for trs, aniname in transitions.iteritems():
             try:
@@ -275,7 +290,8 @@ class State_Machine(object):
         self.next_state_index |= self.state.move(direction)
 
     def jump(self):
-        self.state.jump()
+        if self.state.jump():
+            self.next_state_index = FALL
 
     def crouch(self):
         self.next_state_index |= self.state.crouch()

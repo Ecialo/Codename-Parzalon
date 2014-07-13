@@ -36,6 +36,8 @@ class Control(Task):
             self.master.move(hor_dir)
             if self.key[self.bind['down']]:
                 self.master.crouch()
+            if self.key[self.bind['jump']]:
+                self.master.jump()
         #         if self.key[self.bind['jump']] and self.master.on_ground:
         #             self.master.jump()
         #             Animate(self.master, 'jump')
