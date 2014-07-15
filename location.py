@@ -31,7 +31,7 @@ def _spawn_unit(level, name, pos):
     nab = BASE['Parzalon']
     pos = pixels_to_tiles(pos)
     level.hero = ac.Cool_Actor(nab['body'], position=pos)
-    level.add(level.hero)
+    level.batch.add(level.hero)
     level.hero.do(BASE['Controller']())
 
 

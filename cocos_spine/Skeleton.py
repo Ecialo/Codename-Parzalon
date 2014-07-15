@@ -12,6 +12,7 @@ import Bone
 import Slot
 import Skin
 from Animation import *
+from math import copysign
 import Attachment
 from Atlas import *
 from tsr_transform import *
@@ -246,7 +247,7 @@ class Skeleton(batch.BatchableNode):
         self.b2world = b2world
         self.skeleton_data.root_bone.init_b2(self.b2world)
         for i, sp in enumerate(self.skeleton_data.sprites):
-            self.add(sp, z=i)
+            self.add(sp, z=i+1)
         self.render()
         for slot in self.skeleton_data.slots.itervalues():
             slot.init_b2()
@@ -288,19 +289,35 @@ class Skeleton(batch.BatchableNode):
 
     def _set_position(self, p):
         self.skeleton_data.root_bone.local_tsr.position = p
+        self.skeleton_data.root_bone.global_tsr.position = p
 
     def _set_rotation(self, a):
         self.skeleton_data.root_bone.local_tsr.rotation = a
+        self.skeleton_data.root_bone.global_tsr.rotation = a
 
     def _set_scale(self, s):
-        self.skeleton_data.root_bone.local_tsr.scale_x = s
-        self.skeleton_data.root_bone.local_tsr.scale_y = s
+        #self.skeleton_data.root_bone.local_tsr.scale_x = s
+        self.skeleton_data.root_bone.global_tsr.scale_x = s
+        #self.skeleton_data.root_bone.local_tsr.scale_y = s
+        self.skeleton_data.root_bone.global_tsr.scale_y = s
 
     def _set_scale_x(self, s):
+        # if copysign(self.skeleton_data.root_bone.local_tsr.scale_x, s) != self.skeleton_data.root_bone.local_tsr.scale_x:
+        #     #self.skeleton_data.root_bone.global_tsr.rotation *= -1
+        #     for bone in self.skeleton_data.bones.itervalues():
+        #         bone.local_tsr.x *= -1
+        #         #bone.local_tsr.y *= -1
+        #         bone.local_tsr.rotation = 180 - bone.local_tsr.rotation
+        #         #bone.local_tsr.scale_x *= -1
+        #     for sp in self.skeleton_data.sprites:
+        #         sp.image = sp.image.get_texture().get_transform(flip_x=True)
         self.skeleton_data.root_bone.local_tsr.scale_x = s
+        #self.skeleton_data.root_bone.global_tsr.scale_x = s
+        #self.skeleton_data.root_bone.global_tsr.scale_y = s
 
     def _set_scale_y(self, s):
         self.skeleton_data.root_bone.local_tsr.scale_y = s
+        #self.skeleton_data.root_bone.global_tsr.scale_y = s
 
 
 def main():

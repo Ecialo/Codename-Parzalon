@@ -266,7 +266,7 @@ class State_Machine(object):
         self.state.setup_transition(transitions[(STAND, STAND)], STAND)
 
     def update(self, dt):
-        print self.state
+        #print self.state
         self.state.update(dt)
         #print self.state, self.state.to_state, self.next_state_index, self.state.animation
         #print "STATE", self.current_state_index, "NEXT", self.next_state_index

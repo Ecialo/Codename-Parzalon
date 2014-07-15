@@ -1,6 +1,7 @@
 __author__ = 'Pavgran'
 
-from cocos import sprite
+import fixed_sprite as sprite
+#from cocos import sprite
 from pyglet import image
 from collections import namedtuple
 from TSR import *
