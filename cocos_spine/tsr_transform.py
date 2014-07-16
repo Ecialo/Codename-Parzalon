@@ -3,7 +3,7 @@ __author__ = 'Pavgran'
 import math
 
 
-def tsr_transform(par_tsr, child_tsr):
+def tsr_transform(par_tsr, child_tsr, direction=1):
     pos, scale_x, scale_y, rot = child_tsr
     par_pos, par_scale_x, par_scale_y, par_rot = par_tsr
     cos = math.cos(math.radians(par_rot))

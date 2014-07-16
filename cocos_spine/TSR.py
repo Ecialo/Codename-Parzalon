@@ -5,6 +5,8 @@ from tsr_transform import *
 
 class TSR(object):
 
+    __slots__ = ['position', 'scale_x', 'scale_y', 'rotation']
+
     def __init__(self, position=(0, 0), scale_x=1, scale_y=1, rotation=0):
         self.position = position
         self.scale_x = scale_x
@@ -53,3 +55,13 @@ class TSR(object):
         par_pack = (parent.position, parent.scale_x, parent.scale_y, parent.rotation)
         self_pack = (self.position, self.scale_x, self.scale_y, self.rotation)
         return TSR(*tsr_transform(par_pack, self_pack))
+
+    def reflect(self, point):
+        ntsr = self.copy()
+        x, y = self.position
+        cx, cy = point
+        ntsr.position = (-(x - cx) + cx, y)
+        ntsr.rotation = 180 - self.rotation
+        #ntsr.scale_x *= -1
+        ntsr.scale_y *= -1
+        return ntsr

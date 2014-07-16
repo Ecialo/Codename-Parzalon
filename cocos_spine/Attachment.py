@@ -109,7 +109,7 @@ class Sprite_Attachment(sprite.Sprite):
         #self.rotation = attachment.tsr.rotation
 
     def set_empty_image(self):
-        self.image_anchor = (1,1)
+        self.image_anchor = (1, 1)
         self.image = image.SolidColorImagePattern((0, 0, 0, 0)).create_image(2, 2)
 
     def set_tsr_by_named_pack(self, pack):

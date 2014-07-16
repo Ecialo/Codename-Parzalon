@@ -37,6 +37,7 @@ class Skeleton_Data(object):
         self.animations = {}
         self.events = {}
         self.sprites = []
+        self.direction = 1
         #self.to_draw = OrderedDict()
         self.current_skin = None
 
@@ -62,6 +63,7 @@ class Skeleton_Data(object):
 
     def update_transform(self):
         self.root_bone.update_childs()
+        pos = self.root_bone.global_tsr.position
         for slot in self.slots.itervalues():
             bone = slot.bone
             #print bone.name, bone.rotation
@@ -78,13 +80,16 @@ class Skeleton_Data(object):
                 par_tsr = bone.global_tsr
                 #print bone.global_tsr, bone.name
                 new_tsr = attach_data.tsr.tsr_transform(par_tsr)
+                if self.direction < 0:
+                    attach_to_draw.set_tsr_by_named_pack(new_tsr.reflect(pos))
+                else:
                 #if slot.name == "R_wing":
                     #print attach_data.name, attach_data.tsr
                     #print slot.bone.global_tsr
                     #print new_tsr
                     #print attach_to_draw.get_rect()
                 #child_tsr = (attach_data.position, attach_data.scale_x, attach_data.scale_y, attach_data.rotation)
-                attach_to_draw.set_tsr_by_named_pack(new_tsr)
+                    attach_to_draw.set_tsr_by_named_pack(new_tsr)
                 #print attach.attachment_data.name, attach.rotation
                 #attach.rotation *= -1
 
@@ -303,15 +308,15 @@ class Skeleton(batch.BatchableNode):
 
     def _set_scale_x(self, s):
         # if copysign(self.skeleton_data.root_bone.local_tsr.scale_x, s) != self.skeleton_data.root_bone.local_tsr.scale_x:
-        #     #self.skeleton_data.root_bone.global_tsr.rotation *= -1
-        #     for bone in self.skeleton_data.bones.itervalues():
-        #         bone.local_tsr.x *= -1
-        #         #bone.local_tsr.y *= -1
-        #         bone.local_tsr.rotation = 180 - bone.local_tsr.rotation
-        #         #bone.local_tsr.scale_x *= -1
+        # #     #self.skeleton_data.root_bone.global_tsr.rotation *= -1
+        # #     for bone in self.skeleton_data.bones.itervalues():
+        # #         bone.local_tsr.x *= -1
+        # #         #bone.local_tsr.y *= -1
+        # #         bone.local_tsr.rotation = 180 - bone.local_tsr.rotation
+        # #         #bone.local_tsr.scale_x *= -1
         #     for sp in self.skeleton_data.sprites:
         #         sp.image = sp.image.get_texture().get_transform(flip_x=True)
-        self.skeleton_data.root_bone.local_tsr.scale_x = s
+        self.skeleton_data.direction = abs(s)/s
         #self.skeleton_data.root_bone.global_tsr.scale_x = s
         #self.skeleton_data.root_bone.global_tsr.scale_y = s
 

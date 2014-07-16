@@ -42,7 +42,8 @@ class Bone(object):
         #pos, scale_x, scale_y, rot = self.bone_data[3:7:]
         #par_pos, par_scale_x, par_scale_y, par_rot = data
         #self.position, self.scale_x, self.scale_y, self.rotation = tsr_transform(data, self.bone_data[3:7:])
-        self.global_tsr.set_by_named_pack(self.local_tsr.tsr_transform(data))
+        transformed_data = self.local_tsr.tsr_transform(data)
+        self.global_tsr.set_by_named_pack(transformed_data)
         if self.body:
             self.body.position = self.global_tsr.position
             self.body.angle = math.radians(self.global_tsr.rotation)
