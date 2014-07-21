@@ -14,6 +14,7 @@ class Movable_Object(Sprite):
 
     tilemap = None
     world = None
+    location = None
 
     def __init__(self, img, cshape=None, position=(0, 0), vertical_speed=0.0, horizontal_speed=0.0):
         super(Movable_Object, self).__init__(img, position)

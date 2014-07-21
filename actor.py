@@ -13,6 +13,7 @@ from registry.metric import pixels_to_tiles
 from registry.utility import EMPTY_LIST
 import collides as coll
 from inventory import Inventory
+from hit import Cool_Swing
 
 
 def animate(func):
@@ -104,6 +105,12 @@ class Actor(movable_object.Movable_Object):
             item.continue_use(*args)
         elif not trigger and item.on_use and item.available:
             item.end_use(*args)
+
+    def create_swing(self, sp, ep):
+        self.location.add(Cool_Swing(self, sp, ep))
+
+    def create_hit_zone(self):
+        pass
 
     def start_interact_with_item(self, item):
         if item and item.item_update:

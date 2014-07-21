@@ -1,7 +1,16 @@
+# -*- coding: utf-8 -*-
+"""
+1) Зоны попаданий должны создавать актёры, т.к. эти зоны не появляются из ниоткуда
+2) Должно существовать минимум 2 способа срабатывания зоны: с наложением эффектов и без
+3) При срабатывании с наложениями зона должна определять какую из доступных частей она задевает
+"""
 __author__ = 'Ecialo'
+
+
 from pyglet import image
 
 import cocos
+from cocos.draw import Line
 from cocos import collision_model as cm
 from cocos import euclid as eu
 
@@ -283,3 +292,27 @@ class Missile(Hit_Zone):
 
     def uncompleteness(self):
         return 0.5
+
+
+class Cool_Swing(Line):
+
+    """
+    Работает в 3 этапа
+    1) Прицеливание. На этом этапе взмах можно двигать и вращать, он виден, но эффекта не оказывает
+    2) Исполнение. На этом этапе взмах можно паррировать и он может паррировать.
+    3) Выполнение. Срабатывают эффекты и всё завершается.
+    """
+
+    def __init__(self, actor, sp, ep):
+        super(Cool_Swing, self).__init__((0, 0), (0, 0), (255, 0, 0, 255))
+        self.actor = actor
+        self.to_hit = set()
+
+    def setup_b2body(self):
+        pass
+
+    def perform(self):
+        pass
+
+    def negate(self):
+        pass
