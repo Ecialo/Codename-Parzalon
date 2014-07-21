@@ -309,7 +309,7 @@ class Location_Layer(layer.ScrollableLayer):
             is_tiled = cell.tile is not None
             for geprop in chain(cell.properties.iterkeys(),
                                 cell.tile.properties.iterkeys() if is_tiled else []):
-                print geprop
+                #print geprop
                 BASE[to_data_name(geprop)](cell, self)
         # def try_create_and_append_block(cells_in_block, mode):
         #     if cells_in_block and mode == 0:

@@ -19,6 +19,13 @@ def interval_proection(point, interval):
         return interval[1]
 
 
+def clamp(minimum, maximum):
+
+    def to_interval(x):
+        return max(minimum, min(x, maximum))
+
+    return to_interval
+
 def to_data_name(name):
     return "_".join(map(lambda namepart: namepart.capitalize(), name.split('_')))
 
