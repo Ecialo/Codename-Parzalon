@@ -34,8 +34,7 @@ class Control(Task):
         #     else:
             hor_dir = self.key[self.bind['right']] - self.key[self.bind['left']]
             self.master.move(hor_dir)
-            if self.key[self.bind['down']]:
-                self.master.crouch()
+            self.master.crouch(self.key[self.bind['down']])
             if self.key[self.bind['jump']]:
                 self.master.jump()
         #         if self.key[self.bind['jump']] and self.master.on_ground:

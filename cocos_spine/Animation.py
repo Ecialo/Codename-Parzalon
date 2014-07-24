@@ -356,6 +356,7 @@ class Animation(object):
         self.name = name
         self.timelines = []
         self.load_timelines(timelines)
+        print self.name
         self.duration = max(map(lambda timeline: timeline.frames[-1][0], self.timelines))
 
     def load_timelines(self, timelines):
