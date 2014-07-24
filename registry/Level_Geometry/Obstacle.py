@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'ecialo'
+from cocos.tiles import Cell
 import Box2D as b2
 from registry.box2d import B2LEVEL, B2SMTH, B2EVERY
 from registry.box2d import NO_ROTATION, HALF_TILE
@@ -28,11 +29,17 @@ from registry.box2d import NO_ROTATION, HALF_TILE
 # next(Obsctacle.worker)
 
 
-def Obstacle(cell, environment):
-    x, y = cell.i, cell.j
-    shape = b2.b2PolygonShape()
-    shape.SetAsBox(HALF_TILE, HALF_TILE, (x+HALF_TILE, y+HALF_TILE), NO_ROTATION)
-    lvl = environment.b2level
-    lvl.CreateFixture(shape=shape, userData=cell)
-    lvl.fixtures[-1].filterData.categoryBits = B2SMTH | B2LEVEL
-    lvl.fixtures[-1].filterData.maskBits = B2EVERY
+def Obstacle(map_obj, environment):
+    if isinstance(map_obj, Cell):
+        cell = map_obj
+        x, y = cell.i, cell.j
+        shape = b2.b2PolygonShape()
+        shape.SetAsBox(HALF_TILE, HALF_TILE, (x+HALF_TILE, y+HALF_TILE), NO_ROTATION)
+        lvl = environment.b2level
+        lvl.CreateFixture(shape=shape, userData=cell)
+        lvl.fixtures[-1].filterData.categoryBits = B2SMTH | B2LEVEL
+        lvl.fixtures[-1].filterData.maskBits = B2EVERY
+    else:
+        map_obj.to_b2(environment.b2world)
+        map_obj.b2body.fixtures[-1].filterData.categoryBits = B2SMTH | B2LEVEL
+        map_obj.b2body.fixtures[-1].filterData.maskBits = B2EVERY

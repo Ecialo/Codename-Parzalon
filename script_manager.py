@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'ecialo'
 from registry.Scripts import scripts_base
-
+from registry import BASE
 
 from registry.utility import to_data_name
 
@@ -44,7 +44,7 @@ class Script_Manager(object):
         for map_object in self.script_layer:
             print map_object
             mode = map_object['mode']
-            result = modes[mode](scripts_base[to_data_name(map_object.type)])(map_object, location)
+            result = modes[mode](BASE[to_data_name(map_object.type)])(map_object, location)
             if not result:
                 to_delete.append(map_object)
 

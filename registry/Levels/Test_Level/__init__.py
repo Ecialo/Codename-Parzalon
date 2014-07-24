@@ -2,4 +2,4 @@
 __author__ = 'Ecialo'
 from level import Level
 
-Test_Level = Level((0, 0), [['cool_new_map.tmx']], __name__)
+Test_Level = Level((0, 0), [['pretty_map.tmx']], __name__)

@@ -69,7 +69,7 @@ class Actor(movable_object.Movable_Object):
         self.inventory = Inventory(self)
 
         self.ground_count = 0
-        self.on_ground = False
+        self.on_ground = True
 
         self.recovery = 0.0  # Time before moment when acton can be controlled again
 
