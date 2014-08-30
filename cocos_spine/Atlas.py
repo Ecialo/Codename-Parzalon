@@ -1,5 +1,5 @@
 __author__ = 'Ecialo'
-
+# -*- coding: utf-8 -*-
 import pyglet
 import os
 false = False
@@ -37,7 +37,7 @@ class Atlas(object):
                 while True:
                     if state is st_filename:
                         file_name = value
-                        image = pyglet.image.load('cocos_spine/'+file_name)
+                        image = pyglet.image.load('cocos_spine/'+file_name) #TODO исправить на корректные пути
                         state = st_metadata
                     elif state is st_metadata:
                         if ':' in value:

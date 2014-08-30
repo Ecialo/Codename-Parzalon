@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="100" height="100" tilewidth="32" tileheight="32">
+ <properties>
+  <property name="parallax" value="bb.png"/>
+ </properties>
+ <tileset firstgid="1" name="5z1KX" tilewidth="32" tileheight="32">
+  <image source="5z1KX.png" width="736" height="672"/>
+  <tile id="1">
+   <properties>
+    <property name="slope" value="0 0 1 1"/>
+   </properties>
+  </tile>
+  <tile id="27">
+   <properties>
+    <property name="obstacle" value="all"/>
+   </properties>
+  </tile>
+  <tile id="28">
+   <properties>
+    <property name="obstacle" value="top"/>
+   </properties>
+  </tile>
+  <tile id="29">
+   <properties>
+    <property name="obstacle" value="top"/>
+   </properties>
+  </tile>
+  <tile id="449">
+   <properties>
+    <property name="Player_start" value="yes"/>
+   </properties>
+  </tile>
+ </tileset>
+ <tileset firstgid="484" name="plat" tilewidth="32" tileheight="32">
+  <image source="plat.png" width="1910" height="792"/>
+ </tileset>
+ <layer name="Background" width="100" height="100">
+  <properties>
+   <property name="transparent" value="yes"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJzt1WXTFuQWhuFX36AUA+mQMOiwi05Fke7uslA67aIxUJAOA6TbDrpTaTAQlAa7Dv8Ds5n9zDpnjh9w3evDnZQURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEU/S+rk5yUVJd61KcBDWlEY5rQlGY0pwUtaUVr2tCWdrSnAx3pRGe60JVudOchHuYRHuUxevA4T9CTXvSmD33pR38GMJBBDGZI8sV+vQvfUJuGMZwRjGQUoxnDK7zKa7zOWN7gTcYxnreYwEQmMZkpTGUa05nBTN7mHd7lPWYxm/eZw1zmMZ8FLGQRi1nCUpaxnBUJeI9VNq1mDWtZx3o2sJFNbGYLW9nGdnawk118xdfsZg972cd+DnCQQxzmG77lO77nCD9wlGP8yE8c5wQnOcVpznCWc5zn5wS8x6UpSUnJpJBKGulITwYykonLuJzMXMGVXMXVZOEaspKN7OQgJ7nITR7yko9ryU8BClKI67ieG7iRwhShKMUoTglKUorSlEm52K934StrUznKU4GKVKIyVahKNapTg3u5j5rczwPU4kFqU4e61KM+DWhIIxrThKY0ozktaEkrWtOGtrSjPR3oSCc604WudKN7At6jj0196Ud/BjCQQQxmCE/yFE/zDM/yHM/zAi/yEi8zlGEMZwQjGcVoxvAKr/IarzOWN3iTcYznLSYwkUlMZgpTmcZ0ZjAzAe+xwKaFLGIxS1jKMpazgg/4kI/4mE/4lM/4nC/4kpWsYjVrWMs61rOBjWxiM1vYyja2s4Od7OIrvmY3e9jLPvZzgIMc4nAC3uOETSc5xWnOcJZznOdnfuFXfuN3/uBP/uJv/vnvXVKTki7hUpJJIZU00pGeDGQkE5dxOZm5giu5iqvJwjVkJRvZyUFOcpGbPORNvdivd+ErYlNRilGcEpSkFKUpw03czC3cym3czh3cyV3czT2UpRzlqUBFKlGZKlSlGtWpwb3cR03u5wFq8SC1qUNd6lGfBjSkEY0T8B7tbepARzrRmS50pRvdeYiHeYRHeYwePM4T9KQXvelDX/rRnwEMZBCDGcKTPMXTPMOzPMfzvMCLvMTLDGUYwxnBSEYxmjEJeI+JNk1iMlOYyjSmM4OZvM07vMt7zGI27zOHucxjPgtYyCIWs4SlLGM5K/iAD/mIj/mET/mMz/mCL1nJKlazhrWsYz0b2JiA99ht0x72so/9HOAghzjMN3zLd3zPEX7gKMf4kZ84zglOcorTnOEs5zjPz/zCr/zG7/zBn/zF3/zz3zun+Y+4lGRSSCWNdKQnQ9rFfr0LX1abspGdHOQkF7nJQ17ycS35KUBBCnEd13MDN1KYIhSlGMUpQUlKUZoy3MTN3MKt3Mbt3MGd3MXd3ENZylGeClSkEpWpkoD3qG1THepSj/o0oCGNaEwTmtKM5rSgJa1oTRva0o72dKAjnehMF7rSje48xMM8wqM8Rg8e5wl60ove9KEv/ejPAAYyiMEJeI+XbRrKMIYzgpGMYjRjeIVXeY3XGcsbvMk4xvMWE5jIJCYzhalMYzozmMnbvMO7vMcsZvM+c5jLPOazgIUsYjFLWMoylifgPVbatIrVrGEt61jPBjayic1sYSvb2M4OdrKLr/ia3exhL/vYzwEOcojDfMO3fMf3HOEHjnKMH/mJ45zgJKc4zRnOco7zCXiPS9L5M0kmhVTSSEd6MpCRTFzG5WTmCq7kKq4mC9eQlWxkJwc5yUVu8pCXfFxLfgpQkEJcx/XcwI0UpghFKUZxSlCSUpROd7Ff78J3j01lKUd5KlCRSlSmClWpRnVqcC/3UZP7eYBaPEht6lCXetSnAQ1pRGOa0JRmNKcFLWlFa9rQlna0pwMd6URnutCVbgl4jyiKoiiKoiiKoiiKoiiKouj/s38BMLu1yA==
+  </data>
+ </layer>
+ <layer name="Player Level" width="100" height="100" visible="0">
+  <properties>
+   <property name="obstackle" value="yes"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJztwTEBAAAAwqD1T+1lC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAbnEAAAQ==
+  </data>
+ </layer>
+ <objectgroup name="Scripts" width="100" height="100">
+  <object name="nachinaem_zdes" type="spawn" gid="453" x="448" y="2057">
+   <properties>
+    <property name="mode" value="instant"/>
+    <property name="spawn_type" value="unit"/>
+    <property name="unit_name" value="Parzalon"/>
+   </properties>
+  </object>
+  <object name="Vsia_fignia" type="obstacle" x="12" y="2290">
+   <properties>
+    <property name="mode" value="passive"/>
+   </properties>
+   <polyline points="0,0 202,-46 1515,-41"/>
+  </object>
+ </objectgroup>
+</map>

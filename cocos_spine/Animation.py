@@ -342,6 +342,7 @@ class Draworder_Timeline(Timeline):
                 self.permutations[i][k] = j
 
     def apply(self, skeleton, time, alpha):
+        return
         frame_count = len(self.frames)
         index = bisect(self.frames, (time, None))
         if index == 0:
