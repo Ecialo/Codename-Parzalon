@@ -16,6 +16,7 @@ from characteristics import Characteristics
 import geometry as gm
 from registry.utility import EMPTY_LIST
 from registry.group import CHOP, PENETRATE, CLEAVE
+from registry.metric import jump_height_to_jump_speed
 import box
 import pyglet
 
@@ -157,3 +158,30 @@ class Cool_Body(Skeleton):
 
         self.master = actor
         self.characteristics = Characteristics(self.params)
+
+    def move(self, direction, speed_coef=1.0):
+        if direction:
+            acceleration = self.characteristics.acceleration
+            force = (acceleration*direction*speed_coef, 0)
+            self.master.b2body.ApplyLinearImpulse(
+                force,
+                (0, 0),
+                1
+            )
+
+    def jump(self):
+        if self.master.on_ground:
+            jump_might = jump_height_to_jump_speed(self.characteristics.jump_height)
+            #print jump_might
+            self.master.b2body.ApplyLinearImpulse(
+                (0, jump_might),
+                (0, 0),
+                1
+            )
+            self.master.on_ground = False
+        else:
+            #TODO заменить константу на что-то более умное
+            self.master.b2body.ApplyForceToCenter((0, 10), 1)
+
+    def retard(self):
+        pass

@@ -14,7 +14,7 @@ class Cool_Human(Cool_Body):
 
     params = \
     {
-        'acceleration': 15.0,
+        'acceleration': 0.5,
         'max_speed': 21.0,
         'jump_height': 6.0
     }

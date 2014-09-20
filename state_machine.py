@@ -15,7 +15,7 @@
 """
 __author__ = 'ecialo'
 from registry.utility import binary_list
-STAND, WALK, CROUCH, RUN, FALL = binary_list(5)
+STAND, WALK, CROUCH, RUN, FALL, JUMP = binary_list(6)
 UNCHANGED = 0
 COUNTER_DIRECTION = -1
 
@@ -211,6 +211,10 @@ class Smooth_Animation(object):
         #     self.from_animation.mix(time, skeleton, loop, part)
 
 
+class Instant_Animation(Smooth_Animation):
+    pass
+
+
 class State_Machine(object):
 
     def __init__(self, actor):
@@ -338,25 +342,55 @@ def lockable(command):
 
 EPS = 1.0
 
-transitions = {(STAND, STAND): 'stop_cycle',
-               (STAND, WALK): None,
-               (WALK, STAND): 'stop',
-               (WALK, WALK): 'walking',
-               (STAND, CROUCH): 'Bow',
-               (STAND, WALK | CROUCH): 'Bow',
-               (CROUCH, STAND): None,
-               (CROUCH, CROUCH): 'Bow_cycle',
-               (CROUCH, CROUCH | WALK): None,
-               (CROUCH | WALK, CROUCH): None,
-               (CROUCH | WALK, CROUCH | WALK): 'crawl',
-               (WALK, RUN): None,
-               (RUN, WALK): None,
-               (RUN, RUN): 'run',
-               (FALL, FALL): 'stop_cycle',
-               (STAND, FALL): 'jump',
-               (WALK, FALL): 'long_jump',
-               (RUN, FALL): 'long_jump',
-               (FALL, STAND): 'fall'}
+def load_transitions():
+    transitions = {}
+    table = None
+    with open(table) as table:
+        macros = {}
+        order = None
+        state = 0
+        i, j = 0, 0
+        for line in table:
+            if line.strip() == '---':
+                state += 1
+            if state == 0:
+                key, val = line.split()
+                macros[key] = val
+            elif state == 1:
+                order = line.split()
+            else:
+                row = line.split()
+                for i in xrange(len(order)):
+                    transitions[(eval(macros[order[j]]), eval(macros[order[i]]))] = row[i]
+                j += 1
+
+
+transitions = {
+    (STAND, STAND): 'stop_cycle',
+    (STAND, WALK): None,
+    (WALK, STAND): 'stop',
+    (WALK, WALK): 'walking',
+    (STAND, CROUCH): 'Bow',
+    (STAND, WALK | CROUCH): 'Bow',
+    (CROUCH, STAND): None,
+    (CROUCH, CROUCH): 'Bow_cycle',
+    (CROUCH, CROUCH | WALK): None,
+    (CROUCH | WALK, CROUCH): None,
+    (CROUCH | WALK, CROUCH | WALK): 'crawl',
+    (WALK, RUN): None,
+    (RUN, WALK): None,
+    (RUN, RUN): 'run',
+    (RUN, RUN | CROUCH): 'slide',
+    (RUN | CROUCH, RUN | CROUCH): 'slide_cycle',
+    (RUN | CROUCH, CROUCH): 'slide_stop',
+    (FALL, FALL): 'fall_cycle',
+    (STAND, FALL): None,
+    (WALK, FALL): None,
+    (RUN, FALL): None,
+    (FALL, STAND): None
+}
+
+transitions = load_transitions()
 
 
 class Cool_State(object):
@@ -439,8 +473,8 @@ class Cool_Stand(Cool_State):
 
     @lockable
     def move(self, direction):
+        self.actor.body.move(direction)
         if direction:
-            self.actor.b2body.ApplyForceToCenter((self.characteristics.acceleration*direction, 0), 1)
             if direction != self.actor.direction:
                 self.actor.direction *= COUNTER_DIRECTION
         if abs(self.actor.b2body.linearVelocity[0]) > EPS:
@@ -452,6 +486,7 @@ class Cool_Stand(Cool_State):
             self.is_locked = True
 
     def jump(self):
+        self.actor.body.jump()
         self.setup_transition(FALL)
 
 
@@ -466,8 +501,7 @@ class Cool_Crouch(Cool_State):
 
     @lockable
     def move(self, direction):
-        if direction:
-            self.actor.b2body.ApplyForceToCenter((self.characteristics.acceleration*direction, 0), 1)
+        self.actor.body.move(direction)
         if abs(self.actor.b2body.linearVelocity[0]) > EPS:
             self.setup_transition(CROUCH | WALK)
 
@@ -477,8 +511,7 @@ class Cool_Walk(Cool_State):
     state_id = WALK
 
     def move(self, direction):
-        if direction:
-            self.actor.b2body.ApplyForceToCenter((self.characteristics.acceleration*direction, 0), 1)
+        self.actor.body.move(direction)
         if abs(self.actor.b2body.linearVelocity[0]) > self.characteristics.max_speed/3:
             self.setup_transition(RUN)
         elif abs(self.actor.b2body.linearVelocity[0]) <= EPS:
@@ -493,10 +526,14 @@ class Cool_Run(Cool_State):
     state_id = RUN
 
     def move(self, direction):
-        if direction:
-            self.actor.b2body.ApplyForceToCenter((self.characteristics.acceleration*direction, 0), 1)
+        self.actor.body.move(direction)
         if abs(self.actor.b2body.linearVelocity[0]) <= self.characteristics.max_speed/3:
             self.setup_transition(WALK)
+
+    def crouch(self, is_crouch):
+        if is_crouch:
+            self.setup_transition(CROUCH | RUN)
+            self.is_locked = True
 
     def jump(self):
         self.setup_transition(FALL)
@@ -516,8 +553,8 @@ class Cool_Crawl(Cool_State):
     state_id = CROUCH | WALK
 
     def move(self, direction):
+        self.actor.body.move(direction)
         if direction:
-            self.actor.b2body.ApplyForceToCenter((self.characteristics.acceleration*direction, 0), 1)
             if direction != self.actor.direction:
                 self.actor.direction *= COUNTER_DIRECTION
         if abs(self.actor.b2body.linearVelocity[0]) <= EPS:
@@ -529,8 +566,24 @@ class Cool_Fall(Cool_State):
     state_id = FALL
 
     def move(self, direction):
+        self.actor.body.move(direction, 0.2)    # Незначительно корректировать полёт
         if self.actor.on_ground:
             self.setup_transition(STAND)
+
+    def jump(self):
+        self.actor.body.jump()
+
+
+class Cool_Jump(Cool_State):
+
+    state_id = JUMP
+
+    def move(self, direction):
+        #TODO заменить константу на что-то более умное
+        self.actor.body.move(direction, 0.2)    # Незначительно корректировать полёт
+
+    def jump(self):
+        pass    #Тянуть вверх с силой обратно пропорциональной времени
 
 
 class Cool_State_Machine(object):
@@ -541,7 +594,8 @@ class Cool_State_Machine(object):
                        CROUCH: Cool_Crouch(actor),
                        RUN: Cool_Run(actor),
                        CROUCH | WALK: Cool_Crawl(actor),
-                       FALL: Cool_Fall(actor)}
+                       FALL: Cool_Fall(actor),
+                       CROUCH | RUN: Cool_Slide(actor)}
         self._current_state = None
         self.current_state = self.states[STAND]
 
