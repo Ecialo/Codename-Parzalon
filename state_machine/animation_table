@@ -1,0 +1,12 @@
+SLIDE RUN|CROUCH
+CRAWL WALK|CROUCH
+---
+STAND       WALK  RUN  CROUCH       CRAWL   SLIDE       FALL
+---
+stop_cycle  r       x   Bow         Bow     x           i
+stop        walking i   x           Bow     x           i
+x           i       run x           x       slide       i
+r           x       x   Bow_cycle   i       x           i
+x           r       x   i           crawl   x           i
+x           x       x   slide_stop  x       slide_cycle i
+i           i       i   x           x       x           fall_cycle
