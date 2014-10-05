@@ -14,7 +14,7 @@ from registry.metric import pixels_to_tiles, tiles_to_pixels
 from registry.utility import EMPTY_LIST
 from pyglet import image
 import collides as coll
-from state_machine import Cool_State_Machine as State_Machine
+from state_machine.state_machine import Cool_State_Machine as State_Machine
 from inventory import Inventory
 
 

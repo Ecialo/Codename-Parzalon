@@ -15,7 +15,7 @@
 """
 __author__ = 'ecialo'
 from collections import defaultdict
-from transitions_table import load_transitions
+from transitions_table import Transitions_Table
 from registry.utility import binary_list
 STAND, WALK, CROUCH, RUN, FALL, JUMP = binary_list(6)
 UNCHANGED = 0
@@ -61,7 +61,7 @@ def lockable(command):
 
 EPS = 1.0
 
-transitions = load_transitions('animation_table')
+transitions = Transitions_Table('state_machine/animation_table')
 
 
 class Cool_State(object):
@@ -94,16 +94,7 @@ class Cool_State(object):
         try:
             self._animation = self.animations[pair]
         except KeyError:
-            try:
-                self.animations[pair] = self.body.find_animation(transitions[pair])
-            except KeyError:
-                try:
-                    ranim = self.body.find_animation(transitions[(pair[1]), pair[0]])
-                    self.animations[pair] = Reversed_Animation(ranim)
-                except KeyError:
-                    sanim_f = self.body.find_animation(transitions[(pair[0], pair[0])])
-                    sanim_t = self.body.find_animation(transitions[(pair[1], pair[1])])
-                    self.animations[pair] = Smooth_Animation(sanim_f, sanim_t)
+            self.animations[pair] = transitions.get_animation(self.body, *pair)
             self._animation = self.animations[pair]
 
     def update(self, dt):

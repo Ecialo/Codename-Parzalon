@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'ecialo'
-
+import transformation as tr
+from registry.utility import binary_list
+STAND, WALK, CROUCH, RUN, FALL, JUMP = binary_list(6)
 
 class Transitions_Table(object):
 
@@ -43,3 +45,16 @@ class Transitions_Table(object):
                         transitions[(from_elem, to_elem)] = row[i]
                     j += 1
         self._transitions = transitions
+
+    def get_animation(self, source, from_state, to_state):
+        name = self._transitions[(from_state, to_state)]
+        if name == 'x':
+            raise Exception
+        elif name == 'i':
+            return tr.Instant()
+        elif name == 'r':
+            rname = self._transitions[(to_state, from_state)]
+            animation = source.find_animation(rname)
+            return tr.Reversed_Animation(animation)
+        else:
+            return source.find_animation(name)
