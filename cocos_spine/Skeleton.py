@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+В ...Data хранится только информация, загруженная из json
+Каждый класс (Skeleton, Bone,..) копирует информацию из ...Data в себя,
+используя ссылки на объекты вместо словарей.
+Классы Data: SkeletonData, BoneData, SlotData, SkinData, AnimationData
+Классы: Skeleton, Bone, Slot, Attachment, SkeletonSprite, Animation
+SkeletonSprite заботится об обновлении координат вершин fixture у аттачмента,
+храня ссылку на аттачмент.
+"""
+
 __author__ = 'Ecialo'
 
 import json
@@ -16,8 +27,6 @@ from math import copysign
 import Attachment
 from Atlas import *
 from tsr_transform import *
-
-
 def json_data_loader(filename):
     f = open(filename)
     data = json.load(f)
@@ -79,17 +88,19 @@ class Skeleton_Data(object):
                 # attach.rotation += bone.rotation
                 par_tsr = bone.global_tsr
                 #print bone.global_tsr, bone.name
-                new_tsr = attach_data.tsr.tsr_transform(par_tsr)
+                # if slot.name == 'back shin':
+                #     print attach_data.tsr
+                global_tsr = attach_data.tsr.tsr_transform(par_tsr)
                 if self.direction < 0:
-                    attach_to_draw.set_tsr_by_named_pack(new_tsr.reflect(pos))
+                    attach_to_draw.set_tsr_by_named_pack(global_tsr.reflect(pos))
                 else:
+                    attach_to_draw.set_tsr_by_named_pack(global_tsr)
                 #if slot.name == "R_wing":
                     #print attach_data.name, attach_data.tsr
                     #print slot.bone.global_tsr
                     #print new_tsr
                     #print attach_to_draw.get_rect()
                 #child_tsr = (attach_data.position, attach_data.scale_x, attach_data.scale_y, attach_data.rotation)
-                    attach_to_draw.set_tsr_by_named_pack(new_tsr)
                 #print attach.attachment_data.name, attach.rotation
                 #attach.rotation *= -1
 
@@ -251,11 +262,15 @@ class Skeleton(batch.BatchableNode):
         self.skeleton_data = skeleton_data
         self.b2world = b2world
         self.skeleton_data.root_bone.init_b2(self.b2world)
-        for i, sp in enumerate(self.skeleton_data.sprites):
-            self.add(sp, z=i+1)
-        self.render()
+        #self.skeleton_data.update_transform()
         for slot in self.skeleton_data.slots.itervalues():
             slot.init_b2()
+        for i, sp in enumerate(self.skeleton_data.sprites):
+            self.add(sp, z=i+1)
+        # self.render()
+        # for slot in self.skeleton_data.slots.itervalues():
+        #     slot.init_b2()
+        self.render()
 
     def debag(self):
         for lol in self.skeleton_data.slots.itervalues():
@@ -389,12 +404,13 @@ def main():
             self.name = 'skeleton'
             name = self.name
             if name == 'dragon':
-                sd = Skeleton_Data('./data/'+name+'.json', './data/'+name+'.atlas')
+                sd = Skeleton_Data('./cocos_spine/data/'+name+'.json', './cocos_spine/data/'+name+'.atlas')
 
                 #sd = Skeleton_Data('./data/dragon.json', './data/dragon.atlas')
                 #sd = Skeleton_Data('./data/skeleton.json', './data/skeleton.atlas')
-                skel = Skeleton(sd)
+                skel = Skeleton(sd, self.b2world)
                 self.skel = skel
+                self.skel.debag()
                 self.animation = skel.find_animation('flying')
                 skel.position = (512, 200)
                 self.skel.skeleton_data.update_transform()
@@ -409,6 +425,7 @@ def main():
                 self.skel.debag()
                 self.animation = skel.find_animation('jump')
                 skel.position = (512, 200)
+                #skel.scale_x *= -1
                 self.skel.skeleton_data.update_transform()
                 #self.skel.set_skin('goblingirl')
                 #self.skel.set_skin('goblin')

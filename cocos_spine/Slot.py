@@ -29,7 +29,9 @@ class Box(Canvas):
             #self.position = self.body.position
             #self.rotation = -self.body.angle
             self.position = self.body.GetWorldPoint(self.body.fixtures[0].shape.centroid)
-            self.rotation = -math.degrees(self.body.angle) - self.angle
+            self.rotation = -math.degrees(self.body.angle - self.angle)
+            #self.position = self.body.position
+            #self.rotation = self.body.rotation #- self.angle
 
         def render(self):
             #print 1
@@ -73,10 +75,15 @@ class Slot(object):
             body = self.bone.body
             width = attach.width
             height = attach.height
-            center = attach_data.tsr.position
-            angle = attach_data.tsr.rotation
+            tsr = attach_data.tsr
+            # center = (tsr.position[0]*tsr.scale_x,
+            #           tsr.position[1]*tsr.scale_y)
+            center = tsr.position
+            angle = math.radians(attach_data.tsr.rotation)
             #center = attach.position
             #angle = attach.rotation
+            if self.name == 'back shin':
+                print attach_data.tsr
             body.CreateFixture(b2.b2FixtureDef(
                 shape=b2.b2PolygonShape(box=(width/2, height/2, center, angle))))
             self.debag_box = Box((width/2, height/2), (255, 0, 0, 255), body, angle)
@@ -90,6 +97,7 @@ class Slot(object):
     def set_attachment(self, image, attachment):
         self.attachment = attachment.name
         self.to_draw.set_new_attachment(image, attachment)
+        print "VASASDASFWEGF"
         # if self.to_draw:
         #     self.to_draw.set_new_attachment(image, attachment)
         # else:

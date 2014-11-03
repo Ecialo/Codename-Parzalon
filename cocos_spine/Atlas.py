@@ -127,7 +127,7 @@ def main():
             c = Rect(0, 0, 10,10)
             b = Box(c, red)
             super(TestLayer, self).__init__()
-            self.a = Atlas('./data/goblins.atlas')
+            self.a = Atlas('./cocos_spine/skeleton.atlas')
             self.names = sorted(self.a.region_lib.keys())
             self.i = 17
             print self.names[self.i]
